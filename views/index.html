@@ -1,0 +1,223 @@
+<% //ssid = JSON.parse(selected_security).id %>
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/bootstrap-sortable.css">
+    <link rel="stylesheet" href="/css/tautoa.css">
+    
+  </head>
+  
+  
+  <body>
+    
+<!-- Fixed navbar at top -->
+      <% include add_ins/navbar.html %>
+<!-- Fixed navbar at top -->
+<br><br><br><br>
+<center>
+    <h3>Tautoa Portfolio Browser</h3>
+</center>
+
+<% if (message) { %>
+    <div id='alert_flash_message_id' class="alert_flash_message"><%= message %></div>
+<% } %>
+<br>
+<div class="container">
+      <!-- Example row of columns -->
+<div class="row">
+<div class="col-md-3">
+    <strong>Filter</strong><br>
+    <table>
+    <tr><td>Sectors:</td>
+    <td>
+    <select id="sector"  width="150" class='cat_select' onchange="get_security_list('sector',this.value,'')">
+                <option value="none">...</option>
+    <%      for(s in sectorList){ %>
+                <option value="<%= sectorList[s] %>"><%= sectorList[s] %></option>
+    <%      } %>
+    </select>
+    </td></tr>
+    <tr><td>&nbsp;</td></tr> 
+    <tr><td>Accounts:</td>
+    <td>
+    <select id="account"  width="150" class='cat_select' onchange="get_security_list('account',this.value,'')">
+                <option value="none">...</option>
+    <%      for(a in accountList){ %>
+                <option value="<%= accountList[a] %>"><%= accountList[a] %></option>
+    <%      } %>
+    </select>
+    </td></tr>
+    <tr><td>&nbsp;</td></tr> 
+    <tr><td>Types:</td>
+    <td>
+    <select id="type"  width="150" class='cat_select' onchange="get_security_list('type',this.value,'')">
+                <option value="none">...</option>
+    <%      for(a in typeList){ %>
+                <option value="<%= typeList[a] %>"><%= typeList[a] %></option>
+    <%      } %>
+    </select>
+   </td></tr>
+   <tr><td>&nbsp;</td></tr> 
+    <tr><td>Goals:</td>
+    <td>
+    <select id="goal"  width="150" class='cat_select' onchange="get_security_list('goal',this.value,'')">
+                <option value="none">...</option>
+    <%      for(a in goalList){ %>
+                <option value="<%= goalList[a] %>"><%= goalList[a] %></option>
+    <%      } %>
+    </select>
+    </td></tr>
+    <tr><td>&nbsp;</td></tr> 
+    <tr><td nowrap>Key Words:&nbsp;</td>
+    <td>
+    <select id="group"  width="150" class='cat_select' onchange="get_security_list('group',this.value,'')">
+                <option value="none">...</option>
+    <%      for(a in groupList){ %>
+                <option value="<%= groupList[a] %>"><%= groupList[a] %></option>
+    <%      } %>
+    </select>
+    </td></tr>
+    </table>
+    <br>
+    <button id='reset_btn'>Reset</button>
+    
+</div> <!-- // class="col-md-2" -->
+
+<div class="col-md-9">
+            <div id='security_info_div_id' ></div>
+        <div id='security_list_div_id' style='border:1px solid black;height:250px;overflow:auto;'>
+        </div>
+</div> <!-- // class="col-md-10" -->
+</div>  <!-- // end row-->
+<div class="row">
+<div class="col-md-3">
+    <br>
+    Total: <span id='port_total_div'></span>
+    <div style='background:tan;border:1px solid black;'>
+        This Security: <small>(<span id='sec_ticker_id'></span>)</small>
+        <table border='1' style='width:100%'>
+            <tr><td>Value</td><td><div id='tot_value'></div></td></tr>
+            <tr><td>$$ Invested</td><td><div id='invested'></div></td></tr>
+            <tr><td>Basis</td><td><div id='basis'></div></td></tr>
+            <tr><td>Profit</td><td><div id='profit'></div></td></tr>
+            <tr><td>Total Return</td><td><div id='tot_return'></div></td></tr>
+            <tr><td>YTD Return</td><td><div id='ytd_return'></div></td></tr>
+            <tr><td>Avg Annual ret</td><td><div id='avg_ann_return'></div></td></tr>
+            <tr><td>held for</td><td><div id='held_for'></div></td></tr>
+        </table>
+    </div>
+    <br>
+    <div style='background:tan;border:1px solid black;'>
+        Group: <small>(<span id='sec_group_id'>All Securities</span>)</small>
+        <table border='1' style='width:100%'>
+            <tr><td>Value</td><td><div id='gtot_value'></div></td></tr>
+            <tr><td>$$ Invested</td>$<td><div id='ginvested'></div></td></tr>
+            <tr><td>Basis</td><td>$<div id='gbasis'></div></td></tr>
+            <tr><td>Profit</td><td>$<div id='gprofit'></div></td></tr>
+            <tr><td>Tot return</td><td><div id='gtot_return'></div></td></tr>
+            <tr><td>YTD Return</td><td><div id='gytd_return'></div></td></tr>
+            <tr><td>Avg Annual ret</td><td><div id='gavg'></div></td></tr>
+            <tr><td>held for</td><td><div id='pheld_for'></div></td></tr>
+        </table>
+    </div>
+    
+
+</div>  <!-- // end class="col-md-10" -->
+<div class="col-md-9">
+    <br>
+    <div class="" id='sec_name_div_id'></div>
+    <div class="" id='transaction_list_div_id'></div>
+</div>        
+</div> <!-- // end row-->
+</div>  <!-- // end container -->
+
+<!-- Hidden at first -->
+
+<div id="select_new_transaction">
+    <% //var d = new Date(); %>
+    
+    <% //var cday = d.getDate(); %>
+    <% //var cmonth = d.getMonth(); %>
+    <% //cmonth++; %>
+    <% //var cyear = d.getFullYear(); %>
+    <% //date_str= cyear+'-'+cmonth+'-'+cday %>
+    <a id='transaction_close_btn' class="btn btn-xs" href="/" role="button"  style='float:right;'>X</a>
+    <center><h4>Security: <span id='tcurrent_name' value=''></span></h4></center>
+    
+    <form id='new_trans_form_id' method='POST' action='/enter_transaction'>
+    <table id='new_transaction_table'>
+        
+        <tr>
+            <td>Date:</td>
+            <td colspan='3'><input type="date" name='tdate'  id="inputDate" placeholder="Date" value=''></td>
+            <td>Action:</td>
+            <td colspan='3'>
+                <select id="actionsSelect" name='action' width="100" style="width: 100px">
+                <option value='none'>...</option>
+                <% for(n in actions){ %>
+                    <% if(actions[n] == 'Dividend'){ %>
+                            <option selected value='<%= actions[n] %>' ><%= actions[n] %></option>
+                    <% }else{ %>
+                            <option value='<%= actions[n] %>'><%= actions[n] %></option>
+                    <% } %>
+                <% } %>
+              </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Price:</td>
+            <td>
+                <input type='text' id='tprice' name='tprice' maxlength="12" size="10">
+            </td>
+            <td>Shares:</td>
+            <td>
+                <input type='text' id='tshares' name='tshares' maxlength="12" size="10">
+            </td>
+            <td>Value:</td>
+            <td>
+                <input type='text' id='tvalue' name='tvalue' maxlength="12" size="10">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button id='new_trans_ok_btn' name='' type='button' class='btn' >Enter</button>
+            </td>
+            <td halign='right'>Notes:</td>
+            <td colspan='4'>
+                <textarea name='tnote' rows='2' cols='40'></textarea>
+            </td>
+        </tr>
+    </table>
+    </form>
+</div>
+
+
+</body>
+<script type="text/javascript" src="/js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.js"></script>
+<script type="text/javascript" src="/js/bootstrap-sortable.js"></script>
+<script type="text/javascript" src="/js/tautoa.js"></script>
+<script type="text/javascript" src="/js/date.format.js"></script>
+<script> 
+        var d = new Date();
+        var today = d.format('yyyy-mm-dd') ;
+        document.getElementById('inputDate').value = today
+</script>
+<script>
+$( document ).ready(function() {
+     
+    secid = <%= selected_securityID %>
+    get_security_list('default','default', secid);
+    get_group_info('all','all');
+    //document.getElementById("port_total_div").innerHTML = '$'+total.formatMoney(2);
+    ttable_div = document.getElementById("transaction_list_div_id")
+    ttable_div.scrollTop = 30;
+    
+});
+</script>
+</html>
+

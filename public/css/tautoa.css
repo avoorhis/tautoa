@@ -1,0 +1,51 @@
+/* unvisited link */
+a:link {
+    color: black;
+}
+
+/* visited link */
+a:visited {
+    color: black;
+}
+
+/* mouse over link */
+a:hover {
+    color: black;
+}
+
+#security_table {
+	
+
+}
+
+#transaction_table {
+	background: #D0D0D0;
+	font-family: "Times New Roman", Times, serif;
+}
+#transaction_table td{
+	padding: 2px;
+}
+
+.cat_select {
+	width: 180px;
+}
+
+.alert_flash_message{
+	font : bold 12px Arial;
+	margin-left: 10px;
+	color :orange;
+}
+#select_new_transaction { 
+				display:none; 
+				border: 1px solid #d0d0d0; 
+				background-color: #f0f0f0; 
+				position: fixed; 
+				top: 50px; 
+				left: 400px;
+				padding: 10px;
+}
+#select_new_transaction li {padding: 5px;}
+#select_new_transaction li label { padding-left: 5px;}
+#new_transaction_table td {
+	padding: 3px;
+}

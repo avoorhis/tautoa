@@ -1,0 +1,241 @@
+<% var secdata = JSON.parse(data) %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><%= title %></title>
+ 		<link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/bootstrap-sortable.css">
+    <link rel="stylesheet" href="/css/tautoa.css">
+</head>
+  
+<body>
+
+		<br>
+		<center>
+		    <h3><%= title %></h3><h4><%= secdata.name %></h4>
+		</center>
+		
+
+<div class="container">
+	<div class="row">
+		<div class="col-md-1"></div>
+			<div class="col-md-10">
+				<a class="btn btn-primary btn-sm" href="/" role="button" ><-- Back</a>
+				<div id='' style='border:1px solid grey;padding:20px;'>
+
+<form id='sec_form_id' name='form_id' method='post' action='/save_security/<%= kind %>' enctype="application/json">
+  <div class="form-group row">
+    <label for="inputName" class="col-sm-2 form-control-label">Name</label>
+    <div class="col-sm-10">
+      <input type="name" name='name' class="form-control" id="inputName" placeholder="Name" value='<%= secdata.name %>'>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label for="inputTicker" class="col-sm-2 form-control-label">Ticker</label>
+    <div class="col-sm-3">
+      <input type="ticker" name='ticker' class="form-control" id="inputTicker" placeholder="Ticker" value='<%= secdata.ticker %>'>
+    </div>
+    <div class="col-sm-1"></div>
+    
+    <label for="inputDate" class="col-sm-2 form-control-label">Purchase Date</label>
+    <div class="col-sm-4">
+      <% if(kind == 'new'){ %>
+      	<% var d = new Date(); %>
+				<% var cday = d.getDate(); %>
+				<% var cmonth = d.getMonth(); %>
+				<% cmonth++; %>
+				<% var cyear = d.getFullYear(); %>
+				<% date_str= cyear+'-'+cmonth+'-'+cday %>
+
+      	<input type="date" name='init_date' class="form-control" id="inputDate" placeholder="Date" value='<%= date_str %>'>
+      <% }else{ %>
+      	<input type="date" disabled class="form-control" id="inputDate" placeholder="Date" value='<%= secdata.init_date %>'>
+      <% } %>
+    </div>
+
+  </div>
+  <div class="form-group row">
+    <label for="inputAccount" class="col-sm-2 form-control-label">Account</label>
+    <div class="col-sm-3">
+    	<select id="accountSelect" name='account' class="form-control">
+        <option value='none'>...</option>
+        <% for(n in accounts){ %>
+        	<% if(accounts[n] == secdata.account){ %>
+        			<option selected value='<%= accounts[n] %>' ><%= accounts[n] %></option>
+        	<% }else{ %>
+        			<option value='<%= accounts[n] %>'><%= accounts[n] %></option>
+        	<% } %>
+        <% } %>
+      </select>
+    </div>
+ 		<div class="col-sm-1"></div>
+    <label class="col-sm-2">Hidden</label>
+    <div class="col-sm-4">
+      <div class="radio">
+
+        <% if(secdata.hide == 'yes'){ %>
+		       
+		        <label class="radio-inline">
+						  <input type="radio" checked='checked' name="hide" id="inlineRadio1" value="yes"> yes
+						</label>
+						<label class="radio-inline">
+						  <input type="radio" name="hide" id="inlineRadio2" value="no"> no
+						</label>
+				<% }else{ %>
+						<label class="radio-inline">
+						  <input type="radio" name="hide" id="inlineRadio1" value="yes"> yes
+						</label>
+						<label class="radio-inline">
+						  <input type="radio" checked='checked' name="hide" id="inlineRadio2" value="no"> no
+						</label>
+				<% } %>
+
+
+      </div>
+    </div>
+  </div>
+<hr>
+	<div class="row">
+  <% if(kind == 'new'){ %>
+	  <label for="inputTicker" class="col-xs-1 form-control-label">Price</label>
+	  <div class="col-xs-3">
+	  	<div class="input-group">
+      	<div class="input-group-addon">$</div>
+	    	<input type="text" name="init_price" class="form-control" maxlength="12" placeholder="Initial Price" value=''>
+    	</div>
+	  </div>
+	  <label for="inputTicker" class="col-xs-1 form-control-label">Shares</label>
+	  <div class="col-xs-3">
+	    <div class="input-group">
+	    	<input type="text" name="init_shares" class="form-control" maxlength="12" placeholder="Initial Shares">
+	    	<div class="input-group-addon">sh</div>
+	  	</div>
+	  </div>
+	  <label for="inputTicker" class="col-xs-1 form-control-label">Value</label>
+	  <div class="col-xs-3">
+	    <div class="input-group">
+      	<div class="input-group-addon">$</div>
+	    	<input type="text" name="init_value"  class="form-control" maxlength="12" placeholder="Initial Value">
+	    </div>
+	  </div>
+  <% }else{ %>
+  	<label for="inputTicker" class="col-xs-1 form-control-label">Initial Price</label>
+	  <div class="col-xs-3">
+	    <div class="input-group">
+      	<div class="input-group-addon">$</div>
+	    	<input type="text" disabled class="form-control" placeholder="Initial Price" 
+	    					value='<%= parseFloat(secdata.init_price).formatMoney(2) %>'>
+	  		</div>
+	  </div>
+	  <label for="inputTicker" class="col-xs-1 form-control-label">Initial Shares</label>
+	  <div class="col-xs-3">
+	    <div class="input-group">
+	    	<input type="text" disabled class="form-control" placeholder="Initial Shares" 
+	    					value='<%= parseFloat(secdata.init_shares).toFixed(2) %>'>
+	  		<div class="input-group-addon">sh</div>
+	  	</div>
+	  </div>
+	  <label for="inputTicker" class="col-xs-1 form-control-label">Initial Value</label>
+	  <div class="col-xs-3">
+	    <div class="input-group">
+      	<div class="input-group-addon">$</div>
+	    	<input type="text" disabled class="form-control" placeholder="Initial Value" 
+	    					value='<%= parseFloat(secdata.init_value).formatMoney(2) %>'>
+	    </div>				
+	  </div>
+  <% } %>
+	</div>
+<hr>
+	<div class="form-group row" style=''>
+	  <div class="col-xs-6">
+	    <label for="typesSelect class=''">Types</label>
+      <select id="typesSelect" name='type' class="form-control">
+        <option value='none'>...</option>
+        <% for(n in types){ %>
+        	<% if(types[n] == secdata.type){ %>
+        			<option value='<%= types[n] %>' selected ><%= types[n] %></option>
+        	<% }else{ %>
+        			<option value='<%= types[n] %>'><%= types[n] %></option>
+        	<% } %>
+        <% } %>
+      </select>
+      <label for="goalsSelect">Goals</label>
+      <select id="goalsSelect" name='goal' class="form-control">
+        <option value='none'>...</option>
+        <% for(n in goals){ %>
+        	<% if(goals[n] == secdata.goal){ %>
+        			<option value='<%= goals[n] %>' selected ><%= goals[n] %></option>
+        	<% }else{ %>
+        			<option value='<%= goals[n] %>'><%= goals[n] %></option>
+        	<% } %>
+        <% } %>
+      </select>
+      <label for="sectorsSelect">Sectors</label>
+      <select id="sectorsSelect" name='sector' class="form-control">
+        <option value='none'>...</option>
+        <% for(n in sectors){ %>
+        	<% if(sectors[n] == secdata.sector){ %>
+        			<option value='<%= sectors[n] %>' selected ><%= sectors[n] %></option>
+        	<% }else{ %>
+        			<option value='<%= sectors[n] %>'><%= sectors[n] %></option>
+        	<% } %>
+        <% } %>
+      </select>
+	  </div>
+	  <div class="col-xs-6">
+	    <label for="groupsTextInput">Key Words</label>
+      
+      <input type="text" id="groupsTextInput" name='group_code' class="form-control" placeholder="Key Words" 
+      								value='<%= secdata.group_code %>'>
+      
+      <select multiple id="groupsSelect" class="form-control"  onchange="add_to_groups(this.value)">>
+        <option value='none'>...</option>
+        <% for(n in groups){ %>
+        			<option value='<%= groups[n] %>'><%= groups[n] %></option>
+        <% } %>
+      </select>
+	  </div>
+	
+	</div>
+<hr>
+	<div class="form-group row" style=''>
+	  <div class="col-xs-1">
+	    <label for="typesSelect class=''">Notes</label>
+	  </div>
+	  <div class="col-xs-10">
+	    <textarea cols='100' name='notes' ><%= secdata.notes %></textarea>
+	  </div>
+	</div>
+	<hr>
+  <div class="form-group row">
+    
+    <div class="col-sm-2">
+      <button type="button" id='save_sec_btn_id' class="btn btn-secondary" value='save'>Save</button>
+    </div>
+    <div class=" col-sm-2">
+      <button type="button" class="btn btn-secondary">Cancel</button>
+    </div>
+    <% if(kind == 'edit'){ %>
+    <div class="col-sm-2">
+      <button type="button" id='del_sec_btn_id' class="btn btn-secondary" value='save'>Delete this Security</button>
+    </div>
+    <% } %>
+  </div>
+  <input type="hidden" id="kind" name='kind' class="" value='<%= kind %>'>
+  <% if(kind == 'edit'){ %>
+  	<input type="hidden" id="secid" name='secid' class="" value='<%= secdata.id %>'>
+  <% } %>
+</form>
+			</div> <!-- // form div -->
+		</div>
+	</div>  <!-- // row -->
+</div>  <!-- // container-->
+
+
+</body>
+<script type="text/javascript" src="/js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.js"></script>
+<script type="text/javascript" src="/js/bootstrap-sortable.js"></script>
+<script type="text/javascript" src="/js/tautoa.js"></script>
+</html>
