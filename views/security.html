@@ -13,7 +13,7 @@
 
 		<br>
 		<center>
-		    <h3><%= title %></h3><h4><%= secdata.name %></h4>
+		    <h4><%= title %>::<%= secdata.name %> (<%= secid %>)</h4>
 		</center>
 		
 
@@ -211,14 +211,14 @@
   <div class="form-group row">
     
     <div class="col-sm-2">
-      <button type="button" id='save_sec_btn_id' class="btn btn-secondary" value='save'>Save</button>
+      <button type="button" id='save_sec_btn_id' class="btn btn-default" value='save'>Save</button>
     </div>
     <div class=" col-sm-2">
-      <button type="button" class="btn btn-secondary">Cancel</button>
+      <a type="button" href='/' class="btn btn-default">Cancel</a>
     </div>
     <% if(kind == 'edit'){ %>
     <div class="col-sm-2">
-      <button type="button" id='del_sec_btn_id' class="btn btn-secondary" value='save'>Delete this Security</button>
+      <button type="button" id='del_sec_btn_id' class="btn btn-default" onclick="delete_security('<%= secid %>')">Delete this Security</button>
     </div>
     <% } %>
   </div>

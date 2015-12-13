@@ -78,7 +78,8 @@ router.get('/security_form/:kind/:id', function (req, res) {
 									      goals :goalList,
 									      sectors :sectorList,
 									      accounts :accountList,
-									      groups :groupList
+									      groups :groupList,
+									      secid : secid
 
 									      //hostname: req.C.hostname,
 									      //message: req.flash('message'),
@@ -188,7 +189,7 @@ router.post('/save_security/:kind', function (req, res) {
 						  });
 					}else{
 						//console.log(fields);
-						req.flash('message', 'Security edited');
+						req.flash('message', 'Security edit saved');
 						res.redirect('/')
 					}
 
@@ -247,14 +248,14 @@ router.post('/view_securities', function (req, res) {
             			for (r in rows){
             				ALL_SECURITIES_BY_ID[rows[r].id] = rows[r];
 										ALL_SECURITIES_BY_NAME[rows[r].name] = rows[r];
-                		html += "<tr id='"+rows[r].id+"'>";
+                		html += "<tr id='"+rows[r].id+"' class='clickable-row' onclick=\"view_transactions_ajax('"+rows[r].id+"','"+rows[r].name+"')\">";
                     html += "<td id='"+rows[r].ticker+"'>";
-                    html += "    <a href='#' onclick=\"view_transactions_ajax('"+rows[r].id+"','"+rows[r].name+"')\">";
+                    html += "    <a href='#' >";
                     html +=      rows[r].ticker
                     html += "    </a>";
                     html += "</td>";
                     html += "<td id='"+rows[r].name+"'>";
-                    html += "    <a href='#' onclick=\"view_transactions_ajax('"+rows[r].id+"','"+rows[r].name+"')\">";
+                    html += "    <a href='#' >";
                     html +=      rows[r].name
                     html += "    </a>";
                     //html += "<div id='"+rows[r].id+"'></div>";
@@ -387,13 +388,10 @@ router.post('/view_transactions', function (req, res) {
 											    					){
 															basis += costofshares;
 														}		
-											    	// if(r == 0){
-											    	// 	sumofshares = init_shares
-											    	// 	value = init_value
-											    	// }else{
-											    		sumofshares += parseFloat(shares);
-											    		value = sumofshares * nav;
-											    	//}
+											    	
+											    	sumofshares += parseFloat(shares);
+											    	value = sumofshares * nav;
+											    	
 
 											    	html += '<tr id='+rows[r].id+'>';
 											    	html += '<td>'+date+'</td>';
@@ -413,17 +411,21 @@ router.post('/view_transactions', function (req, res) {
 												    	}
 												    	html += '<td>'+sumofshares.toFixed(3)+'</td>';
 												    	html += '<td>$'+value.formatMoney(2)+'</td>';
-												    	if( trans == 'Initial'){
-												    		html += "<td></td>";
-												    	}else{
-													    	html += "<td halign='center' style='text-align:center'>";
-													    	html += "<a href='' id='edit_timage_id' onclick=\"edit_transaction('"+secid+"',"+rows[r].id+"')\">"
-																html += "  <img src='images/edit.png' title='edit' alt='edit' height='15' border='0'></a>"
-																html += "&nbsp;<a href='' id='del_timage_id' onclick=\"delete_transaction('"+secid+"','"+rows[r].id+"')\">"
-																html += "  <img src='images/delete.png' title='delete' alt='delete' height='15' border='0'></a>"
-																html += '</td>';	
-															}													    	
-											      }
+												    }
+											    	if( trans == 'Initial'){
+											    		html += "<td></td>";
+											    	}else{
+												    	html += "<td halign='center' style='text-align:center'>";
+												    	html += "<a href='#' class='edit_transaction' \
+												    		onclick=\"edit_transaction('"+rows[r].id+"','"+trans+"','"+date+"','"+nav+"','"+shares+"')\">"
+															//html += "<a href='' class='edit_transaction' >"
+															html += "  <img src='images/edit.png' title='edit' alt='edit' height='15' border='0'  ></a>"
+															html += "&nbsp;<a href='' id='del_timage_id' onclick=\"delete_transaction('"+secid+"','"+rows[r].id+"')\">"
+															html += "  <img src='images/delete.png' title='delete' alt='delete' height='15' border='0'></a>"
+															html += '</td>';	
+														}													    	
+											      
+
 											    	html += '</tr>';
 											  }
 										}
@@ -505,7 +507,7 @@ router.post('/get_group_info', function (req, res) {
 //
 //  NEEDS REFRESH
 router.post('/enter_transaction', function (req, res) {
-		console.log('in new trans')
+		console.log('in enter trans')
 		console.log(req.body);
 		//totshares = req.body.totshares;
 		trans={}
@@ -536,7 +538,13 @@ router.post('/enter_transaction', function (req, res) {
 			return;
 		}
 		//console.log(trans)
-		req.db.query(queries.insert_transactions([trans]), function(err, rows, fields){
+		if(req.body.ttype == 'new'){
+			q = queries.insert_transactions([trans]);
+		}else{
+			trans.tid = req.body.tid
+			q = queries.update_transaction(trans);
+		}
+		req.db.query(q, function(err, rows, fields){
 	    if (err)  {
  		  	console.log('1-NEW TRANS error: ' + err);				 		  			 
       } else {
@@ -555,6 +563,29 @@ router.post('/enter_transaction', function (req, res) {
 //
 //
 // NEEDS REFRESH
+router.post('/delete_security', function (req, res) {
+		console.log('in del sec')
+		console.log(req.body);
+		secid = req.body.secid;
+		console.log(SELECTED_SECURITY)
+
+
+		req.db.query(queries.delete_security_transactions(secid), function(err, rows, fields){
+	    if (err)  {
+ 		  	console.log('1-DEL SEC error: ' + err);				 		  			 
+      } else {
+      		req.db.query(queries.delete_security(secid), function(err, rows, fields){
+				    if (err)  {
+			 		  	console.log('1-DEL SEC TRANs error: ' + err);				 		  			 
+			      } else {
+      				res.redirect('/');
+      			}
+      		});
+      }
+
+    });
+});
+// NEEDS REFRESH
 router.post('/delete_transaction', function (req, res) {
 		console.log('in del trans')
 		console.log(req.body);
@@ -565,7 +596,7 @@ router.post('/delete_transaction', function (req, res) {
 
 		req.db.query(queries.delete_transaction(secid,transid), function(err, rows, fields){
 	    if (err)  {
- 		  	console.log('1-NEW TRANS error: ' + err);				 		  			 
+ 		  	console.log('1-DEL TRANS error: ' + err);				 		  			 
       } else {
       		// update DB: securities
       		rectify_security_table(req, [secid]);
@@ -582,7 +613,7 @@ router.post('/edit_transaction', function (req, res) {
 		console.log(req.body);
 		secid = req.body.secid;
 		transid = req.body.transid;
-		get_update(req)
+		//get_update(req)
 
 });
 //

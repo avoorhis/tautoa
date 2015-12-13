@@ -72,6 +72,17 @@ module.exports = {
 	    console.log(q);
 	    return q;
 	},
+	update_transaction: function(t){
+			q =  "UPDATE transactions set";
+			q += " transtype='"+t.action+"',";
+			q += " date='"+t.sqldate+"',";
+			q += " nav='"+t.price+"',";
+			q += " shares='"+t.shares+"',";
+			q += " note='"+t.note+"'";
+	    q += " WHERE id='"+t.tid+"'" 
+	    console.log(q);
+	    return q;
+	},
 	get_transactions: function(secid){
 	    var q = "SELECT id, DATE_FORMAT(date,'%Y-%m-%d') as date, transtype, nav, shares, note from transactions WHERE securityid='"+secid+"' ORDER BY date";
 	    console.log(q)
@@ -89,7 +100,16 @@ module.exports = {
 	    console.log(q)
 	    return q;
 	},
-	
+	delete_security: function(secid){
+	    var q = "DELETE from securities WHERE id='"+secid+"'";
+	    console.log(q)
+	    return q;
+	},
+	delete_security_transactions: function(secid){
+	    var q = "DELETE from transactions WHERE securityid='"+secid+"'";
+	    console.log(q)
+	    return q;
+	},
 
 
 	get_max_transaction: function(secid){

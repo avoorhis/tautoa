@@ -3,6 +3,8 @@ var currentRow=0;
 var rowHeight = 0;
 var seq_row_count =0;
 var scrollBy = 30;
+
+
 //var now = new Date();
 
 //now.format("YY-MM-dd");
@@ -25,24 +27,42 @@ function ChangeCurrentRow() {
 				table = document.getElementById("security_table");
 				table_div = document.getElementById("security_list_div_id")
 				rows = table.getElementsByTagName("tr");
-
-				for(i = 0; i < rows.length; i++){
-		 	        rows[i].style.background = 'white';
-		 	        rows[i].style.fontStyle = 'normal'
-		 		}
-        var tableRow = rows[currentRow];
+				var tableRow = rows[currentRow];
         
         //table_div.scrollTop = rowHeight
  
         var secid = tableRow.id;
-        var secname = tableRow.cells[1].id 
-
+        var secname = tableRow.cells[1].id;
+        hover(rows,secid);
+				for(i = 0; i < rows.length; i++){
+		 	        rows[i].style.background = '#fff';
+		 	        rows[i].style.fontStyle = 'normal';
+		 		}
         //alert(tableRow.style.height)
        
         tableRow.style.background = "lightgreen";
+        tableRow.style.fontStyle = 'italic'
         view_transactions_ajax(secid);
 }
-
+//
+//
+//
+function hover(rows,secid){
+	for(i = 0; i < rows.length; i++){
+		rows[i].onmouseover = function() {
+					       this.style.backgroundColor = "#ffff99";
+					    }
+		rows[i].onmouseout = function() {
+				if(this.id==secid){
+					      this.style.backgroundColor = "lightgreen"; 
+					      this.style.fontStyle = 'italic' 
+				}else{
+					this.style.backgroundColor = "#fff"; 
+					this.style.fontStyle = 'normal'
+				}
+		}
+	}
+}
 document.onkeydown = function(e) {
     e = e || window.event;
     table_div = document.getElementById("security_list_div_id")
@@ -82,17 +102,17 @@ document.onkeydown = function(e) {
     e.preventDefault(); // prevent the default action (scroll / move caret)
 };    	
 
-var new_trans_btn = document.getElementById('new_trans_ok_btn') || null;
-if (new_trans_btn !== null) {
-  new_trans_btn.addEventListener('click', function () {
-    //alert('1')
+var trans_ok_btn = document.getElementById('save_trans_btn') || null;
+if (trans_ok_btn !== null) {
+  trans_ok_btn.addEventListener('click', function () {
+    //clear_tform();
     save_transaction();
   });
 };
 var close_btn = document.getElementById('transaction_close_btn') || null;
 if (close_btn !== null) {
   close_btn.addEventListener('click', function () {
-    $transPop.hide();
+    clear_tform();
   });
 };
 var update_prices = document.getElementById('update_prices') || null;
@@ -158,10 +178,12 @@ function add_to_groups(val){
 function view_transactions_ajax( secid ){
 	
     //alert(secname)
+    $transPop.hide();
     document.getElementById('transaction_list_div_id').innerHTML = ''
 		document.getElementById('sec_name_div_id').innerHTML = ''
 		table = document.getElementById("security_table")
-		
+		rows = table.getElementsByTagName("tr");
+		hover(rows,secid)
 		var args  = 'secid='+secid;
 		
 		var xmlhttp = new XMLHttpRequest();
@@ -184,12 +206,14 @@ function view_transactions_ajax( secid ){
 					document.getElementById('ytd_return').innerHTML       = data.ytd_return+'%';
 					document.getElementById('held_for').innerHTML        	= (data.held_for/(365/12)).toFixed(1)+' mos';
 
-					table = document.getElementById("security_table")
-					rows = table.getElementsByTagName("tr");
+					
+					//hover(rows,secid)
 					sec_row_count = rows.length -1;
 					for(i = 0; i < rows.length; i++){
 		 	        rows[i].style.background = 'white';
 		 	        rows[i].style.fontStyle = 'normal'
+		 	        //rows[i].style
+
 		 	        if(rows[i].id == secid){
 		 	        	currentRow = i;
 		 	        	rowHeight = i * scrollBy;
@@ -197,15 +221,17 @@ function view_transactions_ajax( secid ){
 		 	        	secname = rows[i].cells[1].id;
 		 	        }
 		 			}
+
 		 			document.getElementById('sec_ticker_id').innerHTML  = ticker;
 		 			document.getElementById('sec_name_div_id').innerHTML 	= '('+ticker+') '+secname;
-		 			document.getElementById('tcurrent_name').innerHTML  = '('+ticker+') '+secname;
+		 			document.getElementById('tcurrent_name').innerHTML  = '('+ticker+')<br>'+secname;
 		 			document.getElementById('tcurrent_name').value  = secid;
 		 			//document.getElementById('totshares').value  = data.tot_shares;
 					document.getElementById(secid).style.background = 'lightgreen'
 					document.getElementById(secid).style.fontStyle = 'italic'
 					document.getElementById('security_list_div_id').scrollTop = rowHeight - scrollBy;
 					//alert(currentRow)
+
 		    }
     };
     xmlhttp.send(args);
@@ -218,6 +244,7 @@ function get_security_list(list_type, list_value, secid ){
 		//alert('hello')
 		// listType is default,goals,sectors,groups,types
 		selects = document.getElementsByClassName('cat_select')
+		//$transPop.hide();
     for(i in selects){
     	selects[i].value = 'none'
     }
@@ -274,11 +301,13 @@ function get_group_info(list_type, list_value){
 
 };
 function save_transaction(){
+		//alert('in savet')
 		form = document.getElementById('new_trans_form_id')
     secid = document.getElementById('tcurrent_name').value;
     var tprice = document.getElementById('tprice').value
   	var tshares = document.getElementById('tshares').value
   	var tvalue = document.getElementById('tvalue').value
+  	var ttype = document.getElementById('ttype').value;
   	if( isNumber(tprice) && isNumber(tshares) ){
 			// OKAY
 		}else if(isNumber(tvalue) && isNumber(tshares) ){
@@ -290,14 +319,21 @@ function save_transaction(){
   		return;
     }
     //alert(secid)
-    var input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'tsecid';
-    input.value = secid;
-    form.appendChild(input);
+    var input1 = document.createElement('input');
+    input1.type = 'hidden';
+    input1.name = 'tsecid';
+    input1.value = secid;
+    form.appendChild(input1);
 
+		var input2 = document.createElement('input');
+    input2.type = 'hidden';
+    input2.name = 'ttype'; // new or edit
+    input2.value = ttype;
+    form.appendChild(input2);
+    
     form.submit();
-    $transPop.hide();
+    //$transPop.hide();
+    clear_tform();
 }
 //
 //
@@ -310,7 +346,7 @@ function save_security_validation(){
     	alert('no secname')
     	return;
     }
-    alert(kind)
+    //alert(kind)
     if(kind == 'new'){
     	var iprice = document.getElementsByName('init_price')[0].value
     	var ishares = document.getElementsByName('init_shares')[0].value
@@ -330,11 +366,43 @@ function save_security_validation(){
     form.submit()
 }
 //
-function edit_transaction(secid,transid){
-		//alert(transid)
+function edit_transaction(transid, action, date, price, shares){
+		//alert(action+' - '+date+' - '+price+' - '+shares);
+		//$owner = $(this);
+    //ß$('input[value="' + $owner.text() + '"]').attr('checked', true);
+    document.getElementById('actionsSelect').value = action;
+		document.getElementById('inputDate').value = date;
+		document.getElementById('tprice').value = parseFloat(price).toFixed(2);
+		document.getElementById('tshares').value = parseFloat(shares).toFixed(3);
+		value = price*shares;
+		document.getElementById('tvalue').value = parseFloat(value).toFixed(2);
+		document.getElementById('ttype').innerHTML = 'Edit';
+		document.getElementById('ttype').value = 'edit';
+		document.getElementById('tid').value = transid;
 		$transPop.show();
+		
+}
+function delete_security(secid){
+		// id
+		ans = confirm('are you sure? (y/N)');
+		if(ans){
+			var args = '&secid='+secid;
+			var xmlhttp = new XMLHttpRequest();
+	    xmlhttp.open("POST", "/delete_security", true);
+
+		  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	    xmlhttp.onreadystatechange = function() {
+	    		if (xmlhttp.readyState == 4 ) {
+						var data = JSON.parse(xmlhttp.responseText);
+						
+						
+					}
+	    };
+	    xmlhttp.send(args);
+	}
 }
 function delete_transaction(secid,transid){
+	clear_tform();
 	ans = confirm('Are you sure?')
 	
 	if(ans){
@@ -379,6 +447,20 @@ function refresh_from_db(){
 	    xmlhttp.send();
 	
 }
+function clear_tform(){
+		$transPop.hide();
+		var d = new Date();
+		var sqldate = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate() ;
+    document.getElementById('actionsSelect').value = 'Dividend';
+		document.getElementById('inputDate').value = sqldate;
+		document.getElementById('tprice').value = '';
+		document.getElementById('tshares').value = '';
+		document.getElementById('tvalue').value = '';
+		document.getElementById('tnote').value = '';
+		document.getElementById('ttype').innerHTML = '';
+		document.getElementById('ttype').value = '';
+		document.getElementById('tid').value = '';
+}
 //
 //
 function update_all_prices(){
@@ -389,7 +471,7 @@ function update_all_prices(){
 	    xmlhttp.onreadystatechange = function() {
 	    		if (xmlhttp.readyState == 4 ) {
 						var data = JSON.parse(xmlhttp.responseText);
-						alert(data)
+						//alert(data)
 						//document.getElementById('gtot_value').innerHTML = parseFloat(data.tot_value).formatMoney(2);
 						//document.getElementById('security_info_div_id').innerHTML = data.query
 
@@ -405,12 +487,24 @@ function isNumber(n) {
 }
 
 var $owner = undefined;
-var $transPop = $('#select_new_transaction');
+//var $transPop = $('#select_new_transaction');
+var $transPop = $('#transaction_form');
+
+// $('.edit_transaction').on('click', function() {
+//     alert('edit t')
+//     $owner = $(this);
+//     $('input[value="' + $owner.text() + '"]').attr('checked', true);
+//     $transPop.show();
+// });
 $('#new_transaction').on('click', function() {
     $owner = $(this);
     $('input[value="' + $owner.text() + '"]').attr('checked', true);
+    clear_tform();
+    document.getElementById('ttype').innerHTML = 'New';
+		document.getElementById('ttype').value = 'new';
     $transPop.show();
 });
+
 
 // $('input[type=radio]').on('click', function() {
 //     $owner.text($(this).val());

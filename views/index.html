@@ -136,7 +136,7 @@
 
 <!-- Hidden at first -->
 
-<div id="select_new_transaction">
+<div id="transaction_form">
     <% //var d = new Date(); %>
     
     <% //var cday = d.getDate(); %>
@@ -145,11 +145,18 @@
     <% //var cyear = d.getFullYear(); %>
     <% //date_str= cyear+'-'+cmonth+'-'+cday %>
     <a id='transaction_close_btn' class="btn btn-xs" href="/" role="button"  style='float:right;'>X</a>
-    <center><h4>Security: <span id='tcurrent_name' value=''></span></h4></center>
-    
-    <form id='new_trans_form_id' method='POST' action='/enter_transaction'>
-    <table id='new_transaction_table'>
-        
+<form id='new_trans_form_id' method='POST' action='/enter_transaction'>
+<table border='1'>
+<tr>
+    <td>
+        <center>
+            <span class='nowrap'><span id='ttype' value=''></span> transaction</span>
+            <h5>Security: <span id='tcurrent_name' value=''></span>
+            </h5>
+        </center>
+    </td>
+    <td>
+        <table id='new_transaction_table'>
         <tr>
             <td>Date:</td>
             <td colspan='3'><input type="date" name='tdate'  id="inputDate" placeholder="Date" value=''></td>
@@ -182,16 +189,18 @@
                 <input type='text' id='tvalue' name='tvalue' maxlength="12" size="10">
             </td>
         </tr>
-        <tr>
-            <td>
-                <button id='new_trans_ok_btn' name='' type='button' class='btn' >Enter</button>
-            </td>
-            <td halign='right'>Notes:</td>
-            <td colspan='4'>
-                <textarea name='tnote' rows='2' cols='40'></textarea>
-            </td>
-        </tr>
-    </table>
+        </table>
+    </td>
+    <td>
+   
+        Notes:<textarea name='tnote' id='tnote' rows='2' cols='40'></textarea>
+    </td>
+    <td>
+        <button id='save_trans_btn' name='' type='button' class='btn btn-xs' >Enter</button>
+    </td>
+    </tr>
+    </table>       
+    <input type='hidden' id='tid' name='tid' value=''>
     </form>
 </div>
 
@@ -205,7 +214,7 @@
 <script> 
         var d = new Date();
         var today = d.format('yyyy-mm-dd') ;
-        document.getElementById('inputDate').value = today
+        
 </script>
 <script>
 $( document ).ready(function() {
@@ -214,6 +223,7 @@ $( document ).ready(function() {
     get_security_list('default','default', secid);
     get_group_info('all','all');
     //document.getElementById("port_total_div").innerHTML = '$'+total.formatMoney(2);
+    document.getElementById('inputDate').value = today
     ttable_div = document.getElementById("transaction_list_div_id")
     ttable_div.scrollTop = 30;
     
