@@ -244,34 +244,38 @@ router.post('/view_securities', function (req, res) {
                 	html += "<tr id=''><th>Ticker</th><th>Name</th><th>Shares</th><th>Value</th><th>edit</th></tr>";
             			html += "</thead>";
             			html += "<tbody>";
-            			
-            			for (r in rows){
-            				ALL_SECURITIES_BY_ID[rows[r].id] = rows[r];
-										ALL_SECURITIES_BY_NAME[rows[r].name] = rows[r];
-                		html += "<tr id='"+rows[r].id+"' class='clickable-row' onclick=\"view_transactions_ajax('"+rows[r].id+"','"+rows[r].name+"')\">";
-                    html += "<td id='"+rows[r].ticker+"'>";
-                    html += "    <a href='#' >";
-                    html +=      rows[r].ticker
-                    html += "    </a>";
-                    html += "</td>";
-                    html += "<td id='"+rows[r].name+"'>";
-                    html += "    <a href='#' >";
-                    html +=      rows[r].name
-                    html += "    </a>";
-                    //html += "<div id='"+rows[r].id+"'></div>";
-                    html += "</td>";
-                    html += "<td>"+parseFloat(rows[r].cur_shares).toFixed(3)+"</td>";
-                    html += "<td>$"+parseFloat(rows[r].cur_value).formatMoney(2)+"</td>";
-                    html += "<td halign='center' style='text-align:center'><a href='security_form/edit/"+rows[r].id+"' id='edit_image_id' >"
-										html += "  <img src='images/edit.png' alt='alt' height='15' border='0'></a>"
-                    html += "</td>";
-                		html += "</tr> "; 
-            			}
+            			if(rows){
+	            			for (r in rows){
+	            				ALL_SECURITIES_BY_ID[rows[r].id] = rows[r];
+											ALL_SECURITIES_BY_NAME[rows[r].name] = rows[r];
+	                		html += "<tr id='"+rows[r].id+"' class='clickable-row' onclick=\"view_transactions_ajax('"+rows[r].id+"','"+rows[r].name+"')\">";
+	                    html += "<td id='"+rows[r].ticker+"'>";
+	                    html += "    <a href='#' >";
+	                    html +=      rows[r].ticker
+	                    html += "    </a>";
+	                    html += "</td>";
+	                    html += "<td id='"+rows[r].name+"'>";
+	                    html += "    <a href='#' >";
+	                    html +=      rows[r].name
+	                    html += "    </a>";
+	                    //html += "<div id='"+rows[r].id+"'></div>";
+	                    html += "</td>";
+	                    html += "<td>"+parseFloat(rows[r].cur_shares).toFixed(3)+"</td>";
+	                    html += "<td>$"+parseFloat(rows[r].cur_value).formatMoney(2)+"</td>";
+	                    html += "<td halign='center' style='text-align:center'><a href='security_form/edit/"+rows[r].id+"' id='edit_image_id' >"
+											html += "  <img src='images/edit.png' alt='alt' height='15' border='0'></a>"
+	                    html += "</td>";
+	                		html += "</tr> "; 
+	            			}
+	            		}else{
+	            			html += "<tr><td></td><td>NONE</td></tr>";
+
+	            		}
             			html += "</tbody>";
             			html += "</table>";
 
             			if(rows.length == 0){
-            				first_id = 'none'
+            				first_id = 0
             				first_name = 'none'
             			}else{
             				first_id = rows[0].id
@@ -305,12 +309,12 @@ router.post('/view_transactions', function (req, res) {
 	today = new Date(); 
 	ytd_start_date = 0;
 	ytd_start_nav=0;
-	
+	var html='';
 	SELECTED_SECURITY = ALL_SECURITIES_BY_ID[secid];
 	console.log('SELECTED_SECURITY')
 	console.log(SELECTED_SECURITY)
-
-	req.db.query(queries.get_transactions(secid), function(err, rows, fields){
+	if(secid){
+		req.db.query(queries.get_transactions(secid), function(err, rows, fields){
 					    if (err)  {
 				 		  	console.log('1-ALL Trans error: ' + err);				 		  			 
 				      } else {
@@ -318,7 +322,7 @@ router.post('/view_transactions', function (req, res) {
         				   	maxDate=0;
         				   	totShares=0;
         				   	sumofshares = 0;
-        				   	var html='';
+        				   	
         				   	var tot_value=0;
         				   	var invested=0;
         				   	var basis=0;
@@ -462,7 +466,21 @@ router.post('/view_transactions', function (req, res) {
 										//response.end()
 					   	} // end else
 
-	});
+		});
+	}else{
+			html += "NONE"
+			res.json({
+								    			'tot_value': 0, 
+								    			'tot_shares': 0,
+								    			'invested': 0,
+								    			'basis': 0, 
+								    			'profit': 0,
+								    			'tot_return': 0,
+								    			'ytd_return': 0,
+								    			'held_for': 0,
+								    			'html': html
+								  	});
+	}
 	
 
 });
@@ -705,41 +723,66 @@ router.post('/update_prices', function (req, res) {
 		})
 
 });
-
-//
-//
-//
-router.post('/get_updated_totals', function (req, res) {
-		
-		console.log('in update')
-		get_update(req)
-
+router.get('/cleanup_this_security', function (req, res) {
+		console.log('in cleanup_this_security')
+		//console.log(SELECTED_SECURITY);
+		var secid = SELECTED_SECURITY.id;
+		var PU = 'Price Update';
+		req.db.query(queries.get_max_transaction(secid), function(err, rows, fields){
+ 			if(err){ console.log(err)
+ 			}else{
+				console.log('rows')
+				console.log(rows)
+				if(rows[0].transtype == PU){
+						saveid  = rows[0].id;
+				}else{
+						saveid = 0;
+				}
+				req.db.query(queries.delete_price_updates(secid, saveid), function(err, rows, fields){
+ 					if(err){ console.log(err)
+ 					}else{
+ 						res.redirect('/');
+ 					}
+ 				});
+			}
+			
+		});
 });
+
+//
+//
+//
+// router.post('/get_updated_totals', function (req, res) {
+		
+// 		console.log('in update')
+// 		get_update(req)
+
+// });
 //
 // /////////--FUNCTIONS--/////////////////////////////////////////
 //
-function get_update(req) {
-	ALL_SECURITIES_BY_ID={};
-		ALL_SECURITIES_BY_NAME={};
-		req.db.query(queries.get_all_securities(), function(err, rows, fields){
-			if(err){ console.log(err)
-			}else{
-				for (r in rows){
-					ALL_SECURITIES_BY_ID[rows[r].id] = rows[r];
-					ALL_SECURITIES_BY_NAME[rows[r].name] = rows[r];
-				}
-				req.db.query(queries.get_total(), function(err, rows, fields){
-					if(err){ console.log(err)
-					}else{
-						portfolio_total = rows[0].total;
-						//console.log(portfolio_total)
-						res.json({	'tot_value' : rows[0].total }); 
-						//console.log(portfolio_total)
-					}
-				});
-			}
-		});
-}
+// function get_update(req) {
+// 	ALL_SECURITIES_BY_ID={};
+// 		ALL_SECURITIES_BY_NAME={};
+// 		req.db.query(queries.get_all_securities(), function(err, rows, fields){
+// 			if(err){ console.log(err)
+// 			}else{
+// 				for (r in rows){
+// 					ALL_SECURITIES_BY_ID[rows[r].id] = rows[r];
+// 					ALL_SECURITIES_BY_NAME[rows[r].name] = rows[r];
+// 				}
+// 				req.db.query(queries.get_total(), function(err, rows, fields){
+// 					if(err){ console.log(err)
+// 					}else{
+// 						portfolio_total = rows[0].total;
+// 						//console.log(portfolio_total)
+// 						res.json({	'tot_value' : rows[0].total }); 
+// 						//console.log(portfolio_total)
+// 					}
+// 				});
+// 			}
+// 		});
+// }
 //
 ////////////////////////////////////////////////////////////////////////////////
 // TESTING TESTING

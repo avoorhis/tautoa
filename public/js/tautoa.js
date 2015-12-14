@@ -50,7 +50,7 @@ function ChangeCurrentRow() {
 function hover(rows,secid){
 	for(i = 0; i < rows.length; i++){
 		rows[i].onmouseover = function() {
-					       this.style.backgroundColor = "#ffff99";
+					       this.style.backgroundColor = "#eee";
 					    }
 		rows[i].onmouseout = function() {
 				if(this.id==secid){
@@ -101,7 +101,13 @@ document.onkeydown = function(e) {
     }
     e.preventDefault(); // prevent the default action (scroll / move caret)
 };    	
-
+// var cleanup_this_sec = document.getElementById('cleanup') || null;
+// if (cleanup_this_sec !== null) {
+//   cleanup_this_sec.addEventListener('click', function () {
+//     //clear_tform();
+//     cleanup_this_sec();
+//   });
+// };
 var trans_ok_btn = document.getElementById('save_trans_btn') || null;
 if (trans_ok_btn !== null) {
   trans_ok_btn.addEventListener('click', function () {
@@ -138,7 +144,12 @@ if (reset_btn !== null) {
 var refresh_btn = document.getElementById('refresh_btn') || null;
 if (refresh_btn !== null) {
   refresh_btn.addEventListener('click', function () {
-    refresh_from_db();
+    //refresh_from_db();
+    selects = document.getElementsByClassName('cat_select')
+    for(i in selects){
+    	selects[i].value = 'none'
+    }
+    get_security_list('default','default','');
 
   });
 };
@@ -221,15 +232,18 @@ function view_transactions_ajax( secid ){
 		 	        	secname = rows[i].cells[1].id;
 		 	        }
 		 			}
+		 			if(secid){
+			 			document.getElementById('sec_ticker_id').innerHTML  = ticker;
+			 			document.getElementById('sec_name_div_id').innerHTML 	= '('+ticker+') '+secname;
+			 			document.getElementById('tcurrent_name').innerHTML  = '('+ticker+')<br>'+secname;
+			 			document.getElementById('tcurrent_name').value  = secid;
+			 			//document.getElementById('totshares').value  = data.tot_shares;
+						
+							document.getElementById(secid).style.background = 'lightgreen'
+						document.getElementById(secid).style.fontStyle = 'italic'
+						document.getElementById('security_list_div_id').scrollTop = rowHeight - scrollBy;
 
-		 			document.getElementById('sec_ticker_id').innerHTML  = ticker;
-		 			document.getElementById('sec_name_div_id').innerHTML 	= '('+ticker+') '+secname;
-		 			document.getElementById('tcurrent_name').innerHTML  = '('+ticker+')<br>'+secname;
-		 			document.getElementById('tcurrent_name').value  = secid;
-		 			//document.getElementById('totshares').value  = data.tot_shares;
-					document.getElementById(secid).style.background = 'lightgreen'
-					document.getElementById(secid).style.fontStyle = 'italic'
-					document.getElementById('security_list_div_id').scrollTop = rowHeight - scrollBy;
+					}
 					//alert(currentRow)
 
 		    }
@@ -260,7 +274,7 @@ function get_security_list(list_type, list_value, secid ){
     xmlhttp.onreadystatechange = function() {
     		if (xmlhttp.readyState == 4 ) {
 					var data = JSON.parse(xmlhttp.responseText);
-					//alert(data)
+					//alert(secid)
 					document.getElementById('security_list_div_id').innerHTML = data.html
 					document.getElementById('security_info_div_id').innerHTML = data.query
 					document.getElementById('port_total_div').innerHTML = '$'+parseFloat(data.tot_value).formatMoney(2);
@@ -268,7 +282,10 @@ function get_security_list(list_type, list_value, secid ){
 						secid = data.first_id
 						secname = data.first_name
 					}
+					// secid will be 0 if no securities found
 					view_transactions_ajax(secid);
+					
+					
 					
 					
 				}
@@ -429,37 +446,39 @@ function delete_transaction(secid,transid){
 //
 //
 //
-function refresh_from_db(){
-	
-			var xmlhttp = new XMLHttpRequest();
-	    xmlhttp.open("POST", "/get_updated_totals", true);
-
-		  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-	    xmlhttp.onreadystatechange = function() {
-	    		if (xmlhttp.readyState == 4 ) {
-						var data = JSON.parse(xmlhttp.responseText);
-						//alert(data)
-						document.getElementById('port_total_div').innerHTML = '$'+parseFloat(data.tot_value).formatMoney(2);
-						
-						
-					}
-	    };
-	    xmlhttp.send();
-	
+function apply(kind,value){
+	document.getElementById(kind).value = value;
 }
+	
+// 			var xmlhttp = new XMLHttpRequest();
+// 	    xmlhttp.open("POST", "/get_updated_totals", true);
+
+// 		  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+// 	    xmlhttp.onreadystatechange = function() {
+// 	    		if (xmlhttp.readyState == 4 ) {
+// 						var data = JSON.parse(xmlhttp.responseText);
+// 						//alert(data)
+// 						document.getElementById('port_total_div').innerHTML = '$'+parseFloat(data.tot_value).formatMoney(2);
+						
+						
+// 					}
+// 	    };
+// 	    xmlhttp.send();
+	
+// }
 function clear_tform(){
 		$transPop.hide();
 		var d = new Date();
 		var sqldate = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate() ;
-    document.getElementById('actionsSelect').value = 'Dividend';
-		document.getElementById('inputDate').value = sqldate;
-		document.getElementById('tprice').value = '';
-		document.getElementById('tshares').value = '';
-		document.getElementById('tvalue').value = '';
-		document.getElementById('tnote').value = '';
-		document.getElementById('ttype').innerHTML = '';
-		document.getElementById('ttype').value = '';
-		document.getElementById('tid').value = '';
+  //   document.getElementById('actionsSelect').value = 'Dividend';
+		// document.getElementById('inputDate').value = sqldate;
+		// document.getElementById('tprice').value = '';
+		// document.getElementById('tshares').value = '';
+		// document.getElementById('tvalue').value = '';
+		// document.getElementById('tnote').value = '';
+		// document.getElementById('ttype').innerHTML = '';
+		// document.getElementById('ttype').value = '';
+		// document.getElementById('tid').value = '';
 }
 //
 //

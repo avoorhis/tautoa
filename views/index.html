@@ -150,19 +150,34 @@
 <tr>
     <td>
         <center>
-            <span class='nowrap'><span id='ttype' value=''></span> transaction</span>
+            <span class='nowrap'><span id='ttype' value=''></span> Transaction</span>
             <h5>Security: <span id='tcurrent_name' value=''></span>
             </h5>
         </center>
     </td>
     <td>
-        <table id='new_transaction_table'>
+        <table border='0' id='new_transaction_table'>
         <tr>
             <td>Date:</td>
-            <td colspan='3'><input type="date" name='tdate'  id="inputDate" placeholder="Date" value=''></td>
-            <td>Action:</td>
-            <td colspan='3'>
-                <select id="actionsSelect" name='action' width="100" style="width: 100px">
+            <td colspan='2'><input type="date" name='tdate'  id="inputDate" placeholder="Date" value=''></td>
+            
+            <td colspan='3' nowrap class='nowrap'>Action:
+            
+                <span class="select-editable">
+                  <select   onchange="this.nextElementSibling.value=this.value" >
+                    <% for(n in actions){ %>
+                                    <% if(actions[n] == 'Dividend'){ %>
+                                            <option selected value='<%= actions[n] %>' ><%= actions[n] %></option>
+                                    <% }else{ %>
+                                            <option value='<%= actions[n] %>'><%= actions[n] %></option>
+                                    <% } %>
+                                <% } %>
+                  </select>
+                  <input type="text" id="actionsSelect" name='action' value=""/>
+                </span>
+<!-- 
+
+                <select id="actionsSelect" name='action' width="160" style="width: 160px">
                 <option value='none'>...</option>
                 <% for(n in actions){ %>
                     <% if(actions[n] == 'Dividend'){ %>
@@ -172,7 +187,10 @@
                     <% } %>
                 <% } %>
               </select>
+ -->
+
             </td>
+
         </tr>
 
         <tr>
@@ -196,7 +214,7 @@
         Notes:<textarea name='tnote' id='tnote' rows='2' cols='40'></textarea>
     </td>
     <td>
-        <button id='save_trans_btn' name='' type='button' class='btn btn-xs' >Enter</button>
+        <button id='save_trans_btn' name='' type='button' class='btn btn-xs btn-primary' >Save</button>
     </td>
     </tr>
     </table>       

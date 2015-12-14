@@ -113,13 +113,21 @@ module.exports = {
 
 
 	get_max_transaction: function(secid){
-	    var q = "SELECT nav, date from transactions as a";
+	    var q = "SELECT id, transtype, nav, date from transactions as a";
 	    q += " WHERE date=("
 	    q += " SELECT MAX(date) from transactions"
 	    q += " WHERE securityid='"+secid+"')" 
 			q += " AND securityid='"+secid+"' limit 1" 
 	    console.log(q)
 	    return q;
+	},
+	delete_price_updates: function(secid, saveid){
+		var q = "delete from transactions where transtype='Price Update' ";
+		q += " and securityid='"+secid+"'";
+		q += " and id != '"+saveid+"'";
+		console.log(q)
+	  return q;
+
 	},
 	get_sum_shares: function(secid){
 			var q = "SELECT SUM(shares) as tot_shares, securityid from transactions WHERE securityid='"+secid+"' ";
@@ -135,17 +143,17 @@ module.exports = {
 	},
 
 	get_sectors: function(){
-	    var q = "SELECT sector from sectorList ORDER BY sector ";
+	    var q = "SELECT distinct sector from securities WHERE sector != '' ORDER BY sector ";
 	    return q;
 	},
 
 	get_types: function(){
-	    var q = "SELECT type from typeList ORDER BY type ";
+	    var q = "SELECT distinct type from securities WHERE type != '' ORDER BY type ";
 	    return q;
 	},
 
 	get_goals: function(){
-	    var q = "SELECT goal from goalList ORDER BY goal ";
+	    var q = "SELECT distinct goal from securities WHERE goal != '' ORDER BY goal ";
 	    return q;
 	},
 
