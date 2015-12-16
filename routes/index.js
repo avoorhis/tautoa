@@ -10,12 +10,13 @@ var queries = require('./queries');
 router.get('/', function (req, res) {
   console.log('in index/home')
   console.log(SELECTED_SECURITY)
-
+  var ssid = SELECTED_SECURITY.id || 0;
+  console.log(ssid);
    	res.render('index', {
       title : 'Tautoa: Home Page',
       //total : portfolio_total,
       //securities : JSON.stringify(ALL_SECURITIES_BY_ID),
-      selected_securityID: SELECTED_SECURITY.id,
+      selected_securityID: ssid,
       types 		: typeList,
       goals 		: goalList,
       sectors 	: sectorList,
@@ -98,7 +99,8 @@ router.get('/security_form/:kind/:id', function (req, res) {
 			      goals :goalList,
 			      sectors :sectorList,
 			      accounts :accountList,
-			      groups :groupList
+			      groups :groupList,
+			      secid:0
 			      //hostname: req.C.hostname,
 			      //message: req.flash('message'),
 
@@ -138,6 +140,8 @@ router.post('/save_security/:kind', function (req, res) {
 		params = params.concat( extras2 );
 		init_price = req.body.init_price || 0
 		init_shares = req.body.init_shares || 0
+
+
 		if( req.body.init_price && req.body.init_shares ){
 			req.body.init_value = req.body.init_price * req.body.init_shares;
 		}else if(req.body.init_value && req.body.init_shares ){
@@ -159,6 +163,20 @@ router.post('/save_security/:kind', function (req, res) {
 					fields[params[n]] = req.body[params[n]] || 0
 				}
 		}
+
+		// SELECTED_SECURITY
+// { id: 235,
+//   ticker: 'EE',
+//   name: 'NewFF',
+//   cur_value: '19.0000',
+//   cur_shares: '19.00000',
+//   cur_price: '1.00000' }
+							
+							SELECTED_SECURITY.ticker = req.body.ticker
+							SELECTED_SECURITY.name = req.body.name
+							SELECTED_SECURITY.cur_value = req.body.init_value
+							SELECTED_SECURITY.cur_shares = req.body.init_shares
+							SELECTED_SECURITY.cur_price = req.body.init_price
 		q = queries.insert_security(fields)
 	}else{
 			secid = req.body.secid;
@@ -169,7 +187,8 @@ router.post('/save_security/:kind', function (req, res) {
 	}
 	req.db.query(q, function(err, rows, fields){
 		    if (err)  {
-	 		  	console.log('1-NEW/EDIT SEC error: ' + err);				 		  			 
+	 		  	console.log('1-NEW/EDIT SEC error: ' + err);
+	 		  	SELECTED_SECURITY = {}	 		  			 
 	      } else {
 					
 	      	if(kind=='new'){
@@ -178,9 +197,19 @@ router.post('/save_security/:kind', function (req, res) {
 	      			//q2 = "INSERT into transactions (transtype,securityid,date,nav,shares)";
 	      			//q2 += " VALUES('Initial','"+newsecid+"','"+init_date+"','"+init_price+"','"+init_shares+"')"
 							//console.log(q2)
-							req.db.query(queries.insert_transaction('Initial',newsecid,init_date,init_price,init_shares,""), function(err, rows, fields){
+							SELECTED_SECURITY.id = newsecid;
+
+							trans = {}
+							trans.action = 'Initial';
+							trans.secid = newsecid;
+							trans.sqldate = init_date;
+							trans.price = init_price;
+							trans.shares = init_shares;
+							trans.note = '';
+							req.db.query(queries.insert_transactions([trans]), function(err, rows, fields){
 							    if (err)  {
-						 		  	console.log('1-NEW/EDIT TRANS error: ' + err);				 		  			 
+						 		  	console.log('1-NEW/EDIT TRANS error: ' + err);		
+						 		  	SELECTED_SECURITY={}		 		  			 
 						      } else {
 						      		//console.log(fields);
 						      		req.flash('message', 'New Security added');
@@ -332,7 +361,7 @@ router.post('/view_transactions', function (req, res) {
 										var avg_ann_return=0;
 										var held_for=0; 
 										      				   	
-        				   	html += "<div id='transaction_table_div' style='height:300px;overflow:auto;'>"
+        				   	html += "<div id='transaction_table_div' >"
         				   	html += "<table border='1' id='transaction_table' style=''>"
         				   	html += '<tr>';
 							    	html += '<td>Date</td>';
@@ -555,6 +584,14 @@ router.post('/enter_transaction', function (req, res) {
 			res.redirect('/');
 			return;
 		}
+		if(trans.action == 'Price Update'){
+			trans.value = 0;
+			trans.shares = 0;
+		}
+		if(trans.action.slice(0,4) == 'Sell'){
+			trans.value = -Math.abs(trans.value);
+			trans.shares = -Math.abs(trans.shares);
+		}
 		//console.log(trans)
 		if(req.body.ttype == 'new'){
 			q = queries.insert_transactions([trans]);
@@ -567,8 +604,9 @@ router.post('/enter_transaction', function (req, res) {
  		  	console.log('1-NEW TRANS error: ' + err);				 		  			 
       } else {
 
-      		rectify_security_table(req, [trans.secid]);
+      		rectify_security_table(req, res, [trans.secid]);
       		res.redirect('/');
+      		//res.send({redirect: '/'});
       }
 
     });
@@ -596,7 +634,9 @@ router.post('/delete_security', function (req, res) {
 				    if (err)  {
 			 		  	console.log('1-DEL SEC TRANs error: ' + err);				 		  			 
 			      } else {
-      				res.redirect('/');
+      				SELECTED_SECURITY={id:0};
+      				//res.redirect('/');
+      				res.send({redirect: '/'});
       			}
       		});
       }
@@ -617,8 +657,8 @@ router.post('/delete_transaction', function (req, res) {
  		  	console.log('1-DEL TRANS error: ' + err);				 		  			 
       } else {
       		// update DB: securities
-      		rectify_security_table(req, [secid]);
-      		res.redirect('/');
+      		rectify_security_table(req, res, [secid]);
+      		res.send({redirect: '/'});
       }
 
     });
@@ -711,8 +751,8 @@ router.post('/update_prices', function (req, res) {
 
 				      		//update_db_values(req,res,secid,'single');
 									console.log('running rectify')
-				      		rectify_security_table(req, secid_list);
-				      		res.redirect('/');
+				      		rectify_security_table(req, res, secid_list);
+				      		res.send({redirect: '/'});
 				      }
 
 				    });
@@ -835,7 +875,7 @@ router.get('/cleanup_this_security', function (req, res) {
 
 // function finalupdate_security(results) { console.log('Donex', results); }
 
-function rectify_security_table(req, secid_list) {
+function rectify_security_table(req, res, secid_list) {
 		
 		//secid_list = [130,131,132];  // CVX, KO, OAKLX
 		// first query
@@ -869,6 +909,7 @@ function rectify_security_table(req, secid_list) {
 			secid = result.shareslist.secid;
 			req.db.query(queries.update_security(secid,result.fieldlist), function(err, rows3, fields){
 		       		if (err)  { console.log( err);return;}
+		       		//res.redirect('/');
 		  });
 		}
 		

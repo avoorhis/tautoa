@@ -29,11 +29,14 @@
       <!-- Example row of columns -->
 <div class="row">
 <div class="col-md-3">
+    <button id='reset_btn'>Reset</button>
+    <br><br>
     <strong>Filter</strong><br>
+    <div class='result_tbl_div' id='filter_div'>
     <table>
     <tr><td>Sectors:</td>
     <td>
-    <select id="sector"  width="150" class='cat_select' onchange="get_security_list('sector',this.value,'')">
+    <select id="sector"   class='cat_select' onchange="get_security_list('sector',this.value,'')">
                 <option value="none">...</option>
     <%      for(s in sectorList){ %>
                 <option value="<%= sectorList[s] %>"><%= sectorList[s] %></option>
@@ -43,7 +46,7 @@
     <tr><td>&nbsp;</td></tr> 
     <tr><td>Accounts:</td>
     <td>
-    <select id="account"  width="150" class='cat_select' onchange="get_security_list('account',this.value,'')">
+    <select id="account"   class='cat_select' onchange="get_security_list('account',this.value,'')">
                 <option value="none">...</option>
     <%      for(a in accountList){ %>
                 <option value="<%= accountList[a] %>"><%= accountList[a] %></option>
@@ -53,7 +56,7 @@
     <tr><td>&nbsp;</td></tr> 
     <tr><td>Types:</td>
     <td>
-    <select id="type"  width="150" class='cat_select' onchange="get_security_list('type',this.value,'')">
+    <select id="type"  class='cat_select' onchange="get_security_list('type',this.value,'')">
                 <option value="none">...</option>
     <%      for(a in typeList){ %>
                 <option value="<%= typeList[a] %>"><%= typeList[a] %></option>
@@ -63,7 +66,7 @@
    <tr><td>&nbsp;</td></tr> 
     <tr><td>Goals:</td>
     <td>
-    <select id="goal"  width="150" class='cat_select' onchange="get_security_list('goal',this.value,'')">
+    <select id="goal"   class='cat_select' onchange="get_security_list('goal',this.value,'')">
                 <option value="none">...</option>
     <%      for(a in goalList){ %>
                 <option value="<%= goalList[a] %>"><%= goalList[a] %></option>
@@ -73,7 +76,7 @@
     <tr><td>&nbsp;</td></tr> 
     <tr><td nowrap>Key Words:&nbsp;</td>
     <td>
-    <select id="group"  width="150" class='cat_select' onchange="get_security_list('group',this.value,'')">
+    <select id="group"   class='cat_select' onchange="get_security_list('group',this.value,'')">
                 <option value="none">...</option>
     <%      for(a in groupList){ %>
                 <option value="<%= groupList[a] %>"><%= groupList[a] %></option>
@@ -81,8 +84,9 @@
     </select>
     </td></tr>
     </table>
+</div>
     <br>
-    <button id='reset_btn'>Reset</button>
+    
     
 </div> <!-- // class="col-md-2" -->
 
@@ -96,23 +100,23 @@
 <div class="col-md-3">
     <br>
     Total: <span id='port_total_div'></span>
-    <div style='background:tan;border:1px solid black;'>
+    <div class='result_tbl_div' >
         This Security: <small>(<span id='sec_ticker_id'></span>)</small>
-        <table border='1' style='width:100%'>
+        <table class='result_tbl' border='1' style='width:100%'>
             <tr><td>Value</td><td><div id='tot_value'></div></td></tr>
             <tr><td>$$ Invested</td><td><div id='invested'></div></td></tr>
             <tr><td>Basis</td><td><div id='basis'></div></td></tr>
             <tr><td>Profit</td><td><div id='profit'></div></td></tr>
             <tr><td>Total Return</td><td><div id='tot_return'></div></td></tr>
             <tr><td>YTD Return</td><td><div id='ytd_return'></div></td></tr>
-            <tr><td>Avg Annual ret</td><td><div id='avg_ann_return'></div></td></tr>
-            <tr><td>held for</td><td><div id='held_for'></div></td></tr>
+            <tr><td>Avg Annual Return</td><td><div id='avg_ann_return'></div></td></tr>
+            <tr><td>Held For:</td><td><div id='held_for'></div></td></tr>
         </table>
     </div>
     <br>
-    <div style='background:tan;border:1px solid black;'>
+    <div class='result_tbl_div'>
         Group: <small>(<span id='sec_group_id'>All Securities</span>)</small>
-        <table border='1' style='width:100%'>
+        <table class='result_tbl' border='1' style='width:100%'>
             <tr><td>Value</td><td><div id='gtot_value'></div></td></tr>
             <tr><td>$$ Invested</td>$<td><div id='ginvested'></div></td></tr>
             <tr><td>Basis</td><td>$<div id='gbasis'></div></td></tr>

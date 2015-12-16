@@ -12,13 +12,20 @@ a:visited {
 a:hover {
     color: black;
 }
-
+#filter_div{
+	border:1px solid grey;
+	padding:5px;
+}
 #security_table {
 	
 
 }
 #security_table tr:hover {
           background-color: #ffff99;
+}
+#transaction_table_div {
+	height:300px;
+	overflow:auto;
 }
 #transaction_table {
 	background: #D0D0D0;
@@ -32,7 +39,7 @@ a:hover {
 }
 
 .cat_select {
-	width: 180px;
+	width: 170px;
 }
 .nowrap{
 	white-space: nowrap;
@@ -56,14 +63,38 @@ a:hover {
 #transaction_form td {
 	padding: 3px;
 }
-
-.select-editable { position:relative; background-color:white; border:solid grey 1px;  width:150px; height:18px; }
-.select-editable select { position:absolute; top:0px; left:0px; font-size:14px; border:none; width:150px; margin:0; }
-.select-editable input { position:absolute; top:0px; left:0px; width:130px; padding:1px; font-size:12px; border:none; }
-.select-editable select:focus, .select-editable input:focus { outline:none; }
-.input-append .btn.dropdown-toggle {
-    float: none;
+.result_tbl_div{
+	background: #9CC;
+	border: 1px solid black;
 }
+.result_tbl{
+
+}
+.result_tbl td{
+	padding: 0 5px;
+}
+.select-editable { position:relative; background-color:white; border:solid grey 1px;  width:150px; height:18px; }
+.select-editable select { 
+	position:absolute; top:0px; left:0px; font-size:14px; border:none; width:150px; margin:0; 
+}
+.select-editable input { 
+	position:absolute; top:0px; left:0px; width:130px; padding:1px; font-size:12px; border:none; 
+	background-color:lightgrey;
+}
+.select-editable select:focus, .select-editable input:focus { outline:none; }
+#################################
+.select-editable-wide { position:relative; background-color:white; border:solid grey 1px;  width:250px; height:25px; }
+.select-editable-wide select { 
+	position:absolute; top:0px; left:0px; font-size:14px; border:none; width:250px; margin:0; 
+}
+.select-editable-wide input { 
+	position:absolute; top:0px; left:0px; width:230px; padding:1px; font-size:14px; border:none; 
+	background-color:lightgrey;
+}
+.select-editable-wide select:focus, .select-editable input:focus { outline:none; }
+/*.input-append .btn.dropdown-toggle {
+    float: none;
+}*/
 
 
 

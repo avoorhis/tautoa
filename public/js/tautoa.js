@@ -215,7 +215,8 @@ function view_transactions_ajax( secid ){
 					document.getElementById('profit').innerHTML        		= '$'+parseFloat(data.profit).formatMoney(2);
 					document.getElementById('tot_return').innerHTML       = data.tot_return+'%';
 					document.getElementById('ytd_return').innerHTML       = data.ytd_return+'%';
-					document.getElementById('held_for').innerHTML        	= (data.held_for/(365/12)).toFixed(1)+' mos';
+					document.getElementById('avg_ann_return').innerHTML   = (data.tot_return/(data.held_for/(365))).toFixed(1) +'%';
+					document.getElementById('held_for').innerHTML        	= (data.held_for/(365 / 12)).toFixed(1)+' mos';
 
 					
 					//hover(rows,secid)
@@ -242,6 +243,9 @@ function view_transactions_ajax( secid ){
 							document.getElementById(secid).style.background = 'lightgreen'
 						document.getElementById(secid).style.fontStyle = 'italic'
 						document.getElementById('security_list_div_id').scrollTop = rowHeight - scrollBy;
+						
+						var objDiv = document.getElementById("transaction_table_div");
+						objDiv.scrollTop = objDiv.scrollHeight;
 
 					}
 					//alert(currentRow)
@@ -410,7 +414,8 @@ function delete_security(secid){
 		  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
 	    xmlhttp.onreadystatechange = function() {
 	    		if (xmlhttp.readyState == 4 ) {
-						var data = JSON.parse(xmlhttp.responseText);
+	    			var data = JSON.parse(xmlhttp.responseText);
+						window.location = data.redirect;
 						
 						
 					}
@@ -432,11 +437,7 @@ function delete_transaction(secid,transid){
 	    xmlhttp.onreadystatechange = function() {
 	    		if (xmlhttp.readyState == 4 ) {
 						var data = JSON.parse(xmlhttp.responseText);
-						//alert(data)
-						//document.getElementById('gtot_value').innerHTML = parseFloat(data.tot_value).formatMoney(2);
-						//document.getElementById('security_info_div_id').innerHTML = data.query
-
-						//document.getElementById('security_list_div_id').scrollTop = 0;
+						window.location = data.redirect;
 						
 					}
 	    };
@@ -450,35 +451,22 @@ function apply(kind,value){
 	document.getElementById(kind).value = value;
 }
 	
-// 			var xmlhttp = new XMLHttpRequest();
-// 	    xmlhttp.open("POST", "/get_updated_totals", true);
-
-// 		  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-// 	    xmlhttp.onreadystatechange = function() {
-// 	    		if (xmlhttp.readyState == 4 ) {
-// 						var data = JSON.parse(xmlhttp.responseText);
-// 						//alert(data)
-// 						document.getElementById('port_total_div').innerHTML = '$'+parseFloat(data.tot_value).formatMoney(2);
-						
-						
-// 					}
-// 	    };
-// 	    xmlhttp.send();
-	
-// }
+//
+//
+//
 function clear_tform(){
 		$transPop.hide();
 		var d = new Date();
 		var sqldate = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate() ;
-  //   document.getElementById('actionsSelect').value = 'Dividend';
-		// document.getElementById('inputDate').value = sqldate;
-		// document.getElementById('tprice').value = '';
-		// document.getElementById('tshares').value = '';
-		// document.getElementById('tvalue').value = '';
-		// document.getElementById('tnote').value = '';
-		// document.getElementById('ttype').innerHTML = '';
-		// document.getElementById('ttype').value = '';
-		// document.getElementById('tid').value = '';
+    document.getElementById('actionsSelect').value = 'Dividend';
+		document.getElementById('inputDate').value = sqldate;
+		document.getElementById('tprice').value = '';
+		document.getElementById('tshares').value = '';
+		document.getElementById('tvalue').value = '';
+		document.getElementById('tnote').value = '';
+		document.getElementById('ttype').innerHTML = '';
+		document.getElementById('ttype').value = '';
+		document.getElementById('tid').value = '';
 }
 //
 //
@@ -490,6 +478,7 @@ function update_all_prices(){
 	    xmlhttp.onreadystatechange = function() {
 	    		if (xmlhttp.readyState == 4 ) {
 						var data = JSON.parse(xmlhttp.responseText);
+						window.location = data.redirect;
 						//alert(data)
 						//document.getElementById('gtot_value').innerHTML = parseFloat(data.tot_value).formatMoney(2);
 						//document.getElementById('security_info_div_id').innerHTML = data.query
