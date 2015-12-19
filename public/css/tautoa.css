@@ -13,12 +13,26 @@ a:hover {
     color: black;
 }
 #filter_div{
-	border:1px solid grey;
-	padding:5px;
+	border: 1px solid grey;
+	padding: 10px 5px;
+}
+#loading_info_div{
+	padding:50px;
+	background-color:blue;
+	color:white;
+	border-radius:20px;
+	position:absolute;
+	top:200px;
+	left:600px;
 }
 #security_table {
 	
 
+}
+#port_total_span{
+	padding:1px 10px;
+	background:gold;
+	border:1px solid red;
 }
 #security_table tr:hover {
           background-color: #ffff99;
@@ -30,12 +44,13 @@ a:hover {
 #transaction_table {
 	background: #D0D0D0;
 	font-family: "Times New Roman", Times, serif;
+	font-size:12px;
 }
 #transaction_table tr:hover {
           background-color: #ffff99;
 }
 #transaction_table td{
-	padding: 2px;
+	padding:0 5px;
 }
 
 .cat_select {

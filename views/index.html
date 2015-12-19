@@ -16,7 +16,7 @@
 <!-- Fixed navbar at top -->
       <% include add_ins/navbar.html %>
 <!-- Fixed navbar at top -->
-<br><br><br><br>
+<br><br><br>
 <center>
     <h3>Tautoa Portfolio Browser</h3>
 </center>
@@ -29,7 +29,7 @@
       <!-- Example row of columns -->
 <div class="row">
 <div class="col-md-3">
-    <button id='reset_btn'>Reset</button>
+    <button id='reset_btn'>Reload/Reset</button>
     <br><br>
     <strong>Filter</strong><br>
     <div class='result_tbl_div' id='filter_div'>
@@ -99,32 +99,20 @@
 <div class="row">
 <div class="col-md-3">
     <br>
-    Total: <span id='port_total_div'></span>
-    <div class='result_tbl_div' >
-        This Security: <small>(<span id='sec_ticker_id'></span>)</small>
-        <table class='result_tbl' border='1' style='width:100%'>
-            <tr><td>Value</td><td><div id='tot_value'></div></td></tr>
-            <tr><td>$$ Invested</td><td><div id='invested'></div></td></tr>
-            <tr><td>Basis</td><td><div id='basis'></div></td></tr>
-            <tr><td>Profit</td><td><div id='profit'></div></td></tr>
-            <tr><td>Total Return</td><td><div id='tot_return'></div></td></tr>
-            <tr><td>YTD Return</td><td><div id='ytd_return'></div></td></tr>
-            <tr><td>Avg Annual Return</td><td><div id='avg_ann_return'></div></td></tr>
-            <tr><td>Held For:</td><td><div id='held_for'></div></td></tr>
-        </table>
-    </div>
-    <br>
+    <span id='port_total_span'>Portfolio Total: <span id='port_total_div'></span></span>
+    
+    
     <div class='result_tbl_div'>
         Group: <small>(<span id='sec_group_id'>All Securities</span>)</small>
         <table class='result_tbl' border='1' style='width:100%'>
             <tr><td>Value</td><td><div id='gtot_value'></div></td></tr>
-            <tr><td>$$ Invested</td>$<td><div id='ginvested'></div></td></tr>
-            <tr><td>Basis</td><td>$<div id='gbasis'></div></td></tr>
-            <tr><td>Profit</td><td>$<div id='gprofit'></div></td></tr>
-            <tr><td>Tot return</td><td><div id='gtot_return'></div></td></tr>
+            <tr><td>$$ Invested</td><td><div id='ginvested'></div></td></tr>
+            <tr><td>Basis</td><td><div id='gbasis'></div></td></tr>
+            <tr><td>Profit</td><td><div id='gprofit'></div></td></tr>
+            <tr><td>Total Return</td><td><div id='gtot_return'></div></td></tr>
             <tr><td>YTD Return</td><td><div id='gytd_return'></div></td></tr>
-            <tr><td>Avg Annual ret</td><td><div id='gavg'></div></td></tr>
-            <tr><td>held for</td><td><div id='pheld_for'></div></td></tr>
+            <tr><td>Avg Annual Return</td><td><div id='gavg'></div></td></tr>
+            <tr><td>Held For:</td><td><div id='pheld_for'></div></td></tr>
         </table>
     </div>
     
@@ -132,8 +120,27 @@
 </div>  <!-- // end class="col-md-10" -->
 <div class="col-md-9">
     <br>
-    <div class="" id='sec_name_div_id'></div>
-    <div class="" id='transaction_list_div_id'></div>
+    
+    <div class="col-md-8">
+        <div class="" id='sec_name_div_id'></div>
+        <div class="" id='transaction_list_div_id'></div>
+    </div>
+    <div class="col-md-4"><br>
+       <div class='result_tbl_div' >
+            This Security: <small>(<span id='sec_ticker_id'></span>)</small>
+            <table class='result_tbl' border='1' style='width:100%'>
+                <tr><td>Value</td><td><div id='tot_value'></div></td></tr>
+                <tr><td>$$ Invested</td><td><div id='invested'></div></td></tr>
+                <tr><td>Basis</td><td><div id='basis'></div></td></tr>
+                <tr><td>Profit</td><td><div id='profit'></div></td></tr>
+                <tr><td>Total Return</td><td><div id='tot_return'></div></td></tr>
+                <tr><td>YTD Return</td><td><div id='ytd_return'></div></td></tr>
+                <tr><td>Avg Annual Return</td><td><div id='avg_ann_return'></div></td></tr>
+                <tr><td>Held For:</td><td><div id='held_for'></div></td></tr>
+            </table>
+        </div>
+    </div>
+
 </div>        
 </div> <!-- // end row-->
 </div>  <!-- // end container -->
@@ -225,7 +232,7 @@
     <input type='hidden' id='tid' name='tid' value=''>
     </form>
 </div>
-
+<div id='loading_info_div' style='visibility:hidden'>Loading</div>
 
 </body>
 <script type="text/javascript" src="/js/jquery-1.11.3.min.js"></script>

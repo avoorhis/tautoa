@@ -89,7 +89,7 @@ module.exports = {
 	    return q;
 	},
 	get_all_transactions: function(){
-	    var q = "SELECT t.id, securityid,DATE_FORMAT(date,'%Y-%m-%d') as date, transtype, nav, shares from transactions as t";
+	    var q = "SELECT DISTINCT t.id, securityid, DATE_FORMAT(date,'%Y-%m-%d') as date, transtype, nav, shares, note from transactions as t";
 	    q += " JOIN securities as s";
 	    q += " WHERE s.hide != 'yes'  and s.type != 'Cash'";
 	    console.log(q)
@@ -116,7 +116,7 @@ module.exports = {
 	    var q = "SELECT id, transtype, nav, date from transactions as a";
 	    q += " WHERE date=("
 	    q += " SELECT MAX(date) from transactions"
-	    q += " WHERE securityid='"+secid+"')" 
+	    q += " WHERE securityid='"+secid+"' and transtype != 'note')" 
 			q += " AND securityid='"+secid+"' limit 1" 
 	    console.log(q)
 	    return q;
