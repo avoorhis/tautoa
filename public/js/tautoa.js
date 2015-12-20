@@ -216,8 +216,11 @@ function view_transactions_ajax( secid ){
 					document.getElementById('tot_return').innerHTML       = data.stats.tot_return.toFixed(1)+'%';
 					document.getElementById('ytd_return').innerHTML       = data.stats.ytd_return.toFixed(1)+'%';
 					document.getElementById('avg_ann_return').innerHTML   = (data.stats.tot_return/(data.stats.held_for/(365))).toFixed(1) +'%';
-					document.getElementById('held_for').innerHTML        	= (data.stats.held_for/(365 / 12)).toFixed(1)+' mos';
-
+					if(data.stats.held_for > 365){
+						document.getElementById('held_for').innerHTML        	= (data.stats.held_for/365).toFixed(1)+' yrs';
+					}else{	
+						document.getElementById('held_for').innerHTML        	= (data.stats.held_for/(365 / 12)).toFixed(1)+' mos';
+					}
 					
 					//hover(rows,secid)
 					sec_row_count = rows.length -1;
@@ -290,12 +293,14 @@ function get_security_list(list_type, list_value, secid ){
 						secname = data.first_name
 					}
 					// secid will be 0 if no securities found
+					//if(data.stats.sec_count > 0)
 					view_transactions_ajax(secid);
 					document.getElementById('sec_group_id').innerHTML  = list_type +'::'+list_value;
 					document.getElementById('gtot_value').innerHTML       = '$'+parseFloat(data.stats.tot_value).formatMoney(2);
 					document.getElementById('ginvested').innerHTML        = '$'+parseFloat(data.stats.invested).formatMoney(2);
 					document.getElementById('gbasis').innerHTML        		= '$'+parseFloat(data.stats.basis).formatMoney(2);
 					document.getElementById('gprofit').innerHTML        	= '$'+parseFloat(data.stats.profit).formatMoney(2);
+					document.getElementById('sec_count').innerHTML 				= data.stats.sec_count
 					document.getElementById('gtot_return').innerHTML      = data.stats.tot_return.toFixed(1)+'%';
 					
 					

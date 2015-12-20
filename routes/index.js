@@ -4,12 +4,12 @@ var http = require('http')
 var url = require('url');
 var async = require('async');
 var dateFormat = require('dateformat');
-var now = new Date();
+var today = new Date();
 var queries = require('./queries');
 
 router.get('/', function (req, res) {
   console.log('in index/home')
-  console.log(SELECTED_SECURITY)
+  //console.log(SELECTED_SECURITY)
   var ssid = SELECTED_SECURITY.id || 0;
   console.log(ssid);
    	res.render('index', {
@@ -31,28 +31,6 @@ router.get('/', function (req, res) {
 //
 //
 //
-// router.get('/initialize', function (req, res) {
-
-	
-// 	ALL_SECURITIES_BY_ID ={};
-// 	ALL_SECURITIES_BY_NAME = {};
-// 	SELECTED_SECURITY ={}
-// 	portfolio_total = 0
-// 	connection.db.query(queries.get_all_securities(), function(err, rows, fields){
-// 			if(err){ console.log(err)
-// 			}else{
-// 				for (r in rows){
-// 					ALL_SECURITIES_BY_ID[rows[r].id] = rows[r];
-// 					ALL_SECURITIES_BY_NAME[rows[r].name] = rows[r];
-// 					portfolio_total += parseFloat(rows[r].cur_value);
-// 					if(r==0){
-// 						SELECTED_SECURITY = rows[r];
-// 					}
-// 				}
-// 			}
-// 		});
-
-// });
 //
 //
 //
@@ -255,16 +233,16 @@ router.post('/view_securities', function (req, res) {
 			group_total = 0
 			req.db.query(query, function(err, rows, fields){
 					if (err) { console.log('1-MAIN OBJ error: ' + err);	return;	}	 		  			 
-		      if(rows){
+		      if(rows.length > 0){
           			for (r in rows){
-          				ALL_SECURITIES_BY_ID[rows[r].id] = {}
-          				ALL_SECURITIES_BY_ID[rows[r].id].id = rows[r].id
-          				ALL_SECURITIES_BY_ID[rows[r].id].ticker = rows[r].ticker
-          				ALL_SECURITIES_BY_ID[rows[r].id].name = rows[r].name
-          				ALL_SECURITIES_BY_ID[rows[r].id].cur_price = rows[r].cur_price
-          				ALL_SECURITIES_BY_ID[rows[r].id].cur_shares = rows[r].cur_shares
-          				ALL_SECURITIES_BY_ID[rows[r].id].cur_value = rows[r].cur_value
-          				ALL_SECURITIES_BY_ID[rows[r].id].transactions = []
+	          				ALL_SECURITIES_BY_ID[rows[r].id] = {}
+	          				ALL_SECURITIES_BY_ID[rows[r].id].id = rows[r].id
+	          				ALL_SECURITIES_BY_ID[rows[r].id].ticker = rows[r].ticker
+	          				ALL_SECURITIES_BY_ID[rows[r].id].name = rows[r].name
+	          				ALL_SECURITIES_BY_ID[rows[r].id].cur_price = rows[r].cur_price
+	          				ALL_SECURITIES_BY_ID[rows[r].id].cur_shares = rows[r].cur_shares
+	          				ALL_SECURITIES_BY_ID[rows[r].id].cur_value = rows[r].cur_value
+	          				ALL_SECURITIES_BY_ID[rows[r].id].transactions = []
           			}
           			first_id = rows[0].id
     						first_name = rows[0].name
@@ -322,410 +300,26 @@ router.post('/view_securities', function (req, res) {
           });
 			});
 });
-function sortByDate(a, b) {
-    return new Date(a.date) - new Date(b.date);
-}
-function sortByName(a, b) {
-    var x = a.name.toLowerCase();
-    var y = b.name.toLowerCase();
-    return x < y ? -1 : x > y ? 1 : 0;
-}
-function get_seclist_html(secObj){
-		html = ''
-		html += "<table border='1' id='security_table' class='table table-condensed sortable'>";
-		html += "<thead>";
-  	html += "<tr id=''><th>Ticker</th><th>Name</th><th>Shares</th><th>Value</th><th>edit</th></tr>";
-		html += "</thead>";
-		html += "<tbody>";
-
-		//var keys = Object.keys(secObj); 
-		sortList = []
-		for(m in secObj){
-			sortList.push(secObj[m])
-		}
-		sortList.sort(sortByName);
-		console.log(JSON.stringify(sortList, null, 4))
-
-		if(secObj){
-			
-			for (k in sortList){
-				
-				ALL_SECURITIES_BY_NAME[sortList[k].name] = sortList[k];
-    		html += "<tr id='"+sortList[k].id+"' class='clickable-row' onclick=\"view_transactions_ajax('"+sortList[k].id+"','"+sortList[k].name+"')\">";
-        html += "<td id='"+sortList[k].ticker+"'>";
-        html += "    <a href='#' >";
-        html +=      sortList[k].ticker
-        html += "    </a>";
-        html += "</td>";
-        html += "<td id='"+sortList[k].name+"'>";
-        html += "    <a href='#' >";
-        html +=      sortList[k].name
-        html += "    </a>";
-        //html += "<div id='"+rows[r].id+"'></div>";
-        html += "</td>";
-        html += "<td>"+parseFloat(sortList[k].cur_shares).toFixed(3)+"</td>";
-        html += "<td>$"+parseFloat(sortList[k].cur_value).formatMoney(2)+"</td>";
-        html += "<td halign='center' style='text-align:center'><a href='security_form/edit/"+sortList[k].id+"' id='edit_image_id' >"
-				html += "  <img src='images/edit.png' alt='alt' height='15' border='0'></a>"
-        html += "</td>";
-    		html += "</tr> "; 
-			}
-		}else{
-			html += "<tr><td></td><td>NONE</td></tr>";
-
-		}
-		html += "</tbody>";
-		html += "</table>";
-		return html;
-}
-function get_translist_html(tlist){
-		var sumofshares = 0
-		var costofshares
-		var value
-		var html = ''
-		html += "<div id='transaction_table_div' >"
-   	html += "<table border='1' id='transaction_table' style=''>"
-   	html += '<tr>';
-  	html += '<td>Date</td>';
-  	html += '<td>Transaction</td>';
-  	html += '<td>Price</td>';
-  	html += '<td>Shares</td>';
-  	html += '<td>CostofShares</td>';
-  	html += '<td>SumofShares</td>';
-  	html += '<td>Value</td>';
-  	html += '<td></td>';
-  	html += '</tr>';
-		for(r in tlist){
-			
-    		var transid = tlist[r].id
-    		var date =tlist[r].date
-    		var trans = tlist[r].transtype
-    		var nav = tlist[r].nav
-    		var shares = tlist[r].shares
-    		var note = tlist[r].note
-    		costofshares = parseFloat(nav) * parseFloat(shares);
-    		sumofshares += parseFloat(shares);
-    		value = sumofshares * nav;
-
-				html += '<tr id='+transid+'>';
-	    	html += '<td>'+date+'</td>';
-	    	
-	    	if(trans == 'NOTE'){
-	    		html += "<td colspan='6'>NOTE: "+note+'</td>';
-
-	    	}else{
-	    		html += '<td>'+trans+'</td>';
-		    	html += '<td>$'+parseFloat(nav).toFixed(2)+'</td>';
-		    	if(trans == 'Price Update' || trans.substring(0,8) == 'Year End'){
-		    		html += '<td></td>';
-		    		html += '<td></td>';
-		    	}else{
-		    		html += '<td>'+parseFloat(shares).toFixed(3)+'</td>';
-		    		if(trans.substring(0,5) == 'Split'){
-		    			html += '<td></td>';
-		    		}else{
-		    			html += '<td>$'+costofshares.toFixed(2)+'</td>';
-		    		}
-		    	}
-		    	html += '<td>'+sumofshares.toFixed(3)+'</td>';
-		    	html += '<td>$'+value.formatMoney(2)+'</td>';
-		    }
-	    	if( trans == 'Initial'){
-	    		html += "<td></td>";
-	    	}else{
-		    	html += "<td halign='center' style='text-align:center'>";
-		    	html += "<a href='#' class='edit_transaction' \
-		    		onclick=\"edit_transaction('"+transid+"','"+trans+"','"+date+"','"+nav+"','"+shares+"')\">"
-					//html += "<a href='' class='edit_transaction' >"
-					html += "  <img src='images/edit.png' title='edit' alt='edit' height='15' border='0'  ></a>"
-					html += "&nbsp;<a href='' id='del_timage_id' onclick=\"delete_transaction('"+secid+"','"+transid+"')\">"
-					html += "  <img src='images/delete.png' title='delete' alt='delete' height='15' border='0'></a>"
-					html += '</td>';	
-				}													    	
-	      
-				html += '</tr>';
-		}
-		html += '<tr><td colspan="8">&nbsp;</td></tr>'
-		html += '</table>'
-		html += '</div>';
-		return html
-}
-function get_group_stats(secObj){
-		stats = {}
-		stats.tot_value =0
-		stats.invested =0
-		stats.basis =0
-		stats.profit =0
-		for(secid in secObj){
-				tlist = secObj[secid].transactions
-				var sumofshares = 0;
-				var invested=0;
-				var basis=0;
-				for(r in tlist){
-								
-				    		date = tlist[r].date
-				    		trans = tlist[r].transtype
-				    		nav = tlist[r].nav
-				    		shares = tlist[r].shares
-				    		note = tlist[r].note
-				    		costofshares = parseFloat(nav) * parseFloat(shares);
-				    		sumofshares += parseFloat(shares);
-				    		value = sumofshares * nav;
-			    	
-					   //  	jsdate = new Date(date)
-					   //  	if(jsdate > maxDate){
-					   //  		maxDate = jsdate
-					   //  	}
-
-					   //  	start_year = 0
-					    	
-								// if( trans == 'Initial'){
-								// 	//init_date = jsdate;
-								// }
-								if( trans == 'Initial' || trans.substring(0,3) == 'Buy' || trans.substring(0,4) == 'Sell'){
-									invested += costofshares;
-								}
-								
-								// last_year = today.getFullYear() - 1;
-								// if(trans == 'Year End - '+last_year.toString()){
-								// 	ytd_start_date = jsdate
-								// 	ytd_start_nav = nav;
-								// }							    	
-					    	if( trans == 'Initial' || 
-					    			trans.substring(0,3) == 'Buy' || 
-					    			trans.substring(0,4) == 'Sell' ||
-			    					trans == 'Dividend' ||
-			    					trans == 'ST Capital Gains' ||
-			    					trans == 'LT Capital Gains'
-
-					    					){
-									basis += costofshares;
-								}		
-					    	
-				}
-				stats.tot_value += (sumofshares * nav);
-				//tot_shares = sumofshares;
-				stats.invested += invested;
-				stats.basis += basis;
-				stats.profit += (stats.tot_value - invested);
-				
-		   //  if(ytd_start_nav){
-		   //  	ytd_return = ((nav - ytd_start_nav)/ytd_start_nav)*100;
-		  	// }else{
-		  	// 	ytd_return = tot_return;
-		  	// }
-		   //  held_for = daydiff(init_date,today);
-		}
-		//stats.tot_value
-    //invested
-    //basis
-    //profit
-    //tot_return
-    //ytd_return
-    //held_for
-    stats.tot_return = (stats.profit / Math.abs(stats.invested))*100
-    return stats
-}
-function get_security_stats(tlist){
-		
-		var stats = {}
-		var today = new Date(); 
-		var ytd_start_date = 0;
-		var ytd_start_nav=0;
-		var maxDate=0;
-   	var sumofshares = 0;
-   	
-   	var tot_value=0;
-   	var invested=0;
-   	var basis=0;
-   	var profit=0;
-		var tot_return=0;
-		var ytd_return=0;
-		var avg_ann_return=0;
-		var held_for=0; 
-		if(tlist.length == 0){
-	    	 	stats.tot_value = 0
-			    stats.tot_shares = 0
-			    stats.invested = 0
-			    stats.basis = 0
-			    stats.profit = 0
-			    stats.tot_return = 0
-			    stats.ytd_return = 0
-    			stats.held_for = 0
-		}else{
-				for(r in tlist){
-						
-		    		date = tlist[r].date
-		    		trans = tlist[r].transtype
-		    		nav = tlist[r].nav
-		    		shares = tlist[r].shares
-		    		note = tlist[r].note
-		    		costofshares = parseFloat(nav) * parseFloat(shares);
-		    		sumofshares += parseFloat(shares);
-		    		value = sumofshares * nav;
-	    	
-			    	jsdate = new Date(date)
-			    	if(jsdate > maxDate){
-			    		maxDate = jsdate
-			    	}
-
-			    	start_year = 0
-			    	
-						if( trans == 'Initial'){
-							init_date = jsdate;
-						}
-						if( trans == 'Initial' || trans.substring(0,3) == 'Buy' || trans.substring(0,4) == 'Sell'){
-							invested += costofshares;
-						}
-						
-						last_year = today.getFullYear() - 1;
-						if(trans == 'Year End - '+last_year.toString()){
-							ytd_start_date = jsdate
-							ytd_start_nav = nav;
-						}							    	
-			    	if( trans == 'Initial' || 
-			    			trans.substring(0,3) == 'Buy' || 
-			    			trans.substring(0,4) == 'Sell' ||
-	    					trans == 'Dividend' ||
-	    					trans == 'ST Capital Gains' ||
-	    					trans == 'LT Capital Gains'
-
-			    					){
-							basis += costofshares;
-						}		
-			    	
-				}
-				stats.tot_value = sumofshares * nav;
-		    //stats.tot_shares = sumofshares;
-		    stats.invested = invested;
-		    stats.basis = basis;
-		    stats.profit = stats.tot_value - stats.invested;
-		    stats.tot_return = (stats.profit / Math.abs(stats.invested))*100
-		    if(ytd_start_nav){
-		    	stats.ytd_return = ((nav - ytd_start_nav)/ytd_start_nav)*100;
-		  	}else{
-		  		stats.ytd_return = stats.tot_return;
-		  	}
-		    stats.held_for = daydiff(init_date,today);
 
 
-		}
-		
-	
-		
-		return stats
-}
-//
-//
-//
-// router.post('/XXview_securities', function (req, res) {
-// 	var list_type = req.body.type
-// 	var list_value = req.body.value
-// 	var query,html;
-// 	switch(list_type) {
-//     case 'goal':
-//         //code block
-//         query = queries.get_select_securities(list_type,list_value);
-//         break;
-//     case 'type':
-//         query = queries.get_select_securities(list_type,list_value);
-//         break;
-//     case 'sector':
-//         query = queries.get_select_securities(list_type,list_value);
-//         break;
-//     case 'group':
-//         query = queries.get_group_securities(list_type,list_value);
-//         break;
-//     case 'account':
-//         query = queries.get_select_securities(list_type,list_value);
-//         break;
-//     case 'hidden':
-//         query = queries.get_hidden_securities(list_type,list_value);
-//         break;
-//     default:
-//         query = queries.get_all_securities();
-// 	}
-// 	console.log(query);
-// 	ALL_SECURITIES_BY_ID={}
-// 	ALL_SECURITIES_BY_NAME={}
-// 	html = '';
-// 	group_total = 0
-// 	req.db.query(query, function(err, rows, fields){
-// 					    if (err)  {
-// 				 		  	console.log('1-VIEW SECs error: ' + err);				 		  			 
-// 				      } else {
-				      		
-				      		
-// 				      	 	html += "<table border='1' id='security_table' class='table table-condensed sortable'>";
-//             			html += "<thead>";
-//                 	html += "<tr id=''><th>Ticker</th><th>Name</th><th>Shares</th><th>Value</th><th>edit</th></tr>";
-//             			html += "</thead>";
-//             			html += "<tbody>";
-//             			if(rows){
-// 	            			for (r in rows){
-// 	            				ALL_SECURITIES_BY_ID[rows[r].id] = rows[r];
-// 											ALL_SECURITIES_BY_NAME[rows[r].name] = rows[r];
-// 	                		html += "<tr id='"+rows[r].id+"' class='clickable-row' onclick=\"view_transactions_ajax('"+rows[r].id+"','"+rows[r].name+"')\">";
-// 	                    html += "<td id='"+rows[r].ticker+"'>";
-// 	                    html += "    <a href='#' >";
-// 	                    html +=      rows[r].ticker
-// 	                    html += "    </a>";
-// 	                    html += "</td>";
-// 	                    html += "<td id='"+rows[r].name+"'>";
-// 	                    html += "    <a href='#' >";
-// 	                    html +=      rows[r].name
-// 	                    html += "    </a>";
-// 	                    //html += "<div id='"+rows[r].id+"'></div>";
-// 	                    html += "</td>";
-// 	                    html += "<td>"+parseFloat(rows[r].cur_shares).toFixed(3)+"</td>";
-// 	                    html += "<td>$"+parseFloat(rows[r].cur_value).formatMoney(2)+"</td>";
-// 	                    html += "<td halign='center' style='text-align:center'><a href='security_form/edit/"+rows[r].id+"' id='edit_image_id' >"
-// 											html += "  <img src='images/edit.png' alt='alt' height='15' border='0'></a>"
-// 	                    html += "</td>";
-// 	                		html += "</tr> "; 
-// 	            			}
-// 	            		}else{
-// 	            			html += "<tr><td></td><td>NONE</td></tr>";
 
-// 	            		}
-//             			html += "</tbody>";
-//             			html += "</table>";
 
-//             			if(rows.length == 0){
-//             				first_id = 0
-//             				first_name = 'none'
-//             			}else{
-//             				first_id = rows[0].id
-//             				first_name = rows[0].name
-//             			}
-//             			req.db.query(queries.get_total(), function(err, trows, fields){
-// 									    if (err)  {
-// 								 		  	console.log('1-TOTs error: ' + err);				 		  			 
-// 								      } else {
-// 				      						portfolio_total = trows[0].total;
-						
-// 				      						res.json({
-// 									    			'html':html,
-// 									    			'query':query,
-// 									    			'list_type':list_type,
-// 									    			'list_value':list_value,
-// 									    			'first_id':first_id,
-// 									    			'first_name':first_name,
-// 									    			'tot_value':portfolio_total
-// 								  				});
-// 								  		}
-// 								  });
-// 				      } // end } else {
-// 	});
 
-// });
+
+
 router.post('/view_transactions', function (req, res) {
 		var secid = req.body.secid
 		today = new Date(); 
 		ytd_start_date = 0;
 		ytd_start_nav=0;
 		var html='';
-		SELECTED_SECURITY = ALL_SECURITIES_BY_ID[secid];
+		if(ALL_SECURITIES_BY_ID.hasOwnProperty(secid)){
+			SELECTED_SECURITY = ALL_SECURITIES_BY_ID[secid];
+
+		}else{
+			SELECTED_SECURITY = {}
+			SELECTED_SECURITY.transactions = []
+		}
 		console.log('SELECTED_SECURITY')
 		console.log(SELECTED_SECURITY)
 		
@@ -740,188 +334,9 @@ router.post('/view_transactions', function (req, res) {
 		
 		
 });
-// router.post('/XXview_transactions', function (req, res) {
-// 	//console.log(req.body.secid)
-// 	var secid = req.body.secid
-// 	today = new Date(); 
-// 	ytd_start_date = 0;
-// 	ytd_start_nav=0;
-// 	var html='';
-// 	SELECTED_SECURITY = ALL_SECURITIES_BY_ID[secid];
-// 	console.log('SELECTED_SECURITY')
-// 	console.log(SELECTED_SECURITY)
-// 	if(secid){
-// 		req.db.query(queries.get_transactions(secid), function(err, rows, fields){
-// 					    if (err)  {
-// 				 		  	console.log('1-ALL Trans error: ' + err);				 		  			 
-// 				      } else {
-//         				   	//console.log(rows)
-//         				   	maxDate=0;
-//         				   	totShares=0;
-//         				   	sumofshares = 0;
-        				   	
-//         				   	var tot_value=0;
-//         				   	var invested=0;
-//         				   	var basis=0;
-//         				   	var profit=0;
-// 										var tot_return=0;
-// 										var ytd_return=0;
-// 										var avg_ann_return=0;
-// 										var held_for=0; 
-										      				   	
-//         				   	html += "<div id='transaction_table_div' >"
-//         				   	html += "<table border='1' id='transaction_table' style=''>"
-//         				   	html += '<tr>';
-// 							    	html += '<td>Date</td>';
-// 							    	html += '<td>Transaction</td>';
-// 							    	html += '<td>Price</td>';
-// 							    	html += '<td>Shares</td>';
-// 							    	html += '<td>CostofShares</td>';
-// 							    	html += '<td>SumofShares</td>';
-// 							    	html += '<td>Value</td>';
-// 							    	html += '<td></td>';
-// 							    	html += '</tr>';
-// 								    if(rows.length == 0){
-// 								    	 	init_shares = 0;
-// 								    	 	init_value  = 0;
-// 								    	 	invested 		= 0;
-// 								    	 	nav 				= 0;
-// 								    	 	sumofshares = 0;
-// 								    	 	held_for =0;
-// 								    	 	init_date = 0;
-// 								    }else{
-// 											  //init_shares = parseFloat(rows[0].shares);
-// 											  //init_value  = parseFloat(rows[0].nav) * parseFloat(rows[0].shares);
 
-// 											  for(r in rows){
-// 											    	date = rows[r].date
-											    	
-// 											    	jsdate = new Date(date)
-// 											    	if(jsdate > maxDate){
-// 											    		maxDate = jsdate
-// 											    	}
 
-// 											    	start_year = 0
-// 											    	shares = rows[r].shares;
-											    	
-// 											    	nav = rows[r].nav;
-// 											    	trans = rows[r].transtype
-// 											    	costofshares = parseFloat(rows[r].nav) * parseFloat(rows[r].shares);
-// 														if( trans == 'Initial'){
-// 															init_date = jsdate;
-// 														}
-// 														if( trans == 'Initial' || trans.substring(0,3) == 'Buy' || trans.substring(0,4) == 'Sell'){
-// 															invested += costofshares;
-// 														}
-														
-// 														last_year = today.getFullYear() - 1;
-// 														if(trans == 'Year End - '+last_year.toString()){
-// 															ytd_start_date = jsdate
-// 															ytd_start_nav = nav;
-// 														}							    	
-// 											    	if( trans == 'Initial' || 
-// 											    			trans.substring(0,3) == 'Buy' || 
-// 											    			trans.substring(0,4) == 'Sell' ||
-// 									    					trans == 'Dividend' ||
-// 									    					trans == 'ST Capital Gains' ||
-// 									    					trans == 'LT Capital Gains'
 
-// 											    					){
-// 															basis += costofshares;
-// 														}		
-											    	
-// 											    	sumofshares += parseFloat(shares);
-// 											    	value = sumofshares * nav;
-											    	
-
-// 											    	html += '<tr id='+rows[r].id+'>';
-// 											    	html += '<td>'+date+'</td>';
-											    	
-// 											    	if(trans == 'NOTE'){
-// 											    		html += "<td colspan='6'>NOTE: "+rows[r].note+'</td>';
-
-// 											    	}else{
-// 											    		html += '<td>'+trans+'</td>';
-// 												    	html += '<td>$'+parseFloat(nav).toFixed(2)+'</td>';
-// 												    	if(trans == 'Price Update' || trans.substring(0,8) == 'Year End'){
-// 												    		html += '<td></td>';
-// 												    		html += '<td></td>';
-// 												    	}else{
-// 												    		html += '<td>'+parseFloat(shares).toFixed(3)+'</td>';
-// 												    		html += '<td>$'+costofshares.toFixed(2)+'</td>';
-// 												    	}
-// 												    	html += '<td>'+sumofshares.toFixed(3)+'</td>';
-// 												    	html += '<td>$'+value.formatMoney(2)+'</td>';
-// 												    }
-// 											    	if( trans == 'Initial'){
-// 											    		html += "<td></td>";
-// 											    	}else{
-// 												    	html += "<td halign='center' style='text-align:center'>";
-// 												    	html += "<a href='#' class='edit_transaction' \
-// 												    		onclick=\"edit_transaction('"+rows[r].id+"','"+trans+"','"+date+"','"+nav+"','"+shares+"')\">"
-// 															//html += "<a href='' class='edit_transaction' >"
-// 															html += "  <img src='images/edit.png' title='edit' alt='edit' height='15' border='0'  ></a>"
-// 															html += "&nbsp;<a href='' id='del_timage_id' onclick=\"delete_transaction('"+secid+"','"+rows[r].id+"')\">"
-// 															html += "  <img src='images/delete.png' title='delete' alt='delete' height='15' border='0'></a>"
-// 															html += '</td>';	
-// 														}													    	
-											      
-
-// 											    	html += '</tr>';
-
-// 											  }
-// 										}
-// 										html += '<tr><td colspan="8">&nbsp;</td></tr>'
-// 								    html += '</table>'
-// 								    html += '</div>';
-// 								    tot_value = sumofshares * nav;
-// 								    totShares = sumofshares;
-// 								    profit = tot_value - invested;
-// 								    tot_return = (profit / Math.abs(invested))*100
-// 								    if(ytd_start_nav){
-// 								    	ytd_return = ((nav - ytd_start_nav)/ytd_start_nav)*100;
-// 								  	}else{
-// 								  		ytd_return = tot_return;
-// 								  	}
-// 								    console.log(ytd_return)
-// 								    held_for = daydiff(init_date,today);
-								    
-
-// 								    res.json({
-// 								    			'tot_value': tot_value.toFixed(2), 
-// 								    			'tot_shares': sumofshares,
-// 								    			'invested': invested.toFixed(2),
-// 								    			'basis': basis.toFixed(2), 
-// 								    			'profit': profit.toFixed(2),
-// 								    			'tot_return': tot_return.toFixed(1),
-// 								    			'ytd_return': ytd_return.toFixed(1),
-// 								    			'held_for': held_for,
-// 								    			'html': html
-// 								  	});
-
-// 								    //res.write(html);
-// 										//...
-// 										//response.end()
-// 					   	} // end else
-
-// 		});
-// 	}else{
-// 			html += "NONE"
-// 			res.json({
-// 								    			'tot_value': 0, 
-// 								    			'tot_shares': 0,
-// 								    			'invested': 0,
-// 								    			'basis': 0, 
-// 								    			'profit': 0,
-// 								    			'tot_return': 0,
-// 								    			'ytd_return': 0,
-// 								    			'held_for': 0,
-// 								    			'html': html
-// 								  	});
-// 	}
-	
-
-// });
 router.post('/get_group_info', function (req, res) {
 	var list_type = req.body.type
 	var list_value = req.body.value
@@ -1203,92 +618,236 @@ router.get('/cleanup_this_security', function (req, res) {
 			
 		});
 });
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////// F U N C T I O N S /////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+function sortByDate(a, b) {
+    return new Date(a.date) - new Date(b.date);
+}
+function sortByName(a, b) {
+    var x = a.name.toLowerCase();
+    var y = b.name.toLowerCase();
+    return x < y ? -1 : x > y ? 1 : 0;
+}
+function get_seclist_html(secObj){
+		html = ''
+		html += "<table border='1' id='security_table' class='table table-condensed sortable'>";
+		html += "<thead>";
+  	html += "<tr id=''><th>Ticker</th><th>Name</th><th>Shares</th><th>Value</th><th>edit</th></tr>";
+		html += "</thead>";
+		html += "<tbody>";
 
-//
-//
-//
-// router.post('/get_updated_totals', function (req, res) {
+		//var keys = Object.keys(secObj); 
+		sortList = []
+		for(m in secObj){
+			sortList.push(secObj[m])
+		}
+		sortList.sort(sortByName);
+		//console.log(JSON.stringify(sortList, null, 4))
+
+		if(secObj){
+			
+			for (k in sortList){
+				
+				ALL_SECURITIES_BY_NAME[sortList[k].name] = sortList[k];
+    		html += "<tr id='"+sortList[k].id+"' class='clickable-row' onclick=\"view_transactions_ajax('"+sortList[k].id+"','"+sortList[k].name+"')\">";
+        html += "<td id='"+sortList[k].ticker+"'>";
+        html += "    <a href='#' >";
+        html +=      sortList[k].ticker
+        html += "    </a>";
+        html += "</td>";
+        html += "<td id='"+sortList[k].name+"'>";
+        html += "    <a href='#' >";
+        html +=      sortList[k].name
+        html += "    </a>";
+        //html += "<div id='"+rows[r].id+"'></div>";
+        html += "</td>";
+        html += "<td>"+parseFloat(sortList[k].cur_shares).toFixed(3)+"</td>";
+        html += "<td>$"+parseFloat(sortList[k].cur_value).formatMoney(2)+"</td>";
+        html += "<td halign='center' style='text-align:center'><a href='security_form/edit/"+sortList[k].id+"' id='edit_image_id' >"
+				html += "  <img src='images/edit.png' alt='alt' height='15' border='0'></a>"
+        html += "</td>";
+    		html += "</tr> "; 
+			}
+		}else{
+			html += "<tr><td></td><td>NONE</td></tr>";
+
+		}
+		html += "</tbody>";
+		html += "</table>";
+		return html;
+}
+function get_translist_html(tlist){
+		var sumofshares = 0
+		var costofshares
+		var value
+		var html = ''
+		html += "<div id='transaction_table_div' >"
+   	html += "<table border='1' id='transaction_table' style=''>"
+   	html += '<tr>';
+  	html += '<td>Date</td>';
+  	html += '<td>Transaction</td>';
+  	html += '<td>Price</td>';
+  	html += '<td>Shares</td>';
+  	html += '<td>CostofShares</td>';
+  	html += '<td>SumofShares</td>';
+  	html += '<td>Value</td>';
+  	html += '<td></td>';
+  	html += '</tr>';
+		for(r in tlist){
+			
+    		var transid = tlist[r].id
+    		var date =tlist[r].date
+    		var trans = tlist[r].transtype
+    		var nav = tlist[r].nav
+    		var shares = tlist[r].shares
+    		var note = tlist[r].note
+    		costofshares = parseFloat(nav) * parseFloat(shares);
+    		sumofshares += parseFloat(shares);
+    		value = sumofshares * nav;
+
+				html += '<tr id='+transid+'>';
+	    	html += '<td>'+date+'</td>';
+	    	
+	    	if(trans == 'NOTE'){
+	    		html += "<td colspan='6'>NOTE: "+note+'</td>';
+
+	    	}else{
+	    		html += '<td>'+trans+'</td>';
+		    	html += '<td>$'+parseFloat(nav).toFixed(2)+'</td>';
+		    	if(trans == 'Price Update' || trans.substring(0,8) == 'Year End'){
+		    		html += '<td></td>';
+		    		html += '<td></td>';
+		    	}else{
+		    		html += '<td>'+parseFloat(shares).toFixed(3)+'</td>';
+		    		if(trans.substring(0,5) == 'Split'){
+		    			html += '<td></td>';
+		    		}else{
+		    			html += '<td>$'+costofshares.toFixed(2)+'</td>';
+		    		}
+		    	}
+		    	html += '<td>'+sumofshares.toFixed(3)+'</td>';
+		    	html += '<td>$'+value.formatMoney(2)+'</td>';
+		    }
+	    	if( trans == 'Initial'){
+	    		html += "<td></td>";
+	    	}else{
+		    	html += "<td halign='center' style='text-align:center'>";
+		    	html += "<a href='#' class='edit_transaction' \
+		    		onclick=\"edit_transaction('"+transid+"','"+trans+"','"+date+"','"+nav+"','"+shares+"')\">"
+					//html += "<a href='' class='edit_transaction' >"
+					html += "  <img src='images/edit.png' title='edit' alt='edit' height='15' border='0'  ></a>"
+					html += "&nbsp;<a href='' id='del_timage_id' onclick=\"delete_transaction('"+secid+"','"+transid+"')\">"
+					html += "  <img src='images/delete.png' title='delete' alt='delete' height='15' border='0'></a>"
+					html += '</td>';	
+				}													    	
+	      
+				html += '</tr>';
+		}
+		html += '<tr><td colspan="8">&nbsp;</td></tr>'
+		html += '</table>'
+		html += '</div>';
+		return html
+}
+function get_group_stats(secObj){
+		gstats = {}
+		gstats.tot_value =0
+		gstats.invested =0
+		gstats.basis =0
+		gstats.profit =0
+		gstats.tot_return = 0
+		for(secid in secObj){
+				tlist = secObj[secid].transactions
+				tstats = get_security_stats(tlist)
+				gstats.tot_value += tstats.tot_value
+				gstats.invested += tstats.invested
+				gstats.basis += tstats.basis
+				gstats.profit += tstats.profit  
+		}
+		gstats.sec_count = Object.keys(secObj).length
+		if(gstats.sec_count > 0)
+    	gstats.tot_return = (gstats.profit / Math.abs(gstats.invested))*100
+    
+    return gstats
+}
+function get_security_stats(tlist){
 		
-// 		console.log('in update')
-// 		get_update(req)
+		var return_obj = {}
+		var sumofshares = 0
+		var invested = 0
+		var basis = 0
+		var maxDate = 0
+		var ytd_start_date = 0;
+		var ytd_start_nav=0;
+		if(tlist.length == 0){
+	    	 	return_obj.tot_value = 0
+			    return_obj.tot_shares = 0
+			    return_obj.invested = 0
+			    return_obj.basis = 0
+			    return_obj.profit = 0
+			    return_obj.tot_return = 0
+			    return_obj.ytd_return = 0
+    			return_obj.held_for = 0
+		}else{
+				for(r in tlist){
+						
+		    		date = tlist[r].date
+		    		trans = tlist[r].transtype
+		    		nav = tlist[r].nav
+		    		shares = tlist[r].shares
+		    		note = tlist[r].note
+		    		costofshares = parseFloat(nav) * parseFloat(shares);
+		    		sumofshares += parseFloat(shares);
+		    		value = sumofshares * nav;
+	    	
+			    	jsdate = new Date(date)
+			    	if(jsdate > maxDate){
+			    		maxDate = jsdate
+			    	}
 
-// });
-//
-// /////////--FUNCTIONS--/////////////////////////////////////////
-//
-// function get_update(req) {
-// 	ALL_SECURITIES_BY_ID={};
-// 		ALL_SECURITIES_BY_NAME={};
-// 		req.db.query(queries.get_all_securities(), function(err, rows, fields){
-// 			if(err){ console.log(err)
-// 			}else{
-// 				for (r in rows){
-// 					ALL_SECURITIES_BY_ID[rows[r].id] = rows[r];
-// 					ALL_SECURITIES_BY_NAME[rows[r].name] = rows[r];
-// 				}
-// 				req.db.query(queries.get_total(), function(err, rows, fields){
-// 					if(err){ console.log(err)
-// 					}else{
-// 						portfolio_total = rows[0].total;
-// 						//console.log(portfolio_total)
-// 						res.json({	'tot_value' : rows[0].total }); 
-// 						//console.log(portfolio_total)
-// 					}
-// 				});
-// 			}
-// 		});
-// }
-//
-////////////////////////////////////////////////////////////////////////////////
-// TESTING TESTING
-//  For ALL securities:
-// function fullParallel(callbacks, last) {
-//   var results = [];
-//   var result_count = 0;
-  
-//   callbacks.forEach(function(callback, index) {
-//     callback( function() {
-//       console.log(arguments)
-//       console.log(index)
-//       console.log(Array.prototype.slice.call(arguments))
-//       results[index] = Array.prototype.slice.call(arguments);
-//       result_count++;
-//       if(result_count == callbacks.length) {
-//         //last(results);
-//       }
-//     });
-//   });
-// }
-// // Example task
-// function async1_get_sum_shares(req, secid, callback) {
-//   req.db.query(queries.get_sum_shares(secid), function(err, rows1, fields){
-// 		if (err)  {
-// 		  	console.log('1-Update db trans error: ' + err);				 		  			 
-//     } else {
-// 				totshares = rows1[0].tot_shares;
-// 				console.log('totalShares',totshares)
-// 		}
-// 	});
-// }
-// function async2_get_max_trans(req, secid, callback) {
-//   	req.db.query(queries.get_max_transaction(secid), function(err, rows2, fields){
-// 			    if (err)  {
-// 		 		  	console.log('2-Update db trans error: ' + err);				 		  			 
-// 		      } else {
-// 		      	field_list = {}
-// 		      	maxprice = rows2[0].nav;
-// 		      	//console.log('maxprice '+maxprice)
-// 		      	field_list['cur_price'] = maxprice;
-// 		      	field_list['cur_shares'] = totshares;
-// 		      	field_list['cur_value'] = totshares * maxprice;
-// 		      	maxdate = rows2[0].date;
-// 		      	field_list['cur_date'] = get_sql_date(new Date(maxdate));
-// 		      	console.log('maxdate',maxdate);
-// 		      }
-// 		});
-// }
+			    	start_year = 0
+			    	
+						if( trans == 'Initial'){
+							init_date = jsdate;
+						}
+						if( trans == 'Initial' || trans.substring(0,3) == 'Buy' || trans.substring(0,4) == 'Sell'){
+							invested += costofshares;
+						}
+						
+						last_year = today.getFullYear() - 1;
+						if(trans == 'Year End - '+last_year.toString()){
+							ytd_start_date = jsdate
+							ytd_start_nav = nav;
+						}							    	
+			    	if( trans == 'Initial' || 
+			    			trans.substring(0,3) == 'Buy' || 
+			    			trans.substring(0,4) == 'Sell' ||
+	    					trans == 'Dividend' ||
+	    					trans == 'ST Capital Gains' ||
+	    					trans == 'LT Capital Gains'
 
-// function finalupdate_security(results) { console.log('Donex', results); }
+			    					){
+							basis += costofshares;
+						}		
+			    	
+				}
+				return_obj.tot_value = sumofshares * nav;
+		    //return_obj.tot_shares = sumofshares;
+		    return_obj.invested = invested;
+		    return_obj.basis = basis;
+		    return_obj.profit = return_obj.tot_value - return_obj.invested;
+		    return_obj.tot_return = (return_obj.profit / Math.abs(return_obj.invested))*100
+		    if(ytd_start_nav){
+		    	return_obj.ytd_return = ((nav - ytd_start_nav)/ytd_start_nav)*100;
+		  	}else{
+		  		return_obj.ytd_return = return_obj.tot_return;
+		  	}
+		    return_obj.held_for = daydiff(init_date,today);
+		}
+		return return_obj
+}
 
 function rectify_security_table(req, res, secid_list) {
 		
