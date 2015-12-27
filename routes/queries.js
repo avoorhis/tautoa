@@ -172,5 +172,9 @@ module.exports = {
 	get_all_group_info: function(){
 		var q = "SELECT SUM(cur_value) as value from securities WHERE hide != 'yes'  and type != 'Cash' ";
 	    return q;
+	},
+	get_databases: function(){
+		var q = "SHOW databases like '%_portfolio'  ";
+	  return q;
 	}
 }

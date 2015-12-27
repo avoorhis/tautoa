@@ -4,6 +4,7 @@ var app  = express();
 //var router = express.Router();
 var session = require('express-session');
 var queries = require('./routes/queries');
+var async = require('async');
 var path = require('path');
 global.app_root = path.resolve(__dirname);
 var http = require('http');
@@ -14,7 +15,11 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var constants = require('./public/constants');
 //var config = require('./config/config');
+
+TAUTOA_DATABASE = 'test_portfolio'
 connection = require('./config/database');
+connection.connect2database(TAUTOA_DATABASE)
+
 var routes    = require('./routes/index');
 
 
@@ -54,7 +59,7 @@ app.use('/', routes);
 
 ALL_SECURITIES_BY_ID ={};
 ALL_SECURITIES_BY_NAME = {};
-SELECTED_SECURITY = {id:0}
+SELECTED_SECURITY = {id:0,name:''}
 portfolio_total = 0
 // connection.db.query(queries.get_all_securities(), function(err, rows, fields){
 // 	if(err){ console.log(err)
@@ -76,66 +81,92 @@ portfolio_total = 0
 // 		console.log(portfolio_total)
 // 	}
 // });
+// connection.get_sectors()
+// connection.get_types()
+// connection.get_goals()
+// connection.get_accounts()
+// connection.get_actions()
+// connection.get_groups()
+async.parallel([ connection.get_sectors, 
+                    connection.get_types, 
+                    connection.get_goals, 
+                    connection.get_actions, 
+                    connection.get_accounts, 
+                    connection.get_groups ]
+                  );
 // FILTERS
-connection.db.query(queries.get_sectors(), function(err, rows, fields){
+// connection.db.query(queries.get_sectors(), function(err, rows, fields){
+// 	if(err){ console.log(err)
+// 	}else{
+// 		sectorList = [];
+// 		for(n in rows){
+// 			sectorList.push(rows[n].sector);
+// 		}
+// 	}
+// });
+// connection.db.query(queries.get_types(), function(err, rows, fields){
+// 	if(err){ console.log(err)
+// 	}else{
+// 		typeList = [];
+// 		for(n in rows){
+// 			typeList.push(rows[n].type);
+// 		}
+// 	}
+// });
+// connection.db.query(queries.get_goals(), function(err, rows, fields){
+// 	if(err){ console.log(err)
+// 	}else{
+// 		goalList = [];
+// 		for(n in rows){
+// 			goalList.push(rows[n].goal);
+// 		}
+// 	}
+// });
+// connection.db.query(queries.get_accounts(), function(err, rows, fields){
+// 	if(err){ console.log(err)
+// 	}else{
+// 		accountList = [];
+// 		for(n in rows){
+// 			accountList.push(rows[n].account);
+// 		}
+// 	}
+// });
+// //
+// connection.db.query(queries.get_actions(), function(err, rows, fields){
+// 	if(err){ console.log(err)
+// 	}else{
+// 		actionList = [];
+// 		for(n in rows){
+// 			actionList.push(rows[n].action);
+// 		}
+// 	}
+// });
+// connection.db.query(queries.get_groups(), function(err, rows, fields){
+// 	if(err){ console.log(err)
+// 	}else{
+// 		groupList = [];
+// 		for(n in rows){
+// 			items = rows[n].group_code.split(',')
+// 			for(i in items){
+// 				if(items[i] != '' && groupList.indexOf(items[i]) == -1){
+// 					groupList.push(items[i]);
+// 				}
+// 			}		
+// 		}
+// 		groupList.sort();
+// 	}
+// });
+connection.db.query(queries.get_databases(), function(err, rows, fields){
 	if(err){ console.log(err)
 	}else{
-		sectorList = [];
-		for(n in rows){
-			sectorList.push(rows[n].sector);
+		databaseList = [];
+		console.log(rows)
+		for (var i = 0; i < rows.length; i++) { 
+       console.log(rows[i]['Database (%_portfolio)'])
+       databaseList.push(rows[i]['Database (%_portfolio)'])
 		}
-	}
-});
-connection.db.query(queries.get_types(), function(err, rows, fields){
-	if(err){ console.log(err)
-	}else{
-		typeList = [];
-		for(n in rows){
-			typeList.push(rows[n].type);
-		}
-	}
-});
-connection.db.query(queries.get_goals(), function(err, rows, fields){
-	if(err){ console.log(err)
-	}else{
-		goalList = [];
-		for(n in rows){
-			goalList.push(rows[n].goal);
-		}
-	}
-});
-connection.db.query(queries.get_accounts(), function(err, rows, fields){
-	if(err){ console.log(err)
-	}else{
-		accountList = [];
-		for(n in rows){
-			accountList.push(rows[n].account);
-		}
-	}
-});
-//
-connection.db.query(queries.get_actions(), function(err, rows, fields){
-	if(err){ console.log(err)
-	}else{
-		actionList = [];
-		for(n in rows){
-			actionList.push(rows[n].action);
-		}
-	}
-});
-connection.db.query(queries.get_groups(), function(err, rows, fields){
-	if(err){ console.log(err)
-	}else{
-		groupList = [];
-		for(n in rows){
-			items = rows[n].group_code.split(',')
-			for(i in items){
-				if(items[i] != '' && groupList.indexOf(items[i]) == -1){
-					groupList.push(items[i]);
-				}
-			}		
-		}
-		groupList.sort();
+		
+		//console.log(databaseList)
 	}
 });
 

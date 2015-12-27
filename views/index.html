@@ -115,9 +115,23 @@
             <tr><td>Count:</td><td><div id='sec_count'></div></td></tr>
         </table>
     </div>
-    
-
+    <div id='database_div'>
+        Current Database:
+        <form  method='post' action='change_portfolio'>
+            <select name='database_sel' id='database_sel'  onchange="this.form.submit()" >
+                <option value="0">choose...</option>
+                <% for(i in databases ){ %>
+                <%   if(database == databases[i]){ %>
+                        <option selected value="<%= databases[i] %>"><%= databases[i] %></option>
+                <%   }else{ %>
+                        <option value="<%= databases[i] %>"><%= databases[i] %></option>
+                <%   } %>
+                <% } %>
+            </select>
+        </form>
+    </div>
 </div>  <!-- // end class="col-md-10" -->
+
 <div class="col-md-9">
     <br>
     

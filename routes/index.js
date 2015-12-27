@@ -11,12 +11,17 @@ router.get('/', function (req, res) {
   console.log('in index/home')
   //console.log(SELECTED_SECURITY)
   var ssid = SELECTED_SECURITY.id || 0;
+  if(ssid == 0){
+  	SELECTED_SECURITY.transactions = []
+  }
   console.log(ssid);
    	res.render('index', {
       title : 'Tautoa: Home Page',
       //total : portfolio_total,
       //securities : JSON.stringify(ALL_SECURITIES_BY_ID),
       selected_securityID: ssid,
+      databases	: databaseList,
+      database 	: TAUTOA_DATABASE,
       types 		: typeList,
       goals 		: goalList,
       sectors 	: sectorList,
@@ -150,16 +155,22 @@ router.post('/save_security/:kind', function (req, res) {
 		SELECTED_SECURITY.cur_price = req.body.init_price
 		q = queries.insert_security(fields)
 	}else{
+
 			secid = req.body.secid;
 			for(n in params){
 				fields[params[n]] = req.body[params[n]] 
 			}
 			q = queries.update_security(secid,fields)
+			if(req.body.hide == 'yes'){
+					SELECTED_SECURITY = {} 	
+	 		  	SELECTED_SECURITY.transactions = []
+			}
 	}
 	req.db.query(q, function(err, rows, fields){
 		    if (err)  {
 	 		  	console.log('1-NEW/EDIT SEC error: ' + err);
-	 		  	SELECTED_SECURITY = {}	 		  			 
+	 		  	SELECTED_SECURITY = {} 	
+	 		  	SELECTED_SECURITY.transactions = []	  			 
 	      } else {
 					
 	      	if(kind=='new'){
@@ -177,12 +188,23 @@ router.post('/save_security/:kind', function (req, res) {
 							trans.price = init_price;
 							trans.shares = init_shares;
 							trans.note = '';
+							// { id: 1956,
+       // securityid: 130,
+       // date: '2006-05-01',
+       // transtype: 'Initial',
+       // nav: '45.0000',
+       // shares: '100.0000',
+       // note: '' }
+							SELECTED_SECURITY.transactions = [{'securityid':newsecid,'date':init_date,'transtype':'Initial','nav':init_price,'shares':init_shares,'note':''}]
 							req.db.query(queries.insert_transactions([trans]), function(err, rows, fields){
 							    if (err)  {
 						 		  	console.log('1-NEW/EDIT TRANS error: ' + err);		
-						 		  	SELECTED_SECURITY={}		 		  			 
+						 		  	SELECTED_SECURITY={}
+						 		  	SELECTED_SECURITY.transactions = []		 		  			 
 						      } else {
 						      		//console.log(fields);
+						      		//console.log('ROW INSERT ID',rows.insertId);
+						      		SELECTED_SECURITY.transactions[0].id = rows.insertId
 						      		req.flash('message', 'New Security added');
 											res.redirect('/')
 						      }
@@ -459,6 +481,7 @@ router.post('/delete_security', function (req, res) {
 			 		  	console.log('1-DEL SEC TRANs error: ' + err);				 		  			 
 			      } else {
       				SELECTED_SECURITY={id:0};
+      				SELECTED_SECURITY.transactions = []
       				//res.redirect('/');
       				res.send({redirect: '/'});
       			}
@@ -617,6 +640,56 @@ router.get('/cleanup_this_security', function (req, res) {
 			}
 			
 		});
+});
+router.get('/admin', function (req, res) {
+
+		res.render('admin', {
+      	title : 'Tautoa: ADMIN',
+      	message 	: req.flash('message')
+    });
+});
+router.post('/change_portfolio', function (req, res) {
+		
+		console.log('in change portfolio')
+		console.log(req.body);
+		TAUTOA_DATABASE = req.body.database_sel;
+
+		ALL_SECURITIES_BY_ID ={};
+		ALL_SECURITIES_BY_NAME = {};
+		SELECTED_SECURITY = {id:0,name:''}
+		portfolio_total = 0
+		connection = require('../config/database');
+		connection.connect2database(TAUTOA_DATABASE)
+
+		
+		var render = function(err, result) {
+			console.log('rendering index page')
+			res.render('index', {
+	      title : 'Tautoa: Home Page',
+	      //total : portfolio_total,
+	      //securities : JSON.stringify(ALL_SECURITIES_BY_ID),
+	      selected_securityID: 0,
+	      databases	: databaseList,
+	      database 	: TAUTOA_DATABASE,
+	      types 		: typeList,
+	      goals 		: goalList,
+	      sectors 	: sectorList,
+	      accounts 	: accountList,
+	      actions 	: actionList,
+	      groups 		: groupList,
+	      message 	: req.flash('message')
+
+	    });
+		}
+
+		async.parallel([ connection.get_sectors, 
+                    connection.get_types, 
+                    connection.get_goals, 
+                    connection.get_actions, 
+                    connection.get_accounts, 
+                    connection.get_groups ],
+                    render
+                  );
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////

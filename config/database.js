@@ -1,13 +1,14 @@
 var mysql      = require('mysql2');
+var queries = require('../routes/queries');
+var async = require('async');
+//TAUTOA_DATABASE = 'test_portfolio'
 
-TAUTOA_DATABASE = 'test_portfolio'
-
-db_config = {
-  host     : 'localhost',
-  user     : 'root',
-  password : '1cc=1ml',
-  database : TAUTOA_DATABASE
-};
+// db_config = {
+//   host     : 'localhost',
+//   user     : 'root',
+//   password : '1cc=1ml',
+//   database : TAUTOA_DATABASE
+// };
 
 //connection.connect();
 
@@ -20,8 +21,9 @@ db_config = {
 // });
 
 // connection.end();
-
-(function(){
+exports.connect2database = function(dbase) {
+//(function(){
+   
    var handleDisconnect,mysql, this$ = this;
    var mysql = require('mysql2');
    //var fs = require('fs-extra');
@@ -34,29 +36,219 @@ db_config = {
 				  host     : 'localhost',
 				  user     : 'root',
 				  password : '1cc=1ml',
-				  database : TAUTOA_DATABASE
+				  database : dbase
 				});
      exports.db.connect(function(err){
 	   if (err != null) {
-         console.log('Error connecting to mysql:', err);
-         exports.db = null;
-         return setTimeout(handleDisconnect, 2000);
+          console.log('Error connecting to mysql:', err);
+          exports.db = null;
+          return setTimeout(handleDisconnect, 2000);
        }else{
-       	console.log('DATABASE: '+TAUTOA_DATABASE)
-        console.log('Connected!');
+       	  console.log('DATABASE: '+dbase)
+          console.log('Connected!');
        }
      });
      return exports.db.on('error', function(err){
        console.log('Database error:', err);
        if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-         exports.db = null;
-		 console.log('Found error PROTOCOL_CONNECTION_LOST -- restarting');
-         return handleDisconnect();
+          exports.db = null;
+		      console.log('Found error PROTOCOL_CONNECTION_LOST -- restarting');
+          return handleDisconnect();
        } else {
-         return process.exit(1);
+          return process.exit(1);
        }
      });
    };
    handleDisconnect();
 
-}).call(this);
+}
+//
+//
+//
+
+//exports.get_all_items = function(){
+
+  exports.get_sectors = function(callback){
+    console.log('Loading Sectors')
+    connection.db.query(queries.get_sectors(), function(err, rows, fields){
+      if(err){ console.log(err)
+      }else{
+        sectorList = [];
+        for(n in rows){
+          sectorList.push(rows[n].sector);
+        }
+        callback(null, sectorList);
+      }
+    });
+  }
+
+  exports.get_types = function(callback){
+    console.log('Loading Types')
+    connection.db.query(queries.get_types(), function(err, rows, fields){
+      if(err){ console.log(err)
+      }else{
+        typeList = [];
+        for(n in rows){
+          typeList.push(rows[n].type);
+        }
+        callback(null, typeList);
+      }
+    });
+  }
+
+  exports.get_goals = function(callback) {
+    console.log('Loading Goals')
+    connection.db.query(queries.get_goals(), function(err, rows, fields){
+      if(err){ console.log(err)
+      }else{
+        goalList = [];
+        for(n in rows){
+          goalList.push(rows[n].goal);
+        }
+        callback(null, goalList);
+      }
+    });
+  }
+
+  exports.get_accounts = function(callback) {
+    console.log('Loading Actions')
+    connection.db.query(queries.get_accounts(), function(err, rows, fields){
+      if(err){ console.log(err)
+      }else{
+        accountList = [];
+        for(n in rows){
+          accountList.push(rows[n].account);
+        }
+        callback(null, actionList);
+      }
+    });
+    //
+  }
+
+  exports.get_actions = function(callback) {
+    console.log('Loading Actions')
+    connection.db.query(queries.get_actions(), function(err, rows, fields){
+      if(err){ console.log(err)
+      }else{
+        actionList = [];
+        for(n in rows){
+          actionList.push(rows[n].action);
+        }
+        callback(null, actionList);
+      }
+    });
+  }
+  exports.get_groups = function(callback) {
+    console.log('Loading Groups')
+    connection.db.query(queries.get_groups(), function(err, rows, fields){
+      if(err){ console.log(err)
+      }else{
+        groupList = [];
+        for(n in rows){
+          items = rows[n].group_code.split(',')
+          for(i in items){
+            if(items[i] != '' && groupList.indexOf(items[i]) == -1){
+              groupList.push(items[i]);
+            }
+          }   
+        }
+        groupList.sort();
+      }
+      callback(null, groupList);
+    });
+  }
+  // function final(results) { console.log('Done', results); }
+  // var items = [ get_sectors, get_types, get_goals, get_actions, get_accounts, get_groups ];
+  // var results = 0;
+  
+  
+
+  
+
+//}
+
+
+
+    
+// exports.get_sectors = function() {
+//     console.log('Loading Sectors')
+//     connection.db.query(queries.get_sectors(), function(err, rows, fields){
+//       if(err){ console.log(err)
+//       }else{
+//         sectorList = [];
+//         for(n in rows){
+//           sectorList.push(rows[n].sector);
+//         }
+//       }
+//     });
+// }
+// exports.get_types = function() {
+//     console.log('Loading Sectors')
+//     connection.db.query(queries.get_types(), function(err, rows, fields){
+//       if(err){ console.log(err)
+//       }else{
+//         typeList = [];
+//         for(n in rows){
+//           typeList.push(rows[n].type);
+//         }
+//       }
+//     });
+// }
+// exports.get_goals = function() {
+//     console.log('Loading Sectors')
+//     connection.db.query(queries.get_goals(), function(err, rows, fields){
+//       if(err){ console.log(err)
+//       }else{
+//         goalList = [];
+//         for(n in rows){
+//           goalList.push(rows[n].goal);
+//         }
+//       }
+//     });
+// }
+// exports.get_accounts = function() {
+//     console.log('Loading Sectors')
+//     connection.db.query(queries.get_accounts(), function(err, rows, fields){
+//       if(err){ console.log(err)
+//       }else{
+//         accountList = [];
+//         for(n in rows){
+//           accountList.push(rows[n].account);
+//         }
+//       }
+//     });
+//     //
+// }
+// exports.get_actions = function() {
+//     console.log('Loading Sectors')
+//     connection.db.query(queries.get_actions(), function(err, rows, fields){
+//       if(err){ console.log(err)
+//       }else{
+//         actionList = [];
+//         for(n in rows){
+//           actionList.push(rows[n].action);
+//         }
+//       }
+//     });
+// }
+// exports.get_groups = function() {
+//     console.log('Loading Sectors')
+//     connection.db.query(queries.get_groups(), function(err, rows, fields){
+//       if(err){ console.log(err)
+//       }else{
+//         groupList = [];
+//         for(n in rows){
+//           items = rows[n].group_code.split(',')
+//           for(i in items){
+//             if(items[i] != '' && groupList.indexOf(items[i]) == -1){
+//               groupList.push(items[i]);
+//             }
+//           }   
+//         }
+//         groupList.sort();
+//       }
+//     });
+// }
+
+
+

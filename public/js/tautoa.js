@@ -141,18 +141,18 @@ if (reset_btn !== null) {
 
   });
 };
-var refresh_btn = document.getElementById('refresh_btn') || null;
-if (refresh_btn !== null) {
-  refresh_btn.addEventListener('click', function () {
-    //refresh_from_db();
-    selects = document.getElementsByClassName('cat_select')
-    for(i in selects){
-    	selects[i].value = 'none'
-    }
-    get_security_list('default','default','');
+// var refresh_btn = document.getElementById('refresh_btn') || null;
+// if (refresh_btn !== null) {
+//   refresh_btn.addEventListener('click', function () {
+//     //refresh_from_db();
+//     selects = document.getElementsByClassName('cat_select')
+//     for(i in selects){
+//     	selects[i].value = 'none'
+//     }
+//     get_security_list('default','default','');
 
-  });
-};
+//   });
+// };
 var view_hidden = document.getElementById('view_hidden_btn') || null;
 if (view_hidden !== null) {
   view_hidden.addEventListener('click', function () {

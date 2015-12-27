@@ -64,6 +64,15 @@ a:hover {
 	margin-left: 10px;
 	color :orange;
 }
+#database_div{
+	padding:20px 20px;
+	margin:20px 0px;
+	border-radius:20px;
+	background-color:Olive;
+}
+#database_sel{
+	width: 200px;
+}
 #transaction_form { 
 				display:none; 
 				border: 1px solid #d0d0d0; 
