@@ -101,13 +101,13 @@ document.onkeydown = function(e) {
     }
     e.preventDefault(); // prevent the default action (scroll / move caret)
 };    	
-// var cleanup_this_sec = document.getElementById('cleanup') || null;
-// if (cleanup_this_sec !== null) {
-//   cleanup_this_sec.addEventListener('click', function () {
-//     //clear_tform();
-//     cleanup_this_sec();
-//   });
-// };
+var cleanup = document.getElementById('cleanup') || null;
+if (cleanup !== null) {
+  cleanup.addEventListener('click', function () {
+    //alert('clean')
+    cleanup_this_sec();
+  });
+};
 var trans_ok_btn = document.getElementById('save_trans_btn') || null;
 if (trans_ok_btn !== null) {
   trans_ok_btn.addEventListener('click', function () {
@@ -119,6 +119,7 @@ var close_btn = document.getElementById('transaction_close_btn') || null;
 if (close_btn !== null) {
   close_btn.addEventListener('click', function () {
     clear_tform();
+    //document.getElementById('transaction_form').style.visibility = 'hidden'
   });
 };
 var update_prices = document.getElementById('update_prices') || null;
@@ -185,7 +186,27 @@ function add_to_groups(val){
 //
 //
 //
+function cleanup_this_sec(){
+		var xmlhttp = new XMLHttpRequest();
+		//alert('in cleanup')
+    xmlhttp.open("GET", "/cleanup_this_security", true);
 
+	  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xmlhttp.onreadystatechange = function() {
+
+		    if (xmlhttp.readyState == 4 ) {
+					//alert('post ajax')
+					var data = JSON.parse(xmlhttp.responseText);
+					document.getElementById('transaction_list_div_id').innerHTML = data.html
+					//alert(data)
+					
+					//alert(currentRow)
+					
+
+		    }
+    };
+    xmlhttp.send();
+}
 function view_transactions_ajax( secid ){
 	
     //alert(secname)
@@ -470,17 +491,17 @@ function apply(kind,value){
 //
 function clear_tform(){
 		$transPop.hide();
-		var d = new Date();
-		var sqldate = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate() ;
-    document.getElementById('actionsSelect').value = 'Dividend';
-		document.getElementById('inputDate').value = sqldate;
-		document.getElementById('tprice').value = '';
-		document.getElementById('tshares').value = '';
-		document.getElementById('tvalue').value = '';
-		document.getElementById('tnote').value = '';
-		document.getElementById('ttype').innerHTML = '';
-		document.getElementById('ttype').value = '';
-		document.getElementById('tid').value = '';
+		// var d = new Date();
+		// var sqldate = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate() ;
+  //   document.getElementById('actionsSelect').value = 'Dividend';
+		// document.getElementById('inputDate').value = sqldate;
+		// document.getElementById('tprice').value = '';
+		// document.getElementById('tshares').value = '';
+		// document.getElementById('tvalue').value = '';
+		// document.getElementById('tnote').value = '';
+		// document.getElementById('ttype').innerHTML = '';
+		// document.getElementById('ttype').value = '';
+		// document.getElementById('tid').value = '';
 }
 //
 //

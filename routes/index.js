@@ -99,17 +99,33 @@ router.post('/save_security/:kind', function (req, res) {
 	var kind  = req.params.kind;
 	var new_group_code = []
 	req.body.ticker = req.body.ticker.toUpperCase();
+
+  if(sectorList.indexOf(req.body.sector) == -1){
+  	sectorList.push(req.body.sector)
+  }
+  if(goalList.indexOf(req.body.goal) == -1){
+  	goalList.push(req.body.goal)
+  }
+  if(typeList.indexOf(req.body.type) == -1){
+  	typeList.push(req.body.type)
+  }
+  if(accountList.indexOf(req.body.account) == -1){
+  	accountList.push(req.body.account)
+  }
+	// add to groupList (if new)
 	group_string_list = req.body.group_code.split(',');
 	for(i in  group_string_list){
 		if(group_string_list[i]){
-			new_group_code.push(group_string_list[i])
+			//new_group_code.push(group_string_list[i])
 			if(groupList.indexOf(group_string_list[i]) == -1){
 				//console.log('pushing '+group_string_list[i])
 				groupList.push(group_string_list[i]);
 			}
 		}
 	}
-	req.body.group_code = new_group_code.join()
+
+	//req.body.group_code = new_group_code.join()
+	
 	console.log(req.body)
 	params =['name','ticker','account','hide','type','goal','sector','group_code','notes'];
 	fields = {}
@@ -430,6 +446,9 @@ router.post('/enter_transaction', function (req, res) {
 			res.redirect('/');
 			return;
 		}
+		if(actionList.indexOf(trans.action) == -1){
+  			actionList.push(trans.action)
+  	}
 		if(trans.action == 'Price Update'){
 			trans.value = 0;
 			trans.shares = 0;
@@ -634,11 +653,15 @@ router.get('/cleanup_this_security', function (req, res) {
 				req.db.query(queries.delete_price_updates(secid, saveid), function(err, rows, fields){
  					if(err){ console.log(err)
  					}else{
- 						res.redirect('/');
+						req.db.query(queries.get_transactions(secid), function(err, rows, fields){
+							if(err){ console.log(err)
+ 							}else{
+								res.json({ 'html': get_translist_html(rows) });
+							}
+						});
  					}
  				});
 			}
-			
 		});
 });
 router.get('/admin', function (req, res) {

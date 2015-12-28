@@ -160,9 +160,8 @@ connection.db.query(queries.get_databases(), function(err, rows, fields){
 	if(err){ console.log(err)
 	}else{
 		databaseList = [];
-		console.log(rows)
 		for (var i = 0; i < rows.length; i++) { 
-       console.log(rows[i]['Database (%_portfolio)'])
+       //console.log(rows[i]['Database (%_portfolio)'])
        databaseList.push(rows[i]['Database (%_portfolio)'])
 		}
 		

@@ -134,6 +134,15 @@ exports.connect2database = function(dbase) {
         for(n in rows){
           actionList.push(rows[n].action);
         }
+        if(actionList.indexOf('Buy') == -1){
+            actionList.push('Buy')
+        }
+        if(actionList.indexOf('Sell') == -1){
+            actionList.push('Sell')
+        }
+        if(actionList.indexOf('Price Update') == -1){
+            actionList.push('Price Update')
+        }
         callback(null, actionList);
       }
     });
