@@ -544,79 +544,81 @@ router.post('/edit_transaction', function (req, res) {
 //
 // NEEDS REFRESH
 router.post('/update_prices', function (req, res) {
+		
+		options = {
+			host: 'download.finance.yahoo.com',
+			path: '/d/quotes.csv?s='
+		}
+		// options = {
+		// 	host: 'www.google.com',
+		// 	path: '/finance/info?client=ig&q='
+		// }
 		data_object = {};
+		ticker_str = ''
+		url = "http://download.finance.yahoo.com/d/quotes.csv?s="
 		tics = [];
 		secid_list =[]
 		for(secid in ALL_SECURITIES_BY_ID){
  					ticker = ALL_SECURITIES_BY_ID[secid].ticker;
  					console.log(ticker)
  					if(ticker){
- 						data_object[ticker] = secid;
- 						tics.push(ticker)
- 						secid_list.push(secid)
+ 						ticker_str += ticker+','
+ 						data_object[ticker] = secid
  					}
- 					
 		}
-		// -X
+			// -X
 		// // [ { "id": "1" ,    "t" : "BJBHX" ,"e" : "MUTF" ,"l" : "8.50" ,"l_fix" : "8.50" ,"l_cur" : "$8.50" ,"s": "0" ,"ltt":"4:00PM EST" ,"lt" : "Dec 16, 4:00PM EST" ,  "lt_dts" : "2015-12-16T16:00:00Z" ,"c" : "+0.02" ,"c_fix" : "0.02" ,"cp" : "0.24" ,"cp_fix" : "0.24" ,"ccol" : "chg" ,"pcls_fix" : "8.50" } ]
 		// -reg
 	// // [   { "id": "33312" ,"t" : "T" ,"e" : "NYSE" ,    "l" : "34.04" ,"l_fix" : "34.04" ,"l_cur" : "34.04" ,"s": "2" ,"ltt":"5:21PM EST" ,"lt" : "Dec 17, 5:21PM EST" ,"lt_dts" : "2015-12-17T17:21:09Z" ,"c" : "-0.36" ,"c_fix" : "-0.36" ,"cp" : "-1.05" ,"cp_fix" : "-1.05" ,"ccol" : "chr" ,"pcls_fix" : "34.4" ,
 	// "el": "34.00" ,"el_fix": "34.00" ,"el_cur": "34.00" ,"elt" : "Dec 17, 5:23PM EST" ,"ec" : "-0.04" ,"ec_fix" : "-0.04" ,"ecp" : "-0.12" ,"ecp_fix" : "-0.12" ,"eccol" : "chr" ,"div" : "0.47" ,"yld" : "5.52" } ]
 
-
 		// url = 'www.google.com/finance/info?client=ig&q='
 		//var tics = ['AAPL','CSCO','SYK'];
-		var completed_requests = 0;
+
+		// url = "http://download.finance.yahoo.com/d/quotes.csv?s="
+  //       # append ticker+
+  //       self.c.execute(C.tautoa_other_queries['ticker_list'])
+  //       for row in self.c.fetchall():
+  //           url += row['ticker']+'+'
+  //       url = url[:-1] + '&f=sl1d1y'
+  //   http://download.finance.yahoo.com/d/quotes.csv?s=VZ,T&f=sl1d1y
+  //"VZ",47.21,"12/29/2015",4.88
+  //"T",34.93,"12/29/2015",5.58
+		ticker_str = ticker_str.slice(0,ticker_str.length -1)
+		options.path += ticker_str + '&f=sl1d1y'
+		console.log(options.path )
 		
-		options = {
-			host: 'www.google.com',
-			path: '/finance/info?client=ig&q='
-		}
-		base_path = options.path;
-		var responses = {};
-		tics.forEach(function(tic) {
-		  
-		  options.path = base_path+tic
-		  
-		  console.log(options.host+options.path)
-		  http.get(options, function(request) {
+		var response = '';
+		http.get(options, function(request) {
 		    //res.setEncoding('utf8');
 		    request.on('data', function(chunk){
 		      //console.log(options.path)
 		      //console.log('chunk:'+chunk)
-		      if(chunk.toString().substring(0,10) != 'httpserver'){
-		      		responses[data_object[tic]] = JSON.parse(chunk.toString().substring(3))[0];
-		      }
-		      
+		      response += chunk
 		    });
 
 		    request.on('end', function(){
-		      
-		      if (completed_requests++ == tics.length - 1) {
-		        // All downloads are completed
-		        //console.log('body:', responses);
-		        hash_list = []
-
-		        for(i in responses){
-		        	quote={}
-		        	quote.action = 'Price Update'
-		        	quote.ticker = responses[i].t
-		        	quote.price = responses[i].l_cur
-		        	if(quote.price[0] == '$'){
-		        		quote.price = quote.price.slice( 1 );
-		        	}
-		        	quote.shares = 0
-		        	quote.note  = '';
-		        	quote.secid = data_object[quote.ticker];
-		        	//quote.fdate=responses[i].lt_dts
-		        	quote.sqldate = get_sql_date(new Date(responses[i].lt_dts))
-		        	
-		        	hash_list.push(quote);
-		        	console.log(quote)
-		        }
-		        //insert_transactions(req, hash_list)
-		        console.log('tic',tic)
-		        req.db.query(queries.insert_transactions(hash_list), function(err, rows, fields){
+		    	data_array = response.split("\n")
+		    	hash_list = []
+		    	for(n in data_array){
+		    		console.log(data_array[n])
+		    		if(data_array[n] != ''){
+		    				items = data_array[n].split(',')
+		    				if(items[2] !== 'N/A'){
+			    				quote={}
+			    				quote.ticker = items[0].replace(/['"]+/g, '')
+			    				quote.action = 'Price Update'
+			    				quote.price  = items[1]
+			    				quote.shares = 0
+			    				quote.note   = ''
+			    				quote.secid  = data_object[quote.ticker] 
+			    				quote.sqldate = get_sql_date(new Date(items[2].replace(/['"]+/g, '')))
+			    				hash_list.push(quote)
+			    			}
+		    		}
+		    	}
+		    	//console.log(hash_list)
+		    	req.db.query(queries.insert_transactions(hash_list), function(err, rows, fields){
 					    if (err)  {
 				 		  	console.log('1-NEW TRANS error: ' + err);				 		  			 
 				      } else {
@@ -627,14 +629,99 @@ router.post('/update_prices', function (req, res) {
 				      		res.send({redirect: '/'});
 				      }
 
-				    });
- 						
-		      }      
+				  });
 		    });
-		  });
-		})
+		});
 
 });
+
+// router.post('/update_pricesX', function (req, res) {
+	
+
+// 		data_object = {};
+// 		tics = [];
+// 		secid_list =[]
+// 		for(secid in ALL_SECURITIES_BY_ID){
+//  					ticker = ALL_SECURITIES_BY_ID[secid].ticker;
+//  					console.log(ticker)
+//  					if(ticker){
+//  						data_object[ticker] = secid;
+//  						tics.push(ticker)
+//  						secid_list.push(secid)
+//  					}
+ 					
+// 		}
+	
+
+// 		var completed_requests = 0;
+		
+		
+// 		base_path = options.path;
+// 		var responses = {};
+// 		tics.forEach(function(tic) {
+		  
+// 		  options.path = base_path+tic
+		  
+// 		  console.log(options.host+options.path)
+// 		  http.get(options, function(request) {
+// 		    //res.setEncoding('utf8');
+// 		    request.on('data', function(chunk){
+// 		      //console.log(options.path)
+// 		      //console.log('chunk:'+chunk)
+// 		      if(chunk.toString().substring(0,10) != 'httpserver'){
+// 		      		responses[data_object[tic]] = JSON.parse(chunk.toString().substring(3))[0];
+// 		      }
+		      
+// 		    });
+
+// 		    request.on('end', function(){
+		      
+// 		      if (completed_requests++ == tics.length - 1) {
+// 		        // All downloads are completed
+// 		        //console.log('body:', responses);
+// 		        hash_list = []
+
+// 		        for(i in responses){
+// 		        	quote={}
+// 		        	quote.action = 'Price Update'
+// 		        	quote.ticker = responses[i].t
+// 		        	quote.price = responses[i].l_cur
+// 		        	if(quote.price[0] == '$'){
+// 		        		quote.price = quote.price.slice( 1 );
+// 		        	}
+// 		        	quote.shares = 0
+// 		        	quote.note  = '';
+// 		        	quote.secid = data_object[quote.ticker];
+// 		        	//quote.fdate=responses[i].lt_dts
+// 		        	quote.sqldate = get_sql_date(new Date(responses[i].lt_dts))
+		        	
+// 		        	hash_list.push(quote);
+// 		        	console.log(quote)
+// 		        }
+// 		        //insert_transactions(req, hash_list)
+// 		        console.log('tic',tic)
+// 		        req.db.query(queries.insert_transactions(hash_list), function(err, rows, fields){
+// 					    if (err)  {
+// 				 		  	console.log('1-NEW TRANS error: ' + err);				 		  			 
+// 				      } else {
+
+// 				      		//update_db_values(req,res,secid,'single');
+// 									console.log('running rectify')
+// 				      		rectify_security_table(req, res, secid_list);
+// 				      		res.send({redirect: '/'});
+// 				      }
+
+// 				    });
+ 						
+// 		      }      
+// 		    });
+// 		  });
+// 		})
+
+// });
+//
+//
+//
 router.get('/cleanup_this_security', function (req, res) {
 		console.log('in cleanup_this_security')
 		//console.log(SELECTED_SECURITY);
@@ -656,6 +743,7 @@ router.get('/cleanup_this_security', function (req, res) {
 						req.db.query(queries.get_transactions(secid), function(err, rows, fields){
 							if(err){ console.log(err)
  							}else{
+								SELECTED_SECURITY.transactions = rows
 								res.json({ 'html': get_translist_html(rows) });
 							}
 						});
@@ -664,6 +752,9 @@ router.get('/cleanup_this_security', function (req, res) {
 			}
 		});
 });
+//
+//
+//
 router.get('/admin', function (req, res) {
 
 		res.render('admin', {
@@ -713,6 +804,28 @@ router.post('/change_portfolio', function (req, res) {
                     connection.get_groups ],
                     render
                   );
+});
+//
+//
+//
+router.get('/backup_dump', function (req, res) {
+		console.log('in backup')
+
+		var dump_file = TAUTOA_DATABASE+'_'+today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate() +'.sql'
+		var cmd = 'mysqldump '+TAUTOA_DATABASE+' > public/dump/'+dump_file
+		console.log(dump_file)
+		console.log(cmd)
+
+		var exec = require('child_process').exec;
+		exec(cmd, function callback(error, stdout, stderr){
+    		if(error){console.log(error)}
+    		else{
+    			req.flash('message', 'Saved: '+dump_file);
+								
+					res.redirect('/');
+    		}
+		});
+
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -918,12 +1031,10 @@ function get_security_stats(tlist){
 							ytd_start_nav = nav;
 						}							    	
 			    	if( trans == 'Initial' || 
-			    			trans.substring(0,3) == 'Buy' || 
-			    			trans.substring(0,4) == 'Sell' ||
-	    					trans == 'Dividend' ||
-	    					trans == 'ST Capital Gains' ||
-	    					trans == 'LT Capital Gains'
-
+					    			trans.substring(0,3) == 'Buy' || 
+					    			trans.substring(0,4) == 'Sell' ||
+			    					trans == 'Dividend' ||
+			    					trans.indexOf('Capital Gain') > -1
 			    					){
 							basis += costofshares;
 						}		

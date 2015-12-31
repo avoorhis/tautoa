@@ -163,7 +163,8 @@
 
 <div id="transaction_form">
 
-    <a id='transaction_close_btn' class="btn btn-xs" href="/" role="button"  style='float:right;'>X</a>
+    <a id='transaction_close_btn' class="btn btn-xs" href="#" role="button"  
+                    style='float:right;' onclick='clear_tform()'>X</a>
 <form id='new_trans_form_id' method='POST' action='/enter_transaction'>
 <table border='1'>
 <tr>
@@ -183,30 +184,14 @@
             <td colspan='3' nowrap class='nowrap'>Action:
             
                 <span class="select-editable">
-                  <select   onchange="this.nextElementSibling.value=this.value" >
-                    <% for(n in actions){ %>
-                                    <% if(actions[n] == 'Dividend'){ %>
-                                            <option selected value='<%= actions[n] %>' ><%= actions[n] %></option>
-                                    <% }else{ %>
-                                            <option value='<%= actions[n] %>'><%= actions[n] %></option>
-                                    <% } %>
-                                <% } %>
+                  <select  id='new_transaction_sel' onchange="this.nextElementSibling.value=this.value" >
+                    <%  for(n in actions){ %>
+                            <option value='<%= actions[n] %>'><%= actions[n] %></option>        
+                    <%  } %>
                   </select>
                   <input type="text" id="actionsSelect" name='action' value=""/>
                 </span>
-<!-- 
 
-                <select id="actionsSelect" name='action' width="160" style="width: 160px">
-                <option value='none'>...</option>
-                <% for(n in actions){ %>
-                    <% if(actions[n] == 'Dividend'){ %>
-                            <option selected value='<%= actions[n] %>' ><%= actions[n] %></option>
-                    <% }else{ %>
-                            <option value='<%= actions[n] %>'><%= actions[n] %></option>
-                    <% } %>
-                <% } %>
-              </select>
- -->
 
             </td>
 
