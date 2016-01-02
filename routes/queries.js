@@ -4,31 +4,31 @@ var C = require('../public/constants');
 
 module.exports = {
 	
-	get_all_securities: function(){
+	get_all_securities: function(hide_code){
 	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price"
-	    q += " from securities WHERE hide != 'yes'  and type != 'Cash' ORDER BY name";
+	    q += " from securities WHERE hide = '"+hide_code+"'  and type != 'Cash' ORDER BY name";
 	    return q;
 	},
-	get_select_securities: function(list_type, list_value){
+	get_select_securities: function(list_type, list_value, hide_code){
 			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price"
-	    q += " from securities WHERE hide != 'yes'  and type != 'Cash'"
+	    q += " from securities WHERE hide = '"+hide_code+"'  and type != 'Cash'"
 	    q += " and "+list_type+"='"+list_value+"'"
 	    q += " ORDER BY name";
 	    return q;
 	},
-	get_group_securities: function(list_type, list_value){
+	get_group_securities: function(list_type, list_value, hide_code){
 			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price"
-	    q += " from securities WHERE hide != 'yes'  and type != 'Cash'"
+	    q += " from securities WHERE hide = '"+hide_code+"'  and type != 'Cash'"
 	    q += " and group_code like '%"+list_value+"%'"
 	    q += " ORDER BY name";
 	    return q;
 	},
-	get_hidden_securities: function(list_type, list_value){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price"
-	    q += " from securities WHERE hide = 'yes' "
-	    q += " ORDER BY name";
-	    return q;
-	},
+	// get_hidden_securities: function(list_type, list_value){
+	// 		var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price"
+	//     q += " from securities WHERE hide = 'yes' "
+	//     q += " ORDER BY name";
+	//     return q;
+	// },
 	get_security: function(secid){
 	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, hide,"
 	    q += " init_value, init_shares, init_price, DATE_FORMAT(init_date,'%Y-%m-%d') as init_date,"
@@ -88,10 +88,10 @@ module.exports = {
 	    console.log(q)
 	    return q;
 	},
-	get_all_transactions: function(){
+	get_all_transactions: function(hide_code){
 	    var q = "SELECT DISTINCT t.id, securityid, DATE_FORMAT(date,'%Y-%m-%d') as date, transtype, nav, shares, note from transactions as t";
 	    q += " JOIN securities as s";
-	    q += " WHERE s.hide != 'yes'  and s.type != 'Cash'";
+	    q += " WHERE s.hide = '"+hide_code+"'  and s.type != 'Cash'";
 	    console.log(q)
 	    return q;
 	},
@@ -111,7 +111,6 @@ module.exports = {
 	    return q;
 	},
 
-
 	get_max_transaction: function(secid){
 	    var q = "SELECT id, transtype, nav, date from transactions as a";
 	    q += " WHERE date=("
@@ -121,6 +120,7 @@ module.exports = {
 	    console.log(q)
 	    return q;
 	},
+
 	delete_price_updates: function(secid, saveid){
 		var q = "delete from transactions where transtype='Price Update' ";
 		q += " and securityid='"+secid+"'";
@@ -138,39 +138,39 @@ module.exports = {
 
 
 	get_total: function(){
-	    var q = "SELECT SUM(cur_value) as total from securities WHERE hide != 'yes'  and type != 'Cash' ";
+	    var q = "SELECT SUM(cur_value) as total from securities WHERE hide = 'no'  and type != 'Cash' ";
 	    return q;
 	},
 
-	get_sectors: function(){
-	    var q = "SELECT distinct sector from securities WHERE sector != '' ORDER BY sector ";
+	get_sectors: function(hide_code){
+	    var q = "SELECT distinct sector from securities WHERE sector != '' AND hide = '"+hide_code+"' ORDER BY sector ";
 	    return q;
 	},
 
-	get_types: function(){
-	    var q = "SELECT distinct type from securities WHERE type != '' ORDER BY type ";
+	get_types: function(hide_code){
+	    var q = "SELECT distinct type from securities WHERE type != '' AND hide = '"+hide_code+"' ORDER BY type ";
 	    return q;
 	},
 
-	get_goals: function(){
-	    var q = "SELECT distinct goal from securities WHERE goal != '' ORDER BY goal ";
+	get_goals: function(hide_code){
+	    var q = "SELECT distinct goal from securities WHERE goal != '' AND hide = '"+hide_code+"' ORDER BY goal ";
 	    return q;
 	},
 
-	get_accounts: function(){
-	    var q = "SELECT distinct account from securities where account != '' && hide != 'yes' ORDER BY account";
+	get_accounts: function(hide_code){
+	    var q = "SELECT distinct account from securities where account != '' AND hide = '"+hide_code+"' ORDER BY account";
 	    return q;
 	},
 	get_actions: function(){
 	    var q = "SELECT action from actionList";
 	    return q;
 	},
-	get_groups: function(){
-	    var q = "SELECT group_code from securities where group_code != '' ";
+	get_groups: function(hide_code){
+	    var q = "SELECT group_code from securities where group_code != '' AND hide = '"+hide_code+"' ";
 	    return q;
 	},
-	get_all_group_info: function(){
-		var q = "SELECT SUM(cur_value) as value from securities WHERE hide != 'yes'  and type != 'Cash' ";
+	get_all_group_info: function(hide_code){
+		var q = "SELECT SUM(cur_value) as value from securities WHERE hide = '"+hide_code+"'  and type != 'Cash' ";
 	    return q;
 	},
 	get_databases: function(){

@@ -70,7 +70,7 @@ exports.connect2database = function(dbase) {
 
   exports.get_sectors = function(callback){
     console.log('Loading Sectors')
-    connection.db.query(queries.get_sectors(), function(err, rows, fields){
+    connection.db.query(queries.get_sectors(USE_HIDDEN), function(err, rows, fields){
       if(err){ console.log(err)
       }else{
         sectorList = [];
@@ -84,7 +84,7 @@ exports.connect2database = function(dbase) {
 
   exports.get_types = function(callback){
     console.log('Loading Types')
-    connection.db.query(queries.get_types(), function(err, rows, fields){
+    connection.db.query(queries.get_types(USE_HIDDEN), function(err, rows, fields){
       if(err){ console.log(err)
       }else{
         typeList = [];
@@ -98,7 +98,7 @@ exports.connect2database = function(dbase) {
 
   exports.get_goals = function(callback) {
     console.log('Loading Goals')
-    connection.db.query(queries.get_goals(), function(err, rows, fields){
+    connection.db.query(queries.get_goals(USE_HIDDEN), function(err, rows, fields){
       if(err){ console.log(err)
       }else{
         goalList = [];
@@ -112,14 +112,14 @@ exports.connect2database = function(dbase) {
 
   exports.get_accounts = function(callback) {
     console.log('Loading Actions')
-    connection.db.query(queries.get_accounts(), function(err, rows, fields){
+    connection.db.query(queries.get_accounts(USE_HIDDEN), function(err, rows, fields){
       if(err){ console.log(err)
       }else{
         accountList = [];
         for(n in rows){
           accountList.push(rows[n].account);
         }
-        callback(null, actionList);
+        callback(null, accountList);
       }
     });
     //
@@ -149,7 +149,7 @@ exports.connect2database = function(dbase) {
   }
   exports.get_groups = function(callback) {
     console.log('Loading Groups')
-    connection.db.query(queries.get_groups(), function(err, rows, fields){
+    connection.db.query(queries.get_groups(USE_HIDDEN), function(err, rows, fields){
       if(err){ console.log(err)
       }else{
         groupList = [];

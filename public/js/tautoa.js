@@ -132,7 +132,11 @@ if (reset_btn !== null) {
     for(i in selects){
     	selects[i].value = 'none'
     }
-    get_security_list('default','default','');
+   // alert(hide)
+    
+    get_security_list('default','default',hide,'');
+    
+    
 
   });
 };
@@ -148,6 +152,17 @@ if (reset_btn !== null) {
 
 //   });
 // };
+// var view_regular = document.getElementById('view_regular_btn') || null;
+// if (view_regular !== null) {
+//   view_regular.addEventListener('click', function () {
+//     //alert('1')
+//     selects = document.getElementsByClassName('cat_select')
+//     for(i in selects){
+//     	selects[i].value = 'none'
+//     }
+//     get_security_list('default','default','');
+//   });
+// };
 var view_hidden = document.getElementById('view_hidden_btn') || null;
 if (view_hidden !== null) {
   view_hidden.addEventListener('click', function () {
@@ -156,7 +171,17 @@ if (view_hidden !== null) {
     for(i in selects){
     	selects[i].value = 'none'
     }
-    get_security_list('hidden','hidden','');
+   // alert(hide)
+    if(hide == 'yes'){
+    	hide = 'no'
+    	get_security_list('default','default',hide,'');
+    	
+    }else{
+    	hide = 'yes'
+    	get_security_list('hidden','hidden',hide,'');
+    	
+    }
+    
   });
 };
 var save_sec_btn = document.getElementById('save_sec_btn_id') || null;
@@ -240,6 +265,8 @@ function view_transactions_ajax( secid ){
 					}
 					
 					//hover(rows,secid)
+					ticker = ''
+					secname = ''
 					sec_row_count = rows.length -1;
 					for(i = 0; i < rows.length; i++){
 		 	        rows[i].style.background = 'white';
@@ -260,7 +287,7 @@ function view_transactions_ajax( secid ){
 			 			document.getElementById('tcurrent_name').value  = secid;
 			 			//document.getElementById('totshares').value  = data.tot_shares;
 						
-							document.getElementById(secid).style.background = 'lightgreen'
+						document.getElementById(secid).style.background = 'lightgreen'
 						document.getElementById(secid).style.fontStyle = 'italic'
 						document.getElementById('security_list_div_id').scrollTop = rowHeight - scrollBy;
 						
@@ -280,10 +307,16 @@ function view_transactions_ajax( secid ){
 
 
 
-function get_security_list(list_type, list_value, secid ){
+function get_security_list(list_type, list_value, hide, secid ){
 		//alert('hello')
 		// listType is default,goals,sectors,groups,types
 		document.getElementById('loading_info_div').style.visibility = 'visible'
+		if(hide=='yes'){
+			document.getElementById('view_hidden_btn').innerHTML = 'View Regular'
+		}else{
+			document.getElementById('view_hidden_btn').innerHTML = 'View Hidden'
+		}
+		
 		selects = document.getElementsByClassName('cat_select')
 		//$transPop.hide();
     for(i in selects){
@@ -294,6 +327,8 @@ function get_security_list(list_type, list_value, secid ){
   	}
 		var args  = 'type='+list_type;
 		args += '&value='+list_value;
+		args += '&hide='+hide;
+		//alert(args)
 		var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST", "/view_securities", true);
 
@@ -489,7 +524,8 @@ function clear_tform(){
 		
 		$transPop.hide();
 		var d = new Date();
-		var sqldate = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate() ;
+		//var sqldate = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate() ;
+		var sqldate = dateFormat(d, "yyyy-mm-dd") ;
   	document.getElementById('actionsSelect').value = 'Dividend';
 		document.getElementById('inputDate').value = sqldate;
 		document.getElementById('tprice').value = '';

@@ -17,6 +17,7 @@
       <% include add_ins/navbar.html %>
 <!-- Fixed navbar at top -->
 <br><br><br>
+<!-- hidden: <%= hidden %> -->
 <center>
     <h3>Tautoa Portfolio Browser</h3>
 </center>
@@ -36,7 +37,7 @@
     <table>
     <tr><td>Sectors:</td>
     <td>
-    <select id="sector"   class='cat_select' onchange="get_security_list('sector',this.value,'')">
+    <select id="sector"   class='cat_select' onchange="get_security_list('sector',this.value,'<%= hidden %>','')">
                 <option value="none">...</option>
     <%      for(s in sectorList){ %>
                 <option value="<%= sectorList[s] %>"><%= sectorList[s] %></option>
@@ -46,7 +47,7 @@
     <tr><td>&nbsp;</td></tr> 
     <tr><td>Accounts:</td>
     <td>
-    <select id="account"   class='cat_select' onchange="get_security_list('account',this.value,'')">
+    <select id="account"   class='cat_select' onchange="get_security_list('account',this.value,'<%= hidden %>','')">
                 <option value="none">...</option>
     <%      for(a in accountList){ %>
                 <option value="<%= accountList[a] %>"><%= accountList[a] %></option>
@@ -56,7 +57,7 @@
     <tr><td>&nbsp;</td></tr> 
     <tr><td>Types:</td>
     <td>
-    <select id="type"  class='cat_select' onchange="get_security_list('type',this.value,'')">
+    <select id="type"  class='cat_select' onchange="get_security_list('type',this.value,'<%= hidden %>','')">
                 <option value="none">...</option>
     <%      for(a in typeList){ %>
                 <option value="<%= typeList[a] %>"><%= typeList[a] %></option>
@@ -66,7 +67,7 @@
    <tr><td>&nbsp;</td></tr> 
     <tr><td>Goals:</td>
     <td>
-    <select id="goal"   class='cat_select' onchange="get_security_list('goal',this.value,'')">
+    <select id="goal"   class='cat_select' onchange="get_security_list('goal',this.value,'<%= hidden %>','')">
                 <option value="none">...</option>
     <%      for(a in goalList){ %>
                 <option value="<%= goalList[a] %>"><%= goalList[a] %></option>
@@ -76,7 +77,7 @@
     <tr><td>&nbsp;</td></tr> 
     <tr><td nowrap>Key Words:&nbsp;</td>
     <td>
-    <select id="group"   class='cat_select' onchange="get_security_list('group',this.value,'')">
+    <select id="group"   class='cat_select' onchange="get_security_list('group',this.value,'<%= hidden %>','')">
                 <option value="none">...</option>
     <%      for(a in groupList){ %>
                 <option value="<%= groupList[a] %>"><%= groupList[a] %></option>
@@ -242,7 +243,8 @@
 $( document ).ready(function() {
      
     secid = <%= selected_securityID %>
-    get_security_list('default','default', secid);
+    hide = '<%= hidden %>'
+    get_security_list('default','default', hide, secid);
     get_group_info('all','all');
     //document.getElementById("port_total_div").innerHTML = '$'+total.formatMoney(2);
     document.getElementById('inputDate').value = today

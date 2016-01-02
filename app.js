@@ -87,6 +87,7 @@ portfolio_total = 0
 // connection.get_accounts()
 // connection.get_actions()
 // connection.get_groups()
+USE_HIDDEN = 'no'
 async.parallel([ connection.get_sectors, 
                     connection.get_types, 
                     connection.get_goals, 

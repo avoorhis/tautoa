@@ -28,7 +28,8 @@ router.get('/', function (req, res) {
       accounts 	: accountList,
       actions 	: actionList,
       groups 		: groupList,
-      message 	: req.flash('message')
+      message 	: req.flash('message'),
+      hidden 		: USE_HIDDEN
 
     });
 	
@@ -239,29 +240,32 @@ router.post('/save_security/:kind', function (req, res) {
 router.post('/view_securities', function (req, res) {
 			var list_type = req.body.type
 			var list_value = req.body.value
+			USE_HIDDEN = req.body.hide
+			console.log(req.body)
 			var query,html;
 			switch(list_type) {
 		    case 'goal':
 		        //code block
-		        query = queries.get_select_securities(list_type,list_value);
+		        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
 		        break;
 		    case 'type':
-		        query = queries.get_select_securities(list_type,list_value);
+		        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
 		        break;
 		    case 'sector':
-		        query = queries.get_select_securities(list_type,list_value);
+		        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
 		        break;
 		    case 'group':
-		        query = queries.get_group_securities(list_type,list_value);
+		        query = queries.get_group_securities(list_type,list_value,USE_HIDDEN);
 		        break;
 		    case 'account':
-		        query = queries.get_select_securities(list_type,list_value);
+		        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
 		        break;
 		    case 'hidden':
-		        query = queries.get_hidden_securities(list_type,list_value);
+		        //query = queries.get_hidden_securities(list_type,list_value,USE_HIDDEN);
+		        query = queries.get_all_securities(USE_HIDDEN);
 		        break;
 		    default:
-		        query = queries.get_all_securities();
+		        query = queries.get_all_securities(USE_HIDDEN);
 			}
 			console.log(query);
 			ALL_SECURITIES_BY_ID={}
@@ -290,7 +294,7 @@ router.post('/view_securities', function (req, res) {
     						first_name = 'none'
           }
           
-          req.db.query(queries.get_all_transactions(), function(err, rows, fields){
+          req.db.query(queries.get_all_transactions(USE_HIDDEN), function(err, rows, fields){
           		if (err) { console.log('2-MAIN OBJ error: ' + err);	return;	}
           		if(rows){
           			for (r in rows){
@@ -382,19 +386,19 @@ router.post('/get_group_info', function (req, res) {
 	switch(list_type) {
     case 'goal':
         //code block
-        query = queries.get_select_securities(list_type,list_value);
+        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
         break;
     case 'type':
-        query = queries.get_select_securities(list_type,list_value);
+        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
         break;
     case 'sector':
-        query = queries.get_select_securities(list_type,list_value);
+        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
         break;
     case 'group':
-        query = queries.get_group_securities(list_type,list_value);
+        query = queries.get_group_securities(list_type,list_value,USE_HIDDEN);
         break;
     case 'account':
-        query = queries.get_select_securities(list_type,list_value);
+        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
         break;
     case 'hidden':
         query = queries.get_hidden_securities(list_type,list_value);
@@ -791,6 +795,7 @@ router.post('/change_portfolio', function (req, res) {
 	      accounts 	: accountList,
 	      actions 	: actionList,
 	      groups 		: groupList,
+	      hidden 		: USE_HIDDEN,
 	      message 	: req.flash('message')
 
 	    });
