@@ -15,8 +15,14 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var constants = require('./public/constants');
 //var config = require('./config/config');
-
-TAUTOA_DATABASE = 'test_portfolio'
+// Put Globals here
+PORTFOLIO_TOTAL = 0;
+ALL_SECURITIES_BY_ID ={};
+ALL_SECURITIES_BY_NAME = {};
+SELECTED_SECURITY = {id:0,name:''}
+TAUTOA_DATABASE = 'andys_portfolio'
+USE_HIDDEN = 'no'  // default 'no'  else 'yes'
+SHOW_INFO  = 'val' // default 'value' else 'stg' sector,type,goal
 connection = require('./config/database');
 connection.connect2database(TAUTOA_DATABASE)
 
@@ -57,10 +63,8 @@ app.use(function(req, res, next){
 // ROUTES:
 app.use('/', routes);
 
-ALL_SECURITIES_BY_ID ={};
-ALL_SECURITIES_BY_NAME = {};
-SELECTED_SECURITY = {id:0,name:''}
-portfolio_total = 0
+
+
 // connection.db.query(queries.get_all_securities(), function(err, rows, fields){
 // 	if(err){ console.log(err)
 // 	}else{
@@ -87,7 +91,7 @@ portfolio_total = 0
 // connection.get_accounts()
 // connection.get_actions()
 // connection.get_groups()
-USE_HIDDEN = 'no'
+
 async.parallel([ connection.get_sectors, 
                     connection.get_types, 
                     connection.get_goals, 

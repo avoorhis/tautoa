@@ -5,19 +5,19 @@ var C = require('../public/constants');
 module.exports = {
 	
 	get_all_securities: function(hide_code){
-	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price"
+	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes"
 	    q += " from securities WHERE hide = '"+hide_code+"'  and type != 'Cash' ORDER BY name";
 	    return q;
 	},
 	get_select_securities: function(list_type, list_value, hide_code){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price"
+			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes"
 	    q += " from securities WHERE hide = '"+hide_code+"'  and type != 'Cash'"
 	    q += " and "+list_type+"='"+list_value+"'"
 	    q += " ORDER BY name";
 	    return q;
 	},
 	get_group_securities: function(list_type, list_value, hide_code){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price"
+			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes"
 	    q += " from securities WHERE hide = '"+hide_code+"'  and type != 'Cash'"
 	    q += " and group_code like '%"+list_value+"%'"
 	    q += " ORDER BY name";
@@ -63,7 +63,7 @@ module.exports = {
 	    return q;
 	},
 	insert_transactions: function(t){
-			q =  "INSERT into transactions (transtype,securityid,date,nav,shares,note)";
+			q =  "INSERT ignore into transactions (transtype,securityid,date,nav,shares,note)";
 	    q += " VALUES" //('"+trans+"','"+secid+"','"+date+"','"+nav+"','"+shares+"','"+note+"')"
 	    for(i in t){
 	    	q += "('"+t[i].action+"','"+t[i].secid+"','"+t[i].sqldate+"','"+t[i].price+"','"+t[i].shares+"','"+t[i].note+"'),"

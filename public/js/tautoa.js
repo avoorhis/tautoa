@@ -134,7 +134,7 @@ if (reset_btn !== null) {
     }
    // alert(hide)
     
-    get_security_list('default','default',hide,'');
+    get_security_list('default','default',hide, view,'');
     
     
 
@@ -174,11 +174,11 @@ if (view_hidden !== null) {
    // alert(hide)
     if(hide == 'yes'){
     	hide = 'no'
-    	get_security_list('default','default',hide,'');
+    	get_security_list('default','default',hide, view,'');
     	
     }else{
     	hide = 'yes'
-    	get_security_list('hidden','hidden',hide,'');
+    	get_security_list('hidden','hidden',hide, view,'');
     	
     }
     
@@ -230,13 +230,13 @@ function cleanup_this_sec(){
 }
 function view_transactions_ajax( secid ){
 	
-    //alert(secname)
+    //alert('XX')
     $transPop.hide();
     document.getElementById('transaction_list_div_id').innerHTML = ''
 		document.getElementById('sec_name_div_id').innerHTML = ''
 		table = document.getElementById("security_table")
-		rows = table.getElementsByTagName("tr");
-		hover(rows,secid)
+		transrows = table.getElementsByTagName("tr");
+		hover(transrows,secid)
 		var args  = 'secid='+secid;
 		
 		var xmlhttp = new XMLHttpRequest();
@@ -258,32 +258,41 @@ function view_transactions_ajax( secid ){
 					document.getElementById('tot_return').innerHTML       = data.stats.tot_return.toFixed(1)+'%';
 					document.getElementById('ytd_return').innerHTML       = data.stats.ytd_return.toFixed(1)+'%';
 					document.getElementById('avg_ann_return').innerHTML   = (data.stats.tot_return/(data.stats.held_for/(365))).toFixed(1) +'%';
+					document.getElementById('pct_of_total').innerHTML     = data.stats.pct_of_tot.toFixed(1)+'%';
+					if(group_total){
+						//alert(group_total)
+						document.getElementById('pct_of_gtotal').innerHTML    = ((data.stats.tot_value/group_total)*100).toFixed(1)+'%';
+					}else{
+						document.getElementById('pct_of_gtotal').innerHTML    = '0.0%'
+					}
 					if(data.stats.held_for > 365){
-						document.getElementById('held_for').innerHTML        	= (data.stats.held_for/365).toFixed(1)+' yrs';
+						document.getElementById('held_for').innerHTML       = (data.stats.held_for/365).toFixed(1)+' yrs';
 					}else{	
-						document.getElementById('held_for').innerHTML        	= (data.stats.held_for/(365 / 12)).toFixed(1)+' mos';
+						document.getElementById('held_for').innerHTML      	= (data.stats.held_for/(365 / 12)).toFixed(1)+' mos';
 					}
 					
 					//hover(rows,secid)
-					ticker = ''
-					secname = ''
-					sec_row_count = rows.length -1;
-					for(i = 0; i < rows.length; i++){
-		 	        rows[i].style.background = 'white';
-		 	        rows[i].style.fontStyle = 'normal'
+					//ticker = ''
+					//secname = ''
+					sec_row_count = transrows.length -1;
+					for(i = 0; i < transrows.length; i++){
+		 	        transrows[i].style.background = 'white';
+		 	        transrows[i].style.fontStyle = 'normal'
 		 	        //rows[i].style
 
-		 	        if(rows[i].id == secid){
+		 	        if(transrows[i].id == secid){
 		 	        	currentRow = i;
 		 	        	rowHeight = i * scrollBy;
-		 	        	ticker = rows[i].cells[0].id;
-		 	        	secname = rows[i].cells[1].id;
+		 	        //	ticker = rows[i].cells[0].id;
+		 	        //	secname = rows[i].cells[1].id;
 		 	        }
 		 			}
+
 		 			if(secid){
-			 			document.getElementById('sec_ticker_id').innerHTML  = ticker;
-			 			document.getElementById('sec_name_div_id').innerHTML 	= '('+ticker+') '+secname;
-			 			document.getElementById('tcurrent_name').innerHTML  = '('+ticker+')<br>'+secname;
+			 			document.getElementById('sec_ticker_id').innerHTML  = data.sec.ticker;
+			 			infoline = '('+data.sec.ticker+') '+data.sec.name +' <small>(id='+secid+'; acct='+data.sec.account+')</small>';
+			 			document.getElementById('sec_name_div_id').innerHTML 	= infoline;
+			 			document.getElementById('tcurrent_name').innerHTML  = '('+data.sec.ticker+')<br>'+data.sec.name;
 			 			document.getElementById('tcurrent_name').value  = secid;
 			 			//document.getElementById('totshares').value  = data.tot_shares;
 						
@@ -307,14 +316,17 @@ function view_transactions_ajax( secid ){
 
 
 
-function get_security_list(list_type, list_value, hide, secid ){
+function get_security_list(list_type, list_value, hide, view, secid ){
 		//alert('hello')
 		// listType is default,goals,sectors,groups,types
+		//alert(view)
 		document.getElementById('loading_info_div').style.visibility = 'visible'
 		if(hide=='yes'){
 			document.getElementById('view_hidden_btn').innerHTML = 'View Regular'
+			document.getElementById('hidden_notification').innerHTML = '(archived)'
 		}else{
-			document.getElementById('view_hidden_btn').innerHTML = 'View Hidden'
+			document.getElementById('view_hidden_btn').innerHTML = 'View Archived'
+			document.getElementById('hidden_notification').innerHTML = ''
 		}
 		
 		selects = document.getElementsByClassName('cat_select')
@@ -328,6 +340,7 @@ function get_security_list(list_type, list_value, hide, secid ){
 		var args  = 'type='+list_type;
 		args += '&value='+list_value;
 		args += '&hide='+hide;
+		args += '&view='+view;
 		//alert(args)
 		var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST", "/view_securities", true);
@@ -346,14 +359,18 @@ function get_security_list(list_type, list_value, hide, secid ){
 					}
 					// secid will be 0 if no securities found
 					//if(data.stats.sec_count > 0)
+
 					view_transactions_ajax(secid);
-					document.getElementById('sec_group_id').innerHTML  = list_type +'::'+list_value;
+					group_total = data.stats.tot_value
+					document.getElementById('sec_group_id').innerHTML     = list_type +'::'+list_value;
 					document.getElementById('gtot_value').innerHTML       = '$'+parseFloat(data.stats.tot_value).formatMoney(2);
+					// save data.stats.tot_value
 					document.getElementById('ginvested').innerHTML        = '$'+parseFloat(data.stats.invested).formatMoney(2);
 					document.getElementById('gbasis').innerHTML        		= '$'+parseFloat(data.stats.basis).formatMoney(2);
 					document.getElementById('gprofit').innerHTML        	= '$'+parseFloat(data.stats.profit).formatMoney(2);
 					document.getElementById('sec_count').innerHTML 				= data.stats.sec_count
 					document.getElementById('gtot_return').innerHTML      = data.stats.tot_return.toFixed(1)+'%';
+					document.getElementById('gpct_of_tot').innerHTML      = data.stats.pct_of_tot.toFixed(1)+'%';
 					
 					
 					
@@ -489,13 +506,14 @@ function delete_security(secid){
 	    xmlhttp.send(args);
 	}
 }
-function delete_transaction(secid,transid){
+function delete_transaction(transid){
 	clear_tform();
 	ans = confirm('Are you sure?')
 	
 	if(ans){
 			var args  = 'transid='+transid;
-			args += '&secid='+secid;
+			//args += '&secid='+secid;
+			//alert(args)
 			var xmlhttp = new XMLHttpRequest();
 	    xmlhttp.open("POST", "/delete_transaction", true);
 
@@ -558,10 +576,37 @@ function update_all_prices(){
 	    xmlhttp.send();
 
 }
+//
+//
+//
 function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
+//
+//
+//
+function change_secview(view){
+	
+	//get_security_list('default','default',hide, view,'');
+	
+	var args  = 'view='+view;
+	var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("POST", "/change_secview", true);
 
+	  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xmlhttp.onreadystatechange = function() {
+    		if (xmlhttp.readyState == 4 ) {
+					var data = JSON.parse(xmlhttp.responseText);
+					//alert(data.ssid)
+					document.getElementById('security_list_div_id').innerHTML = data.html
+					document.getElementById(data.ssid).style.background = 'lightgreen'
+					document.getElementById(data.ssid).style.fontStyle = 'italic'
+					document.getElementById('security_list_div_id').scrollTop = rowHeight - scrollBy;
+				}
+		};
+	  xmlhttp.send(args);
+
+}
 var $owner = undefined;
 //var $transPop = $('#select_new_transaction');
 var $transPop = $('#transaction_form');
