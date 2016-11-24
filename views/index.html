@@ -11,14 +11,14 @@
   </head>
   
   
-  <body>
+<body>
     
 <!-- Fixed navbar at top -->
       <% include add_ins/navbar.html %>
 <!-- Fixed navbar at top -->
-<br>cc<br><br>
+<br><br><br>
 <div id='' style='position:relative;float:left;padding-left:10px;'><%= database %></div>
-<div id='' style='position:relative;float:right'>Display:
+<div id='' style='position:relative;float:right;padding-right:10px;'>Display:
 <% if(secview == 'val'){ %>    
     <input type='radio' checked name='secview' value='val' onclick="change_secview(this.value)" /> by value&nbsp;&nbsp;
     <input type='radio' name='secview' value='stg' onclick="change_secview(this.value)" /> by sector,type,goal
@@ -35,11 +35,11 @@
     <div id='alert_flash_message_id' class="alert_flash_message"><%= message %></div>
 <% } %>
 <br>
-<div class="container">
+<div class="tautoa-container">
       <!-- Example row of columns -->
 <div class="row">
-  <div class="col-md-3">
-    <button id='reset_btn'>Reload/Reset</button>
+  <div class="col-md-2">
+    
     <br><br>
     <strong>Filter</strong><br>
     <div class='result_tbl_div' id='filter_div'>
@@ -102,7 +102,7 @@
     
   </div> <!-- // class="col-md-3" -->
 
-  <div class="col-md-9" >
+  <div class="col-md-10" >
         <div id='security_info_div_id'></div>
         <div id='security_list_div_id' style='border:1px solid black;height:250px;overflow:auto;'>
         </div>
@@ -114,7 +114,7 @@
 
 
 <div class="row">
-  <div class="col-md-3">
+  <div class="col-md-2">
 
     <span id='port_total_span'>Portfolio Total: <span id='port_total_div'></span></span>
     <div class='result_tbl_div'>
@@ -150,13 +150,13 @@
 
   </div>  <!-- // end class="col-md-3" -->
   <br>
-  <div class="col-md-6" >
+  <div class="col-md-8" >
   
     <div id='sec_name_div_id' ></div>
     <div id='transaction_list_div_id'></div>
     
   </div>  <!-- // end class="col-md-3" -->
-  <div class="col-md-3" >
+  <div class="col-md-2" >
 
    
        <div class='result_tbl_div' >
@@ -252,7 +252,7 @@
     </form>
 </div>
 <div id='loading_info_div' style='visibility:hidden'>Loading</div>
-
+<a href="#" data-toggle="tooltip" title="Hooray!">Hover over me</a>
 </body>
 <script type="text/javascript" src="/js/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="/js/bootstrap.js"></script>
@@ -261,8 +261,7 @@
 <script type="text/javascript" src="/js/date.format.js"></script>
 <script> 
         var d = new Date();
-        var today = d.format('yyyy-mm-dd') ;
-        
+        var today = d.format('yyyy-mm-dd');
 </script>
 <script>
 $( document ).ready(function() {
@@ -277,8 +276,10 @@ $( document ).ready(function() {
     document.getElementById('inputDate').value = today
     ttable_div = document.getElementById("transaction_list_div_id")
     ttable_div.scrollTop = 30;
+   // $(".hover").attr('title', 'This is the hover-over text');
     
 });
 </script>
+
 </html>
 

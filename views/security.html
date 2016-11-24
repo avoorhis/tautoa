@@ -268,7 +268,8 @@
 	
 </div>
 <hr>
-	<div class="form-group row" style=''>
+	
+  <div class="form-group row" style=''>
 	  <div class="col-xs-1">
 	    <label for="typesSelect class=''">Notes</label>
 	  </div>
@@ -276,6 +277,14 @@
 	    <textarea cols='100' name='notes' ><%= secdata.notes %></textarea>
 	  </div>
 	</div>
+  <div class="form-group row" style=''>
+    <div class="col-xs-1">
+      <label for="typesSelect class=''">Alert</label>
+    </div>
+    <div class="col-xs-10">
+      <input type='text' name='alert' value='<%= secdata.alert %>'>
+    </div>
+  </div>
 	<hr>
   <div class="form-group row">
     

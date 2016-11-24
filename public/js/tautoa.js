@@ -132,7 +132,7 @@ if (reset_btn !== null) {
     for(i in selects){
     	selects[i].value = 'none'
     }
-   // alert(hide)
+   //alert(view)
     
     get_security_list('default','default',hide, view,'');
     
@@ -290,7 +290,8 @@ function view_transactions_ajax( secid ){
 
 		 			if(secid){
 			 			document.getElementById('sec_ticker_id').innerHTML  = data.sec.ticker;
-			 			infoline = '('+data.sec.ticker+') '+data.sec.name +' <small>(id='+secid+'; acct='+data.sec.account+')</small>';
+			 			infoline = '('+data.sec.ticker+') '+data.sec.name
+			 			infoline += " <div class='pull-right'>Account: "+data.sec.account+"&nbsp;&nbsp;&nbsp;(id="+secid+")</div>";
 			 			document.getElementById('sec_name_div_id').innerHTML 	= infoline;
 			 			document.getElementById('tcurrent_name').innerHTML  = '('+data.sec.ticker+')<br>'+data.sec.name;
 			 			document.getElementById('tcurrent_name').value  = secid;
@@ -371,7 +372,7 @@ function get_security_list(list_type, list_value, hide, view, secid ){
 					document.getElementById('sec_count').innerHTML 				= data.stats.sec_count
 					document.getElementById('gtot_return').innerHTML      = data.stats.tot_return.toFixed(1)+'%';
 					document.getElementById('gpct_of_tot').innerHTML      = data.stats.pct_of_tot.toFixed(1)+'%';
-					
+					$('[data-toggle="tooltip"]').tooltip(); 
 					
 					
 					
@@ -590,6 +591,7 @@ function change_secview(view){
 	//get_security_list('default','default',hide, view,'');
 	
 	var args  = 'view='+view;
+	//alert(args)
 	var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST", "/change_secview", true);
 

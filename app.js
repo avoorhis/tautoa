@@ -26,7 +26,7 @@ SHOW_INFO  = 'val' // default 'value' else 'stg' sector,type,goal
 connection = require('./config/database');
 connection.connect2database(TAUTOA_DATABASE)
 
-var routes    = require('./routes/index');
+var routes    = require('./routes/routes_index');
 
 
 

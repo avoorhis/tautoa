@@ -16,8 +16,8 @@ router.get('/', function (req, res) {
   if(ssid == 0){
   	SELECTED_SECURITY.transactions = []
   }
-  console.log(ssid);
-  console.log(TAUTOA_DATABASE);
+  //console.log(ssid);
+  //console.log(TAUTOA_DATABASE);
   res.render('index', {
       title : 'Tautoa: Home Page',
 
@@ -163,9 +163,9 @@ router.post('/save_security/:kind', function (req, res) {
 		init_date = req.body.init_date
 		for(n in params){
 				if( extras1.indexOf(params[n]) != -1 ){
-					fields[params[n]] = req.body[extras2[extras1.indexOf(params[n])] ] || 0
+					fields[params[n]] = req.body[extras2[extras1.indexOf(params[n])] ] || ''
 				}else{
-					fields[params[n]] = req.body[params[n]] || 0
+					fields[params[n]] = req.body[params[n]] || ''
 				}
 		}
 
@@ -179,6 +179,14 @@ router.post('/save_security/:kind', function (req, res) {
 		SELECTED_SECURITY.type = req.body.type
 		SELECTED_SECURITY.sector = req.body.sector
 		SELECTED_SECURITY.goal = req.body.goal
+		if(req.body.notes == ''){
+			SELECTED_SECURITY.notes = req.body.name
+			fields['notes'] = req.body.name
+		}else{
+			SELECTED_SECURITY.notes = req.body.notes
+			fields['notes'] = req.body.notes
+		}
+			
 		q = queries.insert_security(fields)
 	}else{
 
@@ -249,6 +257,7 @@ router.post('/save_security/:kind', function (req, res) {
 router.post('/change_secview', function (req, res) {
 			SHOW_INFO = req.body.view;
 			html = get_seclist_html(ALL_SECURITIES_BY_ID, SHOW_INFO)
+
 			res.json({
 			  		'html':html,
 			  		'ssid':SELECTED_SECURITY.id
@@ -258,7 +267,7 @@ router.post('/change_secview', function (req, res) {
 router.post('/view_securities', function (req, res) {
 			var list_type = req.body.type
 			var list_value = req.body.value
-			SHOW_INFO = req.body.view
+			//SHOW_INFO = req.body.view
 			USE_HIDDEN = req.body.hide
 			console.log(req.body)
 			var query,html;
@@ -308,7 +317,8 @@ router.post('/view_securities', function (req, res) {
 	          				ALL_SECURITIES_BY_ID[rows[r].id].type 			= rows[r].type
 	          				ALL_SECURITIES_BY_ID[rows[r].id].goal 			= rows[r].goal
 	          				ALL_SECURITIES_BY_ID[rows[r].id].account 		= rows[r].account
-	          				ALL_SECURITIES_BY_ID[rows[r].id].note 		= rows[r].notes
+	          				ALL_SECURITIES_BY_ID[rows[r].id].note 		  = rows[r].notes
+                    ALL_SECURITIES_BY_ID[rows[r].id].yield      = rows[r].yield
 	          				ALL_SECURITIES_BY_ID[rows[r].id].transactions = []
           			}
           			first_id = rows[0].id
@@ -638,7 +648,7 @@ function update_prices_conn(id_lst, type, req, res) {
   //"T",34.93,"12/29/2015",5.58
 		ticker_str = ticker_str.slice(0,ticker_str.length -1)
 		options.path += ticker_str + '&f=sl1d1y'
-		console.log(options.host+options.path )
+		console.log('http://'+options.host+options.path )
 
 		var response = '';
 		// Error: connect ETIMEDOUT
@@ -666,7 +676,7 @@ function update_prices_conn(id_lst, type, req, res) {
 		    	hash_list = []
 
 		    	for(n in data_array){
-		    		console.log(data_array[n])
+		    		console.log('data_array',data_array[n])
 		    		if(data_array[n] != ''){
 		    				items = data_array[n].split(',')
 		    				if(items[2] !== 'N/A'){
@@ -674,11 +684,14 @@ function update_prices_conn(id_lst, type, req, res) {
 			    				quote.ticker = items[0].replace(/['"]+/g, '')
 			    				quote.action = 'Price Update'
 			    				quote.price  = items[1]
+                  quote.secid  = data_object[quote.ticker]
+                  ALL_SECURITIES_BY_ID[quote.secid].yield  = items[3]
+                  quote.yield = items[3]
 			    				quote.shares = 0
 			    				quote.note   = ''
-			    				quote.secid  = data_object[quote.ticker]
 			    				quote.sqldate = get_sql_date(new Date(items[2].replace(/['"]+/g, '')))
 			    				hash_list.push(quote)
+
 			    			}
 		    		}
 		    	}
@@ -960,7 +973,7 @@ function get_seclist_html(secObj, view){
 		html += "<thead>";
   	if(view == 'val'){
   		html += "<tr id=''><th>Ticker</th><th>Name</th><th>Price</th><th>Shares</th>"
-  		html += "<th>Value</th><th></th></tr>";
+  		html += "<th>Value</th><th>Yield</th><th></th></tr>";
 		}else{
 			html += "<tr id=''><th>Ticker</th><th>Name</th><th>Account</th><th>Sector</th>"
 			html += "<th>Type</th><th>Category</th><th></th></tr>";
@@ -977,24 +990,32 @@ function get_seclist_html(secObj, view){
 		//console.log(JSON.stringify(sortList, null, 4))
 
 		var ticwidth = 70
-		var namewidth = 180
-		var infowidth = 80
+		//var namewidth = 300  // see css: nowrap_name
+		// var infowidth = 80
 		var imgwidth = 30
 		if(secObj){
 
 			for (k in sortList){
-
 				ALL_SECURITIES_BY_NAME[sortList[k].name] = sortList[k];
-    		html += "<tr id='"+sortList[k].id+"' class='clickable-row' title='"+sortList[k].note+"' onclick=\"view_transactions_ajax('"+sortList[k].id+"','"+sortList[k].name+"')\">";
-        html += "<td id='"+sortList[k].ticker+"' width='"+ticwidth+"' >";
+    		html += "<tr id='"+sortList[k].id+"'  onclick=\"view_transactions_ajax('"+sortList[k].id+"','"+sortList[k].name+"')\">";
+        html += "<td id='"+sortList[k].ticker+"' data-toggle='tooltip' data-container='body' data-placement='left' title='"+sortList[k].note+"' width='"+ticwidth+"' >";
         //html += "    <a href='#' >" + sortList[k].ticker + "</a>";
         html += sortList[k].ticker
         html += "</td>";
-        html += "<td class='nowrap_name' id='"+sortList[k].name+"' title='"+sortList[k].note+"'><div>"+sortList[k].name+"</div></td>";
+        
+        html += "<td class='nowrap_name'  id='"+sortList[k].name+"' data-toggle='tooltip' data-container='body' data-placement='left' title='"+sortList[k].note+"'>"
+        html += "<span class='pull-left'>"+sortList[k].name+"</span>"
+        html += "<span class='pull-right' style='color:red;' >"+sortList[k].alert+"</span></td>";
+        
         if(view == 'val'){
-        	html += "<td class='nowrap_info' title='"+sortList[k].note+"'><div>$"+parseFloat(sortList[k].cur_price).toFixed(2)+"</div></td>";
-        	html += "<td class='nowrap_info' title='"+sortList[k].note+"'><div>"+parseFloat(sortList[k].cur_shares).toFixed(3)+"</div></td>";
-        	html += "<td class='nowrap_info'><div>$"+parseFloat(sortList[k].cur_value).formatMoney(2)+"</div></td>";
+        	html += "<td class='change_secview' ><div>$"+parseFloat(sortList[k].cur_price).toFixed(2)+"</div></td>";
+        	html += "<td class='nowrap_value' ><div>"+parseFloat(sortList[k].cur_shares).toFixed(3)+"</div></td>";
+        	html += "<td class='nowrap_value' ><div>$"+parseFloat(sortList[k].cur_value).formatMoney(2)+"</div></td>";
+          if(sortList[k].yield != 'N/A'){
+            html += "<td class='nowrap_value'><div>"+parseFloat(sortList[k].yield)+"%</div></td>";
+          }else{
+            html += "<td class='nowrap_value'><div></div></td>";
+          }
         }else{
         	html += "<td class='nowrap_info'><div>"+sortList[k].account+"</div></td>";
         	html += "<td class='nowrap_info'><div>"+sortList[k].sector+"</div></td>";
@@ -1015,6 +1036,7 @@ function get_seclist_html(secObj, view){
 		}
 		html += "</tbody>";
 		html += "</table>";
+
 		return html;
 }
 //
@@ -1025,8 +1047,9 @@ function get_translist_html(tlist){
 		var costofshares
 		var value
 		var html = ''
-		html += "<div id='transaction_table_div' >"
-   	html += "<table border='1' id='transaction_table' style=''>"
+
+		html += "<div id='transaction_table_div'>"
+   	html += "<table border='1' id='transaction_table' >"
    	html += '<tr>';
   	html += '<td>Date</td>';
   	html += '<td>Transaction</td>';
@@ -1224,6 +1247,7 @@ function rectify_security_table(req, res, secid_list) {
 		      	field_list['cur_value'] = totshares * maxprice;
 		      	maxdate = rows2[0].date;
 		      	field_list['cur_date'] = get_sql_date(new Date(maxdate));
+            field_list['yield'] = ALL_SECURITIES_BY_ID[secid].yield
 		      	//field_list['secid'] = secid;
 		      	//console.log('maxdate:',field_list['cur_date']);
 		      	callback(null, field_list);
@@ -1243,6 +1267,8 @@ function rectify_security_table(req, res, secid_list) {
 		for(i in secid_list){
 			secid=secid_list[i]
 			//console.log('secid',secid)
+      //console.log('yield',ALL_SECURITIES_BY_ID[secid].yield)
+
 			async.parallel({
 	        shareslist : get_sum_shares,
 	        fieldlist : get_sec_fields,

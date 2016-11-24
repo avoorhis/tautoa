@@ -3,21 +3,21 @@ var router = express.Router();
 var C = require('../public/constants');
 
 module.exports = {
-	
+
 	get_all_securities: function(hide_code){
-	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes"
+	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield"
 	    q += " from securities WHERE hide = '"+hide_code+"'  and type != 'Cash' ORDER BY name";
 	    return q;
 	},
 	get_select_securities: function(list_type, list_value, hide_code){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes"
+			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield"
 	    q += " from securities WHERE hide = '"+hide_code+"'  and type != 'Cash'"
 	    q += " and "+list_type+"='"+list_value+"'"
 	    q += " ORDER BY name";
 	    return q;
 	},
 	get_group_securities: function(list_type, list_value, hide_code){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes"
+			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield"
 	    q += " from securities WHERE hide = '"+hide_code+"'  and type != 'Cash'"
 	    q += " and group_code like '%"+list_value+"%'"
 	    q += " ORDER BY name";
@@ -79,7 +79,7 @@ module.exports = {
 			q += " nav='"+t.price+"',";
 			q += " shares='"+t.shares+"',";
 			q += " note='"+t.note+"'";
-	    q += " WHERE id='"+t.tid+"'" 
+	    q += " WHERE id='"+t.tid+"'"
 	    console.log(q);
 	    return q;
 	},
@@ -115,8 +115,8 @@ module.exports = {
 	    var q = "SELECT id, transtype, nav, date from transactions as a";
 	    q += " WHERE date=("
 	    q += " SELECT MAX(date) from transactions"
-	    q += " WHERE securityid='"+secid+"' and transtype != 'note')" 
-			q += " AND securityid='"+secid+"' limit 1" 
+	    q += " WHERE securityid='"+secid+"' and transtype != 'note')"
+			q += " AND securityid='"+secid+"' limit 1"
 	    console.log(q)
 	    return q;
 	},
@@ -134,7 +134,7 @@ module.exports = {
 	    console.log(q)
 	    return q;
 	},
-	
+
 
 
 	get_total: function(){

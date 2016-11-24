@@ -2,7 +2,9 @@
 a:link {
     color: black;
 }
-
+.tautoa-container{
+	padding:5px 20px;
+}
 /* visited link */
 a:visited {
     color: black;
@@ -15,6 +17,20 @@ a:hover {
 #filter_div{
 	border: 1px solid grey;
 	padding: 10px 5px;
+}
+.navbar.center .navbar-inner {
+    text-align: center;
+}
+.navbar.center .navbar-inner .nav {
+    float: none;
+    display:inline-block;
+}
+.nav li {
+	padding:0 30px;
+}
+#reset_btn {
+	margin:20px 0 0 10px;
+	color:yellow;
 }
 #loading_info_div{
 	padding:50px;
@@ -37,15 +53,17 @@ a:hover {
 #security_table tr:hover {
           background-color: #ffff99;
 }
+
 #transaction_table_div {
 	height:300px;
-	width:550px;
+	
 	overflow:auto;
 }
 #transaction_table {
 	background: #D0D0D0;
 	font-family: "Times New Roman", Times, serif;
 	font-size:12px;
+	width:100%;
 }
 #transaction_table tr:hover {
           background-color: #ffff99;
@@ -66,7 +84,16 @@ a:hover {
     text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
     -ms-text-overflow: ellipsis;
-    width:80px;
+    width:130px;
+}
+.nowrap_value div{
+	white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -ms-text-overflow: ellipsis;
+    
+    text-align:right;
 }
 .nowrap_name div{
 	white-space: nowrap;
@@ -74,7 +101,7 @@ a:hover {
     text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
     -ms-text-overflow: ellipsis;
-    width:180px;
+    width:300px;
 }
 .alert_flash_message{
 	font : bold 12px Arial;
@@ -144,6 +171,7 @@ a:hover {
 	border:1px solid green;
 	padding:0 5px;
 	font-weight:bold;
+	background:#DB7093;
 }
 
 
