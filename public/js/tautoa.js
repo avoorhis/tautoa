@@ -134,7 +134,7 @@ if (reset_btn !== null) {
     }
    //alert(view)
     
-    get_security_list('default','default',hide, view,'');
+    get_security_list('default','default',active, view,'');
     
     
 
@@ -171,14 +171,14 @@ if (view_hidden !== null) {
     for(i in selects){
     	selects[i].value = 'none'
     }
-   // alert(hide)
-    if(hide == 'yes'){
-    	hide = 'no'
-    	get_security_list('default','default',hide, view,'');
+    alert(active)
+    if(active == '0'){
+    	active = '1'
+    	get_security_list('default','default',active, view,'');
     	
     }else{
-    	hide = 'yes'
-    	get_security_list('hidden','hidden',hide, view,'');
+    	active = '0'
+    	get_security_list('hidden','hidden',active, view,'');
     	
     }
     
@@ -317,16 +317,16 @@ function view_transactions_ajax( secid ){
 
 
 
-function get_security_list(list_type, list_value, hide, view, secid ){
+function get_security_list(list_type, list_value, active, view, secid ){
 		//alert('hello')
 		// listType is default,goals,sectors,groups,types
 		//alert(view)
 		document.getElementById('loading_info_div').style.visibility = 'visible'
-		if(hide=='yes'){
+		if(active=='0'){
 			document.getElementById('view_hidden_btn').innerHTML = 'View Regular'
 			document.getElementById('hidden_notification').innerHTML = '(archived)'
 		}else{
-			document.getElementById('view_hidden_btn').innerHTML = 'View Archived'
+			document.getElementById('view_hidden_btn').innerHTML = 'View Inactive'
 			document.getElementById('hidden_notification').innerHTML = ''
 		}
 		
@@ -340,7 +340,7 @@ function get_security_list(list_type, list_value, hide, view, secid ){
   	}
 		var args  = 'type='+list_type;
 		args += '&value='+list_value;
-		args += '&hide='+hide;
+		args += '&active='+active;
 		args += '&view='+view;
 		//alert(args)
 		var xmlhttp = new XMLHttpRequest();

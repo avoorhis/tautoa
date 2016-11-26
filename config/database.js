@@ -24,7 +24,7 @@ var async = require('async');
 exports.connect2database = function(dbase) {
 //(function(){
 
-   var handleDisconnect,mysql, this$ = this;
+   var handleDisconnect, mysql, this$ = this;
    var mysql = require('mysql2');
    //var fs = require('fs-extra');
    //var config_file = 'config/db-connection.js'

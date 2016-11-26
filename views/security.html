@@ -74,24 +74,24 @@
 
     </div>
  		<div class="col-sm-1"></div>
-    <label class="col-sm-2">Hidden</label>
+    <label class="col-sm-2">Active</label>
     <div class="col-sm-4">
       <div class="radio">
 
-        <% if(secdata.hide == 'yes'){ %>
+        <% if(secdata.active == '0'){ %>
 		        <label class="radio-inline">
-						  <input type="radio" checked='checked' name="hide" id="inlineRadio1" value="yes"> yes
-						</label>
-						<label class="radio-inline">
-						  <input type="radio" name="hide" id="inlineRadio2" value="no"> no
-						</label>
+              <input type="radio" name="active" id="inlineRadio1" value="1"> yes
+            </label>
+            <label class="radio-inline">
+              <input type="radio" checked='checked' name="active" id="inlineRadio2" value="0"> no
+            </label>
 				<% }else{ %>
 						<label class="radio-inline">
-						  <input type="radio" name="hide" id="inlineRadio1" value="yes"> yes
-						</label>
-						<label class="radio-inline">
-						  <input type="radio" checked='checked' name="hide" id="inlineRadio2" value="no"> no
-						</label>
+              <input type="radio" checked='checked' name="active" id="inlineRadio1" value="1"> yes
+            </label>
+            <label class="radio-inline">
+              <input type="radio" name="active" id="inlineRadio2" value="0"> no
+            </label>
 				<% } %>
       </div>
     </div>

@@ -57,7 +57,7 @@ router.get('/security_form/:kind/:id', function (req, res) {
 
 									//rows[0].init_date = new Date(rows[0].init_date)
 									//console.log('rows::')
-									//console.log(rows[0])
+									console.log(rows[0])
 									res.render('security', {
 									      title : 'Tautoa: Edit Security',
 									      data : JSON.stringify(rows[0]),
@@ -69,9 +69,6 @@ router.get('/security_form/:kind/:id', function (req, res) {
 									      accounts : accountList,
 									      groups : groupList,
 									      secid : secid
-
-									      //hostname: req.C.hostname,
-									      //message: req.flash('message'),
 
 									    });
 								}
@@ -265,6 +262,7 @@ router.post('/change_secview', function (req, res) {
 
 });
 router.post('/view_securities', function (req, res) {
+			console.log('in view_sec')
 			var list_type = req.body.type
 			var list_value = req.body.value
 			//SHOW_INFO = req.body.view
@@ -345,7 +343,7 @@ router.post('/view_securities', function (req, res) {
           		}else{
           			// no rows
           		}
-          		console.log('transaction orphans',orphans)
+          		//console.log('transaction orphans',orphans)
           		// sort each t list by date
           		for(k in ALL_SECURITIES_BY_ID){
           		 		ALL_SECURITIES_BY_ID[k].transactions.sort(sortByDate);
