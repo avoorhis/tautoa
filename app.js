@@ -20,8 +20,8 @@ PORTFOLIO_TOTAL = 0;
 ALL_SECURITIES_BY_ID ={};
 ALL_SECURITIES_BY_NAME = {};
 SELECTED_SECURITY = {id:0,name:''}
-TAUTOA_DATABASE = 'andys_portfolio'
-USE_HIDDEN = 'no'  // default 'no'  else 'yes'
+TAUTOA_DATABASE = 'portfolio'
+ACTIVE = '1'  // default '1'  else '0'
 SHOW_INFO  = 'val' // default 'value' else 'stg' sector,type,goal
 connection = require('./config/database');
 connection.connect2database(TAUTOA_DATABASE)
@@ -41,11 +41,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(session({ 
+app.use(session({
 	secret: 'keyboard cat',
     resave: false,
     saveUninitialized: true
-})); // 
+})); //
 app.use(flash());
 
 app.use(function(req, res, next){
@@ -65,111 +65,27 @@ app.use('/', routes);
 
 
 
-// connection.db.query(queries.get_all_securities(), function(err, rows, fields){
-// 	if(err){ console.log(err)
-// 	}else{
-// 		for (r in rows){
-// 			ALL_SECURITIES_BY_ID[rows[r].id] = rows[r];
-// 			ALL_SECURITIES_BY_NAME[rows[r].name] = rows[r];
-// 			portfolio_total += parseFloat(rows[r].cur_value);
-// 			if(r==0){
-// 				SELECTED_SECURITY = rows[r];
-// 			}
-// 		}
-// 	}
-// });
-// connection.db.query(queries.get_total(), function(err, rows, fields){
-// 	if(err){ console.log(err)
-// 	}else{
-// 		portfolio_total = rows[0].total;
-// 		console.log(portfolio_total)
-// 	}
-// });
-// connection.get_sectors()
-// connection.get_types()
-// connection.get_goals()
-// connection.get_accounts()
-// connection.get_actions()
-// connection.get_groups()
 
-async.parallel([ connection.get_sectors, 
-                    connection.get_types, 
-                    connection.get_goals, 
-                    connection.get_actions, 
-                    connection.get_accounts, 
+
+async.parallel([ connection.get_sectors,
+                    connection.get_types,
+                    connection.get_goals,
+                    connection.get_actions,
+                    connection.get_accounts,
                     connection.get_groups ]
                   );
-// FILTERS
-// connection.db.query(queries.get_sectors(), function(err, rows, fields){
-// 	if(err){ console.log(err)
-// 	}else{
-// 		sectorList = [];
-// 		for(n in rows){
-// 			sectorList.push(rows[n].sector);
-// 		}
-// 	}
-// });
-// connection.db.query(queries.get_types(), function(err, rows, fields){
-// 	if(err){ console.log(err)
-// 	}else{
-// 		typeList = [];
-// 		for(n in rows){
-// 			typeList.push(rows[n].type);
-// 		}
-// 	}
-// });
-// connection.db.query(queries.get_goals(), function(err, rows, fields){
-// 	if(err){ console.log(err)
-// 	}else{
-// 		goalList = [];
-// 		for(n in rows){
-// 			goalList.push(rows[n].goal);
-// 		}
-// 	}
-// });
-// connection.db.query(queries.get_accounts(), function(err, rows, fields){
-// 	if(err){ console.log(err)
-// 	}else{
-// 		accountList = [];
-// 		for(n in rows){
-// 			accountList.push(rows[n].account);
-// 		}
-// 	}
-// });
-// //
-// connection.db.query(queries.get_actions(), function(err, rows, fields){
-// 	if(err){ console.log(err)
-// 	}else{
-// 		actionList = [];
-// 		for(n in rows){
-// 			actionList.push(rows[n].action);
-// 		}
-// 	}
-// });
-// connection.db.query(queries.get_groups(), function(err, rows, fields){
-// 	if(err){ console.log(err)
-// 	}else{
-// 		groupList = [];
-// 		for(n in rows){
-// 			items = rows[n].group_code.split(',')
-// 			for(i in items){
-// 				if(items[i] != '' && groupList.indexOf(items[i]) == -1){
-// 					groupList.push(items[i]);
-// 				}
-// 			}		
-// 		}
-// 		groupList.sort();
-// 	}
-// });
+
+
+
 connection.db.query(queries.get_databases(), function(err, rows, fields){
 	if(err){ console.log(err)
 	}else{
 		databaseList = [];
-		for (var i = 0; i < rows.length; i++) { 
+		for (var i = 0; i < rows.length; i++) {
        //console.log(rows[i]['Database (%_portfolio)'])
        databaseList.push(rows[i]['Database (%_portfolio)'])
 		}
-		
+
 		//console.log(databaseList)
 	}
 });
@@ -183,7 +99,7 @@ app.all('save_securitiy', function (req, res) {
 
 module.exports = app;
 if (!module.parent) {
+  console.log('starting server: '+process.env.PORT)
   var server = http.createServer(app);
-  cluster(server).listen(process.env.PORT);
+  //cluster(server).listen(process.env.PORT);
 }
-

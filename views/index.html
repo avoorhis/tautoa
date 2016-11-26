@@ -7,19 +7,19 @@
     <link rel="stylesheet" href="/css/bootstrap.css">
     <link rel="stylesheet" href="/css/bootstrap-sortable.css">
     <link rel="stylesheet" href="/css/tautoa.css">
-    
+
   </head>
-  
-  
+
+
 <body>
-    
+
 <!-- Fixed navbar at top -->
       <% include add_ins/navbar.html %>
 <!-- Fixed navbar at top -->
 <br><br><br>
 <div id='' style='position:relative;float:left;padding-left:10px;'><%= database %></div>
 <div id='' style='position:relative;float:right;padding-right:10px;'>Display:
-<% if(secview == 'val'){ %>    
+<% if(secview == 'val'){ %>
     <input type='radio' checked name='secview' value='val' onclick="change_secview(this.value)" /> by value&nbsp;&nbsp;
     <input type='radio' name='secview' value='stg' onclick="change_secview(this.value)" /> by sector,type,goal
 <% }else{ %>
@@ -31,22 +31,22 @@
     <h3>Tautoa Portfolio Browser <small><span id='hidden_notification' style='color:red'></span></small></h3>
 </center>
 
+
 <% if (message) { %>
     <div id='alert_flash_message_id' class="alert_flash_message"><%= message %></div>
 <% } %>
 <br>
-<div class="tautoa-container">
+<div class="tautoa-container">xx
       <!-- Example row of columns -->
 <div class="row">
   <div class="col-md-2">
-    
-    <br><br>
+
     <strong>Filter</strong><br>
     <div class='result_tbl_div' id='filter_div'>
         <table>
         <tr><td>Account:</td>
         <td>
-        <select id="account"   class='cat_select' onchange="get_security_list('account',this.value,'<%= hidden %>','')">
+        <select id="account"   class='cat_select' onchange="get_security_list('account',this.value,'<%= active %>','')">
                     <option value="none">...</option>
         <%      for(a in accountList){ %>
                     <option value="<%= accountList[a] %>"><%= accountList[a] %></option>
@@ -54,41 +54,41 @@
         </select>
         </td></tr>
 
-        
-        <tr><td>&nbsp;</td></tr> 
+
+        <tr><td>&nbsp;</td></tr>
         <tr><td>Sector:</td>
         <td>
-        <select id="sector"   class='cat_select' onchange="get_security_list('sector',this.value,'<%= hidden %>','')">
+        <select id="sector"   class='cat_select' onchange="get_security_list('sector',this.value,'<%= active %>','')">
                     <option value="none">...</option>
         <%      for(s in sectorList){ %>
                     <option value="<%= sectorList[s] %>"><%= sectorList[s] %></option>
         <%      } %>
         </select>
         </td></tr>
-        <tr><td>&nbsp;</td></tr> 
+        <tr><td>&nbsp;</td></tr>
         <tr><td>Type:</td>
         <td>
-        <select id="type"  class='cat_select' onchange="get_security_list('type',this.value,'<%= hidden %>','')">
+        <select id="type"  class='cat_select' onchange="get_security_list('type',this.value,'<%= active %>','')">
                     <option value="none">...</option>
         <%      for(a in typeList){ %>
                     <option value="<%= typeList[a] %>"><%= typeList[a] %></option>
         <%      } %>
         </select>
        </td></tr>
-       <tr><td>&nbsp;</td></tr> 
+       <tr><td>&nbsp;</td></tr>
         <tr><td>Category:</td>
         <td>
-        <select id="goal"   class='cat_select' onchange="get_security_list('goal',this.value,'<%= hidden %>','')">
+        <select id="goal"   class='cat_select' onchange="get_security_list('goal',this.value,'<%= active %>','')">
                     <option value="none">...</option>
         <%      for(a in goalList){ %>
                     <option value="<%= goalList[a] %>"><%= goalList[a] %></option>
         <%      } %>
         </select>
         </td></tr>
-        <tr><td>&nbsp;</td></tr> 
+        <tr><td>&nbsp;</td></tr>
         <tr><td nowrap>Key Word:&nbsp;</td>
         <td>
-        <select id="group"   class='cat_select' onchange="get_security_list('group',this.value,'<%= hidden %>','')">
+        <select id="group"   class='cat_select' onchange="get_security_list('group',this.value,'<%= active %>','')">
                     <option value="none">...</option>
         <%      for(a in groupList){ %>
                     <option value="<%= groupList[a] %>"><%= groupList[a] %></option>
@@ -98,25 +98,8 @@
         </table>
     </div>  <!-- // end class='result_tbl_div'  -->
     <br>
-    
-    
-  </div> <!-- // class="col-md-3" -->
 
-  <div class="col-md-10" >
-        <div id='security_info_div_id'></div>
-        <div id='security_list_div_id' style='border:1px solid black;height:250px;overflow:auto;'>
-        </div>
-  </div> <!-- // class="col-md-10" -->
-</div>  <!-- // end row-->
-
-
-
-
-
-<div class="row">
-  <div class="col-md-2">
-
-    <span id='port_total_span'>Portfolio Total: <span id='port_total_div'></span></span>
+    <div id='port_total_span'>Portfolio Total:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='port_total_div'></span></div>
     <div class='result_tbl_div'>
         &nbsp;Group: <small>(<span id='sec_group_id'>All Securities</span>)</small>
         <table class='result_tbl' border='1' style='width:100%'>
@@ -132,33 +115,35 @@
             <tr><td>Count:</td><td><div id='sec_count'></div></td></tr>
         </table>
     </div>
-    <div id='database_div'>
-        Current Database:<%= database %>
-        <form  method='post' action='change_portfolio'>
-            <select name='database_sel' id='database_sel'  onchange="this.form.submit()" >
-                <option value="0">choose...</option>
-                <% for(i in databases ){ %>
-                <%   if(database == databases[i]){ %>
-                        <option selected value="<%= databases[i] %>"><%= databases[i] %></option>
-                <%   }else{ %>
-                        <option value="<%= databases[i] %>"><%= databases[i] %></option>
-                <%   } %>
-                <% } %>
-            </select>
-        </form>
-    </div>
 
-  </div>  <!-- // end class="col-md-3" -->
-  <br>
+
+
+  </div> <!-- // class="col-md-2" -->
+
+  <div class="col-md-10" >
+        <div id='security_info_div_id'></div>
+        <div id='security_list_div_id' style='border:1px solid black;height:250px;overflow:auto;'>
+        </div>
+  </div> <!-- // class="col-md-10" -->
+</div>  <!-- // end row-->
+
+
+
+
+
+<div class="row">
+  <div class="col-md-2">
+  </div>  <!-- // end class="col-md-2" -->
+
   <div class="col-md-8" >
-  
+
     <div id='sec_name_div_id' ></div>
     <div id='transaction_list_div_id'></div>
-    
+
   </div>  <!-- // end class="col-md-3" -->
   <div class="col-md-2" >
 
-   
+
        <div class='result_tbl_div' >
             This Security: <small>(<span id='sec_ticker_id'></span>)</small>
             <table class='result_tbl' border='1' style='width:100%'>
@@ -178,8 +163,8 @@
                 <tr><td>Goal:</td><td><div id='goal_id'></div></td></tr>
             </table>
         </div>
-    
-  </div> 
+
+  </div>
 
 
 </div> <!-- // end row-->
@@ -189,7 +174,7 @@
 
 <div id="transaction_form">
 
-    <a id='transaction_close_btn' class="btn btn-xs" href="#" role="button"  
+    <a id='transaction_close_btn' class="btn btn-xs" href="#" role="button"
                     style='float:right;' onclick='clear_tform()'>X</a>
 <form id='new_trans_form_id' method='POST' action='/enter_transaction'>
 <table border='1'>
@@ -206,13 +191,13 @@
         <tr>
             <td>Date:</td>
             <td colspan='2'><input type="date" name='tdate'  id="inputDate" placeholder="Date" value=''></td>
-            
+
             <td colspan='3' nowrap class='nowrap'>Action:
-            
+
                 <span class="select-editable">
                   <select  id='new_transaction_sel' onchange="this.nextElementSibling.value=this.value" >
                     <%  for(n in actions){ %>
-                            <option value='<%= actions[n] %>'><%= actions[n] %></option>        
+                            <option value='<%= actions[n] %>'><%= actions[n] %></option>
                     <%  } %>
                   </select>
                   <input type="text" id="actionsSelect" name='action' value=""/>
@@ -240,14 +225,14 @@
         </table>
     </td>
     <td>
-   
+
         Notes:<textarea name='tnote' id='tnote' rows='2' cols='40'></textarea>
     </td>
     <td>
         <button id='save_trans_btn' name='' type='button' class='btn btn-xs btn-primary' >Save</button>
     </td>
     </tr>
-    </table>       
+    </table>
     <input type='hidden' id='tid' name='tid' value=''>
     </form>
 </div>
@@ -259,17 +244,17 @@
 <script type="text/javascript" src="/js/bootstrap-sortable.js"></script>
 <script type="text/javascript" src="/js/tautoa.js"></script>
 <script type="text/javascript" src="/js/date.format.js"></script>
-<script> 
+<script>
         var d = new Date();
         var today = d.format('yyyy-mm-dd');
 </script>
 <script>
 $( document ).ready(function() {
-     
+
     secid = <%= selected_securityID %>
-    hide = '<%= hidden %>'
+    active = '<%= active %>'
     view = '<%= secview %>'
-    get_security_list('default','default', hide, view, secid);
+    get_security_list('default','default', active, view, secid);
     //view_transactions_ajax(secid);
     get_group_info('all','all');
     //document.getElementById("port_total_div").innerHTML = '$'+total.formatMoney(2);
@@ -277,9 +262,8 @@ $( document ).ready(function() {
     ttable_div = document.getElementById("transaction_list_div_id")
     ttable_div.scrollTop = 30;
    // $(".hover").attr('title', 'This is the hover-over text');
-    
+
 });
 </script>
 
 </html>
-

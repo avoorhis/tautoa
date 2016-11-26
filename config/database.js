@@ -23,7 +23,7 @@ var async = require('async');
 // connection.end();
 exports.connect2database = function(dbase) {
 //(function(){
-   
+
    var handleDisconnect,mysql, this$ = this;
    var mysql = require('mysql2');
    //var fs = require('fs-extra');
@@ -70,7 +70,7 @@ exports.connect2database = function(dbase) {
 
   exports.get_sectors = function(callback){
     console.log('Loading Sectors')
-    connection.db.query(queries.get_sectors(USE_HIDDEN), function(err, rows, fields){
+    connection.db.query(queries.get_sectors(ACTIVE), function(err, rows, fields){
       if(err){ console.log(err)
       }else{
         sectorList = [];
@@ -84,7 +84,7 @@ exports.connect2database = function(dbase) {
 
   exports.get_types = function(callback){
     console.log('Loading Types')
-    connection.db.query(queries.get_types(USE_HIDDEN), function(err, rows, fields){
+    connection.db.query(queries.get_types(ACTIVE), function(err, rows, fields){
       if(err){ console.log(err)
       }else{
         typeList = [];
@@ -98,7 +98,7 @@ exports.connect2database = function(dbase) {
 
   exports.get_goals = function(callback) {
     console.log('Loading Goals')
-    connection.db.query(queries.get_goals(USE_HIDDEN), function(err, rows, fields){
+    connection.db.query(queries.get_goals(ACTIVE), function(err, rows, fields){
       if(err){ console.log(err)
       }else{
         goalList = [];
@@ -111,8 +111,8 @@ exports.connect2database = function(dbase) {
   }
 
   exports.get_accounts = function(callback) {
-    console.log('Loading Actions')
-    connection.db.query(queries.get_accounts(USE_HIDDEN), function(err, rows, fields){
+    console.log('Loading Accounts')
+    connection.db.query(queries.get_accounts(ACTIVE), function(err, rows, fields){
       if(err){ console.log(err)
       }else{
         accountList = [];
@@ -149,7 +149,7 @@ exports.connect2database = function(dbase) {
   }
   exports.get_groups = function(callback) {
     console.log('Loading Groups')
-    connection.db.query(queries.get_groups(USE_HIDDEN), function(err, rows, fields){
+    connection.db.query(queries.get_groups(ACTIVE), function(err, rows, fields){
       if(err){ console.log(err)
       }else{
         groupList = [];
@@ -159,7 +159,7 @@ exports.connect2database = function(dbase) {
             if(items[i] != '' && groupList.indexOf(items[i]) == -1){
               groupList.push(items[i]);
             }
-          }   
+          }
         }
         groupList.sort();
       }
@@ -169,95 +169,9 @@ exports.connect2database = function(dbase) {
   // function final(results) { console.log('Done', results); }
   // var items = [ get_sectors, get_types, get_goals, get_actions, get_accounts, get_groups ];
   // var results = 0;
-  
-  
 
-  
+
+
+
 
 //}
-
-
-
-    
-// exports.get_sectors = function() {
-//     console.log('Loading Sectors')
-//     connection.db.query(queries.get_sectors(), function(err, rows, fields){
-//       if(err){ console.log(err)
-//       }else{
-//         sectorList = [];
-//         for(n in rows){
-//           sectorList.push(rows[n].sector);
-//         }
-//       }
-//     });
-// }
-// exports.get_types = function() {
-//     console.log('Loading Sectors')
-//     connection.db.query(queries.get_types(), function(err, rows, fields){
-//       if(err){ console.log(err)
-//       }else{
-//         typeList = [];
-//         for(n in rows){
-//           typeList.push(rows[n].type);
-//         }
-//       }
-//     });
-// }
-// exports.get_goals = function() {
-//     console.log('Loading Sectors')
-//     connection.db.query(queries.get_goals(), function(err, rows, fields){
-//       if(err){ console.log(err)
-//       }else{
-//         goalList = [];
-//         for(n in rows){
-//           goalList.push(rows[n].goal);
-//         }
-//       }
-//     });
-// }
-// exports.get_accounts = function() {
-//     console.log('Loading Sectors')
-//     connection.db.query(queries.get_accounts(), function(err, rows, fields){
-//       if(err){ console.log(err)
-//       }else{
-//         accountList = [];
-//         for(n in rows){
-//           accountList.push(rows[n].account);
-//         }
-//       }
-//     });
-//     //
-// }
-// exports.get_actions = function() {
-//     console.log('Loading Sectors')
-//     connection.db.query(queries.get_actions(), function(err, rows, fields){
-//       if(err){ console.log(err)
-//       }else{
-//         actionList = [];
-//         for(n in rows){
-//           actionList.push(rows[n].action);
-//         }
-//       }
-//     });
-// }
-// exports.get_groups = function() {
-//     console.log('Loading Sectors')
-//     connection.db.query(queries.get_groups(), function(err, rows, fields){
-//       if(err){ console.log(err)
-//       }else{
-//         groupList = [];
-//         for(n in rows){
-//           items = rows[n].group_code.split(',')
-//           for(i in items){
-//             if(items[i] != '' && groupList.indexOf(items[i]) == -1){
-//               groupList.push(items[i]);
-//             }
-//           }   
-//         }
-//         groupList.sort();
-//       }
-//     });
-// }
-
-
-

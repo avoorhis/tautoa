@@ -48,6 +48,8 @@ a:hover {
 #port_total_span{
 	padding:1px 10px;
 	background:gold;
+  width:100%;
+  font-size: 12px;
 	border:1px solid red;
 }
 #security_table tr:hover {
@@ -56,7 +58,7 @@ a:hover {
 
 #transaction_table_div {
 	height:300px;
-	
+
 	overflow:auto;
 }
 #transaction_table {
@@ -92,7 +94,7 @@ a:hover {
     text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
     -ms-text-overflow: ellipsis;
-    
+
     text-align:right;
 }
 .nowrap_name div{
@@ -135,6 +137,7 @@ a:hover {
 .result_tbl_div{
 	background: #9CC;
 	border: 1px solid black;
+  font-size:9px;
 
 }
 .result_tbl{
@@ -170,6 +173,7 @@ a:hover {
 	white-space: nowrap;
 	border:1px solid green;
 	padding:0 5px;
+  font-size: 12px;
 	font-weight:bold;
 	background:#DB7093;
 }

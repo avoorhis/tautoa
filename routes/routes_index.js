@@ -32,7 +32,7 @@ router.get('/', function (req, res) {
       actions 	: actionList,
       groups 		: groupList,
       message 	: req.flash('message'),
-      hidden 		: USE_HIDDEN,
+      active 		: ACTIVE,
       secview   : SHOW_INFO
 
     });
@@ -133,7 +133,7 @@ router.post('/save_security/:kind', function (req, res) {
 	//req.body.group_code = new_group_code.join()
 
 	console.log(req.body)
-	params =['name','ticker','account','hide','type','goal','sector','group_code','notes'];
+	params =['name','ticker','account','active','type','goal','sector','group_code','notes'];
 	fields = {}
 
 	if(kind == 'new'){
@@ -186,7 +186,7 @@ router.post('/save_security/:kind', function (req, res) {
 			SELECTED_SECURITY.notes = req.body.notes
 			fields['notes'] = req.body.notes
 		}
-			
+
 		q = queries.insert_security(fields)
 	}else{
 
@@ -195,7 +195,7 @@ router.post('/save_security/:kind', function (req, res) {
 				fields[params[n]] = req.body[params[n]]
 			}
 			q = queries.update_security(secid,fields)
-			if(req.body.hide == 'yes'){
+			if(req.body.active == '0'){
 					SELECTED_SECURITY = {}
 	 		  	SELECTED_SECURITY.transactions = []
 			}
@@ -268,32 +268,32 @@ router.post('/view_securities', function (req, res) {
 			var list_type = req.body.type
 			var list_value = req.body.value
 			//SHOW_INFO = req.body.view
-			USE_HIDDEN = req.body.hide
+			ACTIVE = req.body.active
 			console.log(req.body)
 			var query,html;
 			switch(list_type) {
 		    case 'goal':
 		        //code block
-		        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
+		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
 		        break;
 		    case 'type':
-		        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
+		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
 		        break;
 		    case 'sector':
-		        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
+		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
 		        break;
 		    case 'group':
-		        query = queries.get_group_securities(list_type,list_value,USE_HIDDEN);
+		        query = queries.get_group_securities(list_type,list_value,ACTIVE);
 		        break;
 		    case 'account':
-		        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
+		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
 		        break;
-		    case 'hidden':
-		        //query = queries.get_hidden_securities(list_type,list_value,USE_HIDDEN);
-		        query = queries.get_all_securities(USE_HIDDEN);
+		    case 'inactive':
+		        //query = queries.get_hidden_securities(list_type,list_value,ACTIVE);
+		        query = queries.get_all_securities(ACTIVE);
 		        break;
 		    default:
-		        query = queries.get_all_securities(USE_HIDDEN);
+		        query = queries.get_all_securities(ACTIVE);
 			}
 			console.log(query);
 			ALL_SECURITIES_BY_ID={}
@@ -329,7 +329,7 @@ router.post('/view_securities', function (req, res) {
     						first_name = 'none'
           }
 
-          req.db.query(queries.get_all_transactions(USE_HIDDEN), function(err, rows, fields){
+          req.db.query(queries.get_all_transactions(ACTIVE), function(err, rows, fields){
           		if (err) { console.log('2-MAIN OBJ error: ' + err);	return;	}
           		if(rows){
           			for (r in rows){
@@ -422,25 +422,25 @@ router.post('/get_group_info', function (req, res) {
 	switch(list_type) {
     case 'goal':
         //code block
-        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
+        query = queries.get_select_securities(list_type,list_value,ACTIVE);
         break;
     case 'type':
-        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
+        query = queries.get_select_securities(list_type,list_value,ACTIVE);
         break;
     case 'sector':
-        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
+        query = queries.get_select_securities(list_type,list_value,ACTIVE);
         break;
     case 'group':
-        query = queries.get_group_securities(list_type,list_value,USE_HIDDEN);
+        query = queries.get_group_securities(list_type,list_value,ACTIVE);
         break;
     case 'account':
-        query = queries.get_select_securities(list_type,list_value,USE_HIDDEN);
+        query = queries.get_select_securities(list_type,list_value,ACTIVE);
         break;
-    case 'hidden':
+    case 'inactive':
         query = queries.get_hidden_securities(list_type,list_value);
         break;
     default:
-        query = queries.get_all_group_info(USE_HIDDEN);
+        query = queries.get_all_group_info(ACTIVE);
 	}
 	console.log(query);
 	html = '';
@@ -882,7 +882,7 @@ router.post('/change_portfolio', function (req, res) {
 	      accounts 	: accountList,
 	      actions 	: actionList,
 	      groups 		: groupList,
-	      hidden 		: USE_HIDDEN,
+	      active 		: ACTIVE,
       	secview   : SHOW_INFO,
 	      message 	: req.flash('message')
 
@@ -1002,11 +1002,11 @@ function get_seclist_html(secObj, view){
         //html += "    <a href='#' >" + sortList[k].ticker + "</a>";
         html += sortList[k].ticker
         html += "</td>";
-        
+
         html += "<td class='nowrap_name'  id='"+sortList[k].name+"' data-toggle='tooltip' data-container='body' data-placement='left' title='"+sortList[k].note+"'>"
         html += "<span class='pull-left'>"+sortList[k].name+"</span>"
         html += "<span class='pull-right' style='color:red;' >"+sortList[k].alert+"</span></td>";
-        
+
         if(view == 'val'){
         	html += "<td class='change_secview' ><div>$"+parseFloat(sortList[k].cur_price).toFixed(2)+"</div></td>";
         	html += "<td class='nowrap_value' ><div>"+parseFloat(sortList[k].cur_shares).toFixed(3)+"</div></td>";
