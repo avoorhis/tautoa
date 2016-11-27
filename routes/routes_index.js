@@ -8,6 +8,7 @@ var path = require('path')
 var dateFormat = require('dateformat');
 var today = new Date();
 var queries = require('./queries');
+var config = require('../config/config');
 
 router.get('/', function (req, res) {
   console.log('in index/home')

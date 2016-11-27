@@ -1,6 +1,7 @@
 var mysql      = require('mysql2');
 var queries = require('../routes/queries');
 var async = require('async');
+var config = require('../config/config');
 //TAUTOA_DATABASE = 'test_portfolio'
 
 // db_config = {
@@ -23,7 +24,7 @@ var async = require('async');
 // connection.end();
 exports.connect2database = function(dbase) {
 //(function(){
-
+  console.log('Trying to Connect... '+dbase);
    var handleDisconnect, mysql, this$ = this;
    var mysql = require('mysql2');
    //var fs = require('fs-extra');
@@ -33,9 +34,9 @@ exports.connect2database = function(dbase) {
    handleDisconnect = function(){
      console.log('Trying to Connect...');
 	 		exports.db = mysql.createConnection({
-				  host     : 'localhost',
-				  user     : 'root',
-				  password : '1cc=1ml',
+				  host     : config.DBHOST,
+				  user     : config.DBUSER,
+				  password : config.DBPASS,
 				  database : dbase
 				});
      exports.db.connect(function(err){

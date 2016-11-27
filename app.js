@@ -14,13 +14,14 @@ var flash = require('express-flash');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var constants = require('./public/constants');
+var config = require('./config/config');
 //var config = require('./config/config');
 // Put Globals here
 PORTFOLIO_TOTAL = 0;
 ALL_SECURITIES_BY_ID ={};
 ALL_SECURITIES_BY_NAME = {};
 SELECTED_SECURITY = {id:0,name:''}
-TAUTOA_DATABASE = 'andys_portfolio'
+TAUTOA_DATABASE = config.DB
 ACTIVE = '1'  // default '1'  else '0'
 SHOW_INFO  = 'val' // default 'value' else 'stg' sector,type,goal
 connection = require('./config/database');
