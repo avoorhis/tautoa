@@ -2,26 +2,8 @@ var mysql      = require('mysql2');
 var queries = require('../routes/queries');
 var async = require('async');
 var config = require('../config/config');
-//TAUTOA_DATABASE = 'test_portfolio'
 
-// db_config = {
-//   host     : 'localhost',
-//   user     : 'root',
-//   password : '1cc=1ml',
-//   database : TAUTOA_DATABASE
-// };
 
-//connection.connect();
-
-//exports.connection = connection;
-// connection.query('SELECT * from securities', function(err, rows, fields) {
-//   if (!err)
-//     console.log('The solution is: ', rows);
-//   else
-//     console.log('Error while performing Query.');
-// });
-
-// connection.end();
 exports.connect2database = function(dbase) {
 //(function(){
   console.log('Trying to Connect... '+dbase);
