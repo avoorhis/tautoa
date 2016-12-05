@@ -149,6 +149,19 @@ exports.connect2database = function(dbase) {
       callback(null, groupList);
     });
   }
+  exports.get_alerts = function(callback) {
+    console.log('Loading Alerts')
+    connection.db.query(queries.get_alerts(ACTIVE), function(err, rows, fields){
+      if(err){ console.log(err)
+      }else{
+        alertList = [];
+        for(n in rows){
+          alertList.push(rows[n].alert);
+        }
+        callback(null, alertList);
+      }
+    });
+  }
   // function final(results) { console.log('Done', results); }
   // var items = [ get_sectors, get_types, get_goals, get_actions, get_accounts, get_groups ];
   // var results = 0;

@@ -32,6 +32,7 @@ router.get('/', function (req, res) {
       accounts 	: accountList,
       actions 	: actionList,
       groups 		: groupList,
+      alerts 		: alertList,
       message 	: req.flash('message'),
       active 		: ACTIVE,
       secview   : SHOW_INFO
@@ -69,6 +70,7 @@ router.get('/security_form/:kind/:id', function (req, res) {
 									      sectors : sectorList,
 									      accounts : accountList,
 									      groups : groupList,
+									      alerts : alertList,
 									      secid : secid
 
 									    });
@@ -86,6 +88,7 @@ router.get('/security_form/:kind/:id', function (req, res) {
 			      sectors : sectorList,
 			      accounts : accountList,
 			      groups : groupList,
+			      alerts : alertList,
 			      secid:0
 			      //hostname: req.C.hostname,
 			      //message: req.flash('message'),
@@ -131,7 +134,7 @@ router.post('/save_security/:kind', function (req, res) {
 	//req.body.group_code = new_group_code.join()
 
 	console.log(req.body)
-	params =['name','ticker','account','active','type','goal','sector','group_code','notes'];
+	params =['name','ticker','account','active','type','goal','sector','group_code','notes','alert'];
 	fields = {}
 
 	if(kind == 'new'){
@@ -177,6 +180,7 @@ router.post('/save_security/:kind', function (req, res) {
 		SELECTED_SECURITY.type = req.body.type
 		SELECTED_SECURITY.sector = req.body.sector
 		SELECTED_SECURITY.goal = req.body.goal
+		SELECTED_SECURITY.alert = req.body.alert
 		if(req.body.notes == ''){
 			SELECTED_SECURITY.notes = req.body.name
 			fields['notes'] = req.body.name
@@ -287,6 +291,9 @@ router.post('/view_securities', function (req, res) {
 		    case 'account':
 		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
 		        break;
+		    case 'alert':
+		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
+		        break;
 		    case 'inactive':
 		        //query = queries.get_hidden_securities(list_type,list_value,ACTIVE);
 		        query = queries.get_all_securities(ACTIVE);
@@ -318,6 +325,7 @@ router.post('/view_securities', function (req, res) {
 	          				ALL_SECURITIES_BY_ID[rows[r].id].account 		= rows[r].account
 	          				ALL_SECURITIES_BY_ID[rows[r].id].note 		  = rows[r].notes
                     ALL_SECURITIES_BY_ID[rows[r].id].yield      = rows[r].yield
+                    ALL_SECURITIES_BY_ID[rows[r].id].alert      = rows[r].alert
 	          				ALL_SECURITIES_BY_ID[rows[r].id].transactions = []
           			}
           			first_id = rows[0].id
@@ -893,7 +901,8 @@ router.post('/change_portfolio', function (req, res) {
                     connection.get_goals,
                     connection.get_actions,
                     connection.get_accounts,
-                    connection.get_groups ],
+                    connection.get_groups,
+                    connection.get_alerts ],
                     render
                   );
 });

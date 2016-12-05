@@ -5,19 +5,19 @@ var C = require('../public/constants');
 module.exports = {
 
 	get_all_securities: function(active){
-	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield"
+	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield,alert"
 	    q += " from securities WHERE active = '"+active+"'  ORDER BY name";
 	    return q;
 	},
 	get_select_securities: function(list_type, list_value, active){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield"
+			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield,alert"
 	    q += " from securities WHERE active = '"+active+"'"
 	    q += " and "+list_type+"='"+list_value+"'"
 	    q += " ORDER BY name";
 	    return q;
 	},
 	get_group_securities: function(list_type, list_value, active){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield"
+			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield,alert"
 	    q += " from securities WHERE active = '"+active+"'"
 	    q += " and group_code like '%"+list_value+"%'"
 	    q += " ORDER BY name";
@@ -27,7 +27,7 @@ module.exports = {
 	get_security: function(secid){
 	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, active,"
 	    q += " init_value, init_shares, init_price, DATE_FORMAT(init_date,'%Y-%m-%d') as init_date,"
-	    q += "type,goal,sector,account,notes,group_code"
+	    q += "type,goal,sector,account,notes,group_code,alert"
 	    q += " from securities WHERE id='"+secid+"' ";
 	    console.log(q)
 	    return q;
@@ -162,6 +162,10 @@ module.exports = {
 	},
 	get_groups: function(active){
 	    var q = "SELECT group_code from securities where group_code != '' AND active= '"+active+"' ";
+	    return q;
+	},
+	get_alerts: function(active){
+	    var q = "SELECT distinct alert from securities where alert != '' AND active= '"+active+"' ORDER BY alert";
 	    return q;
 	},
 	get_all_group_info: function(active){

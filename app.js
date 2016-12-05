@@ -73,7 +73,8 @@ async.parallel([ connection.get_sectors,
                     connection.get_goals,
                     connection.get_actions,
                     connection.get_accounts,
-                    connection.get_groups ]
+                    connection.get_groups,
+                    connection.get_alerts]
                   );
 
 

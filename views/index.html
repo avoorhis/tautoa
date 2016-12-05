@@ -15,7 +15,7 @@
       <% include add_ins/navbar.html %>
 <!-- Fixed navbar at top -->
 <br><br><br>
-<div id='' style='position:relative;float:left;padding-left:10px;'><%= database %></div>
+<div id='' style='position:relative;float:left;padding-left:10px;'>db: <%= database %></div>
 <div id='' style='position:relative;float:right;padding-right:10px;'>Display:
 <% if(secview == 'val'){ %>
     <input type='radio' checked name='secview' value='val' onclick="change_secview(this.value)" /> by value&nbsp;&nbsp;
@@ -31,14 +31,13 @@
     <div id='alert_flash_message_id' class="alert_flash_message"><%= message %></div>
 <% } %>
 <br>
+
+
 <div class="tautoa-container">
       <!-- Example row of columns -->
 <div class="row">
+<div class="col-lg-2">
 
-
-
-
-  <div class="col-md-2">
 
     <strong>Filter</strong><br>
     <div class='result_tbl_div' id='filter_div'>
@@ -94,10 +93,20 @@
         <%      } %>
         </select>
         </td></tr>
+        <tr><td>&nbsp;</td></tr>
+        <tr><td nowrap>Alert:&nbsp;</td>
+        <td>
+        <select id="alert"   class='cat_select' onchange="get_security_list('alert',this.value,'<%= active %>','')">
+                    <option value="none">...</option>
+        <%      for(a in alertList){ %>
+                    <option value="<%= alertList[a] %>"><%= alertList[a] %></option>
+        <%      } %>
+        </select>
+
+        </td></tr>
         </table>
     </div>  <!-- // end class='result_tbl_div'  -->
     <br>
-
     <div id='port_total_span'>Portfolio Total:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='port_total_div'></span></div>
     <div class='result_tbl_div'>
         &nbsp;Group: <small>(<span id='sec_group_id'>All Securities</span>)</small>
@@ -115,27 +124,6 @@
         </table>
     </div>
     <br>
-    
-
-
-  </div> <!-- // class="col-md-2" -->
-
-  <div class="col-md-10" >
-
-    
-    <h3>Tautoa Portfolio Browser <small><span id='hidden_notification' style='color:red'></span></small></h3>
-        <div id='security_info_div_id'></div>
-        <div id='security_list_div_id' style='border:1px solid black;height:250px;overflow:auto;'>
-        </div>
-  </div> <!-- // class="col-md-10" -->
-</div>  <!-- // end row-->
-
-
-
-
-
-<div class="row">
-  <div class="col-md-2">
     <div class='result_tbl_div' >
             This Security: <small>(<span id='sec_ticker_id'></span>)</small>
             <table class='result_tbl' border='1' style='width:100%'>
@@ -155,22 +143,22 @@
                 <tr><td>Goal:</td><td><div id='goal_id'></div></td></tr>
             </table>
     </div>
-  </div>  <!-- // end class="col-md-2" -->
 
-  <div class="col-md-10" >
 
+</div> <!-- // class="col-lg-2" -->
+
+<div class="col-lg-10" >
+    <h3>Tautoa Portfolio Browser <small><span id='hidden_notification' style='color:red'></span></small></h3>
+    <div id='security_info_div_id'></div>
+    <div id='security_list_div_id' style='border:1px solid black;height:250px;overflow:auto;'></div>
+    <br>
     <div id='sec_name_div_id' ></div>
     <div id='transaction_list_div_id'></div>
-
-  </div>  <!-- // end class="col-md-3" -->
-  <div class="col-md-2" >
-
-
-  </div>
+</div> <!-- // class="col-lg-10" -->
+</div>  <!-- // end row-->
+</div> <!-- // end container -->
 
 
-</div> <!-- // end row-->
-</div>  <!-- // end container -->
 
 <!-- Hidden at first -->
 
@@ -239,7 +227,7 @@
     </form>
 </div>
 <div id='loading_info_div' style='visibility:hidden'>Loading</div>
-<a href="#" data-toggle="tooltip" title="Hooray!">Hover over me</a>
+
 </body>
 <script type="text/javascript" src="/js/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="/js/bootstrap.js"></script>
