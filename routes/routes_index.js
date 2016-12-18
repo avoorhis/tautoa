@@ -106,7 +106,7 @@ router.post('/save_security/:kind', function (req, res) {
 	var kind  = req.params.kind;
 	var new_group_code = []
 	req.body.ticker = req.body.ticker.toUpperCase();
-
+	// ADD new items to running server:
   if(sectorList.indexOf(req.body.sector) == -1){
   	sectorList.push(req.body.sector)
   }
@@ -118,6 +118,9 @@ router.post('/save_security/:kind', function (req, res) {
   }
   if(accountList.indexOf(req.body.account) == -1){
   	accountList.push(req.body.account)
+  }
+  if(alertList.indexOf(req.body.alert) == -1){
+  	alertList.push(req.body.alert)
   }
 	// add to groupList (if new)
 	group_string_list = req.body.group_code.split(',');
@@ -979,11 +982,13 @@ function get_seclist_html(secObj, view){
 		html = ''
 		html += "<table border='1' id='security_table' class='table table-condensed sortable'>";
 		html += "<thead>";
+		html += "<tr id=''><th>Ticker</th>"
+  	html += "<th>Name<span class='pull-right'>Alert</span></th>"
   	if(view == 'val'){
-  		html += "<tr id=''><th>Ticker</th><th>Name</th><th>Price</th><th>Shares</th>"
+  		html += "<th>Price</th><th>Shares</th>"
   		html += "<th>Value</th><th>Yield</th><th></th></tr>";
 		}else{
-			html += "<tr id=''><th>Ticker</th><th>Name</th><th>Account</th><th>Sector</th>"
+			html += "<th>Account</th><th>Sector</th>"
 			html += "<th>Type</th><th>Category</th><th></th></tr>";
 		}
 		html += "</thead>";
