@@ -2,9 +2,10 @@
 <html lang="en">
   <head>
     <title><%= title %></title>
+    <link rel="icon" href="images/tortoise7.png.ico">
     <link rel="stylesheet" href="/css/bootstrap.css">
     <link rel="stylesheet" href="/css/bootstrap-sortable.css">
-    <link rel="stylesheet" href="/css/tautoa.css">
+    <link rel="stylesheet" href="/css/app_client.css">
 
   </head>
 
@@ -33,18 +34,20 @@
 <br>
 
 
-<div class="tautoa-container">
+<div class="<%= app_name %>-container">
       <!-- Example row of columns -->
 <div class="row">
 <div class="col-lg-2">
 
 
-    <strong>Filter</strong><br>
-    <div class='result_tbl_div' id='filter_div'>
+    
+    <div class='result_tbl_div filter' id='filter_div'>
+        <div class='head_div'><strong>Filter</strong></div>
+        <br>
         <table>
         <tr><td>Account:</td>
         <td>
-        <select id="account"   class='cat_select' onchange="get_security_list('account',this.value,'<%= active %>','')">
+        <select id="account"   class='cat_select' onchange="update_filter('account',this.value,'<%= active %>','','','accounts_list') ">
                     <option value="none">...</option>
         <%      for(a in accountList){ %>
                     <option value="<%= accountList[a] %>"><%= accountList[a] %></option>
@@ -56,7 +59,7 @@
         <tr><td>&nbsp;</td></tr>
         <tr><td>Sector:</td>
         <td>
-        <select id="sector"   class='cat_select' onchange="get_security_list('sector',this.value,'<%= active %>','')">
+        <select id="sector"   class='cat_select' onchange="update_filter('sector',this.value,'<%= active %>','','','sectors_list')">
                     <option value="none">...</option>
         <%      for(s in sectorList){ %>
                     <option value="<%= sectorList[s] %>"><%= sectorList[s] %></option>
@@ -66,7 +69,7 @@
         <tr><td>&nbsp;</td></tr>
         <tr><td>Type:</td>
         <td>
-        <select id="type"  class='cat_select' onchange="get_security_list('type',this.value,'<%= active %>','')">
+        <select id="type"  class='cat_select' onchange="update_filter('type',this.value,'<%= active %>','','','types_list')">
                     <option value="none">...</option>
         <%      for(a in typeList){ %>
                     <option value="<%= typeList[a] %>"><%= typeList[a] %></option>
@@ -76,7 +79,7 @@
        <tr><td>&nbsp;</td></tr>
         <tr><td>Category:</td>
         <td>
-        <select id="goal"   class='cat_select' onchange="get_security_list('goal',this.value,'<%= active %>','')">
+        <select id="goal"   class='cat_select' onchange="update_filter('goal',this.value,'<%= active %>','','','goals_list')">
                     <option value="none">...</option>
         <%      for(a in goalList){ %>
                     <option value="<%= goalList[a] %>"><%= goalList[a] %></option>
@@ -86,7 +89,7 @@
         <tr><td>&nbsp;</td></tr>
         <tr><td nowrap>Key Word:&nbsp;</td>
         <td>
-        <select id="group"   class='cat_select' onchange="get_security_list('group',this.value,'<%= active %>','')">
+        <select id="group"   class='cat_select' onchange="update_filter('group',this.value,'<%= active %>','','','keys_words_list')">
                     <option value="none">...</option>
         <%      for(a in groupList){ %>
                     <option value="<%= groupList[a] %>"><%= groupList[a] %></option>
@@ -96,7 +99,7 @@
         <tr><td>&nbsp;</td></tr>
         <tr><td nowrap>Alert:&nbsp;</td>
         <td>
-        <select id="alert"   class='cat_select' onchange="get_security_list('alert',this.value,'<%= active %>','')">
+        <select id="alert"   class='cat_select' onchange="update_filter('alert',this.value,'<%= active %>','','','alerts_list')">
                     <option value="none">...</option>
         <%      for(a in alertList){ %>
                     <option value="<%= alertList[a] %>"><%= alertList[a] %></option>
@@ -107,16 +110,20 @@
         </table>
     </div>  <!-- // end class='result_tbl_div'  -->
     <br>
-    <div id='port_total_span'>Portfolio Total:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='port_total_div'></span></div>
-    <div class='result_tbl_div'>
-        &nbsp;Group: <small>(<span id='sec_group_id'>All Securities</span>)</small>
+    
+    <div class='result_tbl_div group'>
+        <div class='head_div'>
+            <strong>Group: 
+            <small>(<span id='sec_group_id'>All Securities</span>)</small>
+            </strong>
+        </div>
         <table class='result_tbl' border='1' style='width:100%'>
             <tr><td>Value</td><td><div id='gtot_value'></div></td></tr>
             <tr><td>$$ Invested</td><td><div id='ginvested'></div></td></tr>
             <tr><td>Basis</td><td><div id='gbasis'></div></td></tr>
             <tr><td>Profit</td><td><div id='gprofit'></div></td></tr>
             <tr><td>Total Return</td><td><div id='gtot_return'></div></td></tr>
-            <tr><td>Pct of Total:</td><td><div id='gpct_of_tot'></div></td></tr>
+            <tr><td>Pct of Port Total:</td><td><div id='gpct_of_tot'></div></td></tr>
 
             <!-- <tr><td>YTD Return</td><td><div id='gytd_return'></div></td></tr> -->
             <!-- <tr><td>Avg Annual Return</td><td><div id='gavg'></div></td></tr> -->
@@ -124,36 +131,45 @@
         </table>
     </div>
     <br>
-    <div class='result_tbl_div' >
-            This Security: <small>(<span id='sec_ticker_id'></span>)</small>
-            <table class='result_tbl' border='1' style='width:100%'>
-                <tr><td>Value</td><td><div id='tot_value'></div></td></tr>
-                <tr><td>$$ Invested</td><td><div id='invested'></div></td></tr>
-                <tr><td>Basis</td><td><div id='basis'></div></td></tr>
-                <tr><td>Profit</td><td><div id='profit'></div></td></tr>
-                <tr><td>Total Return</td><td><div id='tot_return'></div></td></tr>
-                <tr><td>YTD Return</td><td><div id='ytd_return'></div></td></tr>
-                <tr><td>Avg Annual Return</td><td><div id='avg_ann_return'></div></td></tr>
-                <tr><td>Held For:</td><td><div id='held_for'></div></td></tr>
-                <tr><td>Pct of Total:</td><td><div id='pct_of_total'></div></td></tr>
-                <tr><td>Pct of Group:</td><td><div id='pct_of_gtotal'></div></td></tr>
-                <tr><td>Account:</td><td><div id='account_id'></div></td></tr>
-                <tr><td>Sector:</td><td><div id='sector_id'></div></td></tr>
-                <tr><td>Type:</td><td><div id='type_id'></div></td></tr>
-                <tr><td>Goal:</td><td><div id='goal_id'></div></td></tr>
-            </table>
+    <div class='result_tbl_div security' >
+        <div class='head_div'>
+            <strong>Single: 
+                <small>(<span id='sec_ticker_id'></span>)</small>
+            </strong>
+        </div>
+        <table class='result_tbl' border='1' style='width:100%'>
+            <tr><td>Value</td><td><div id='tot_value'></div></td></tr>
+            <tr><td>$$ Invested</td><td><div id='invested'></div></td></tr>
+            <tr><td>Basis</td><td><div id='basis'></div></td></tr>
+            <tr><td>Profit</td><td><div id='profit'></div></td></tr>
+            <tr><td>Total Return</td><td><div id='tot_return'></div></td></tr>
+            <tr><td>YTD Return</td><td><div id='ytd_return'></div></td></tr>
+            <tr><td>Avg Annual Return</td><td><div id='avg_ann_return'></div></td></tr>
+            <tr><td>Held For:</td><td><div id='held_for'></div></td></tr>
+            <tr><td>Pct of Port Total:</td><td><div id='pct_of_total'></div></td></tr>
+            <tr><td>Pct of Group:</td><td><div id='pct_of_gtotal'></div></td></tr>
+            <tr><td>Account:</td><td><div id='account_id'></div></td></tr>
+            <tr><td>Sector:</td><td><div id='sector_id'></div></td></tr>
+            <tr><td>Type:</td><td><div id='type_id'></div></td></tr>
+            <tr><td>Goal:</td><td><div id='goal_id'></div></td></tr>
+        </table>
     </div>
 
 
 </div> <!-- // class="col-lg-2" -->
 
 <div class="col-lg-10" >
-    <h3>Tautoa Portfolio Browser <small><span id='hidden_notification' style='color:red'></span></small></h3>
+    <div id='port_total_div' class='pull-right' >
+        <center>Portfolio Total: <span id='port_total_span'></span></center>
+    </div>
+   
+    <h3><%= app_name %> Portfolio Browser <small><span id='hidden_notification' style='color:red'></span></small></h3>
+    
     <div id='security_info_div_id'></div>
-    <div id='security_list_div_id' style='border:1px solid black;height:250px;overflow:auto;'></div>
+    <div class='group' id='security_list_div_id' style='border:1px solid black;height:250px;overflow:auto;'></div>
     <br>
     <div id='sec_name_div_id' ></div>
-    <div id='transaction_list_div_id'></div>
+    <div class='' id='transaction_list_div_id'></div>
 </div> <!-- // class="col-lg-10" -->
 </div>  <!-- // end row-->
 </div> <!-- // end container -->
@@ -186,6 +202,7 @@
 
                 <span class="select-editable">
                   <select  id='new_transaction_sel' onchange="this.nextElementSibling.value=this.value" >
+                    <option value='0'>Choose...</option>
                     <%  for(n in actions){ %>
                             <option value='<%= actions[n] %>'><%= actions[n] %></option>
                     <%  } %>
@@ -219,7 +236,7 @@
         Notes:<textarea name='tnote' id='tnote' rows='2' cols='40'></textarea>
     </td>
     <td>
-        <button id='save_trans_btn' name='' type='button' class='btn btn-xs btn-primary' >Save</button>
+        <button id='save_trans_btn' name='' type='button' class='btn btn-xs btn-primary' >Enter</button>
     </td>
     </tr>
     </table>
@@ -232,7 +249,7 @@
 <script type="text/javascript" src="/js/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="/js/bootstrap.js"></script>
 <script type="text/javascript" src="/js/bootstrap-sortable.js"></script>
-<script type="text/javascript" src="/js/tautoa.js"></script>
+<script type="text/javascript" src="/js/app_client.js"></script>
 <script type="text/javascript" src="/js/date.format.js"></script>
 <script>
         var d = new Date();
@@ -244,7 +261,9 @@ $( document ).ready(function() {
     secid = <%= selected_securityID %>
     active = '<%= active %>'
     view = '<%= secview %>'
-    get_security_list('default','default', active, view, secid);
+    source = 'index.html'
+    //get_security_list('default','default', active, view, secid, source);
+    update_filter('default','default',active, view, secid, source)
     //view_transactions_ajax(secid);
     get_group_info('all','all');
     //document.getElementById("port_total_div").innerHTML = '$'+total.formatMoney(2);

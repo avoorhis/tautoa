@@ -23,21 +23,24 @@ var n = this,
 //
 //
 
-function ChangeCurrentRow() {
-				table = document.getElementById("security_table");
-				table_div = document.getElementById("security_list_div_id")
-				rows = table.getElementsByTagName("tr");
-				var tableRow = rows[currentRow];
+function ChangeCurrentRow() {  // only by arrow keys!
+
+        table = document.getElementById("security_table");
+        table_div = document.getElementById("security_list_div_id")
+        rows = table.getElementsByTagName("tr");
+        var tableRow = rows[currentRow];
         
         //table_div.scrollTop = rowHeight
  
         var secid = tableRow.id;
         var secname = tableRow.cells[1].id;
         hover(rows,secid);
-				for(i = 0; i < rows.length; i++){
-		 	        rows[i].style.background = '#fff';
-		 	        rows[i].style.fontStyle = 'normal';
-		 		}
+        
+        for(i = 0; i < rows.length; i++){
+            
+            rows[i].style.background = '#d9ffb3'; //'#fff';
+            rows[i].style.fontStyle = 'normal';
+        }
         //alert(tableRow.style.height)
        
         tableRow.style.background = "lightgreen";
@@ -49,15 +52,16 @@ function ChangeCurrentRow() {
 //
 function hover(rows,secid){
 	for(i = 0; i < rows.length; i++){
+		
 		rows[i].onmouseover = function() {
-					       this.style.backgroundColor = "#eee";
+					       this.style.backgroundColor = "lightgrey";
 					    }
 		rows[i].onmouseout = function() {
 				if(this.id==secid){
 					      this.style.backgroundColor = "lightgreen"; 
 					      this.style.fontStyle = 'italic' 
 				}else{
-					this.style.backgroundColor = "#fff"; 
+					this.style.backgroundColor = "#d9ffb3"; 
 					this.style.fontStyle = 'normal'
 				}
 		}
@@ -102,10 +106,17 @@ document.onkeydown = function(e) {
     e.preventDefault(); // prevent the default action (scroll / move caret)
 };    	
 var cleanup = document.getElementById('cleanup') || null;
+var cleanupall = document.getElementById('cleanup_all') || null;
 if (cleanup !== null) {
   cleanup.addEventListener('click', function () {
     //alert('clean')
-    cleanup_this_sec();
+    cleanup_updates('this_sec');
+  });
+};
+if (cleanupall !== null) {
+  cleanupall.addEventListener('click', function () {
+    //alert('clean')
+    cleanup_updates('all');
   });
 };
 var trans_ok_btn = document.getElementById('save_trans_btn') || null;
@@ -133,36 +144,15 @@ if (reset_btn !== null) {
     	selects[i].value = 'none'
     }
    //alert(view)
-    
-    get_security_list('default','default',active, view,'');
-    
+    source = 'reset_btn'
+    //get_security_list('all','default',active, view,'',source);
+    update_filter('all','all',active,view,'',source)
+    	
     
 
   });
 };
-// var refresh_btn = document.getElementById('refresh_btn') || null;
-// if (refresh_btn !== null) {
-//   refresh_btn.addEventListener('click', function () {
-//     //refresh_from_db();
-//     selects = document.getElementsByClassName('cat_select')
-//     for(i in selects){
-//     	selects[i].value = 'none'
-//     }
-//     get_security_list('default','default','');
 
-//   });
-// };
-// var view_regular = document.getElementById('view_regular_btn') || null;
-// if (view_regular !== null) {
-//   view_regular.addEventListener('click', function () {
-//     //alert('1')
-//     selects = document.getElementsByClassName('cat_select')
-//     for(i in selects){
-//     	selects[i].value = 'none'
-//     }
-//     get_security_list('default','default','');
-//   });
-// };
 var view_hidden = document.getElementById('view_hidden_btn') || null;
 if (view_hidden !== null) {
   view_hidden.addEventListener('click', function () {
@@ -171,14 +161,16 @@ if (view_hidden !== null) {
     for(i in selects){
     	selects[i].value = 'none'
     }
-    alert(active)
+    //alert(active)
     if(active == '0'){
     	active = '1'
-    	get_security_list('default','default',active, view,'');
+    	//get_security_list('all','default',active, view,'','view_hidden_1');
+    	update_filter('all','all',active, view,'','view_hidden_1')
     	
     }else{
     	active = '0'
-    	get_security_list('hidden','hidden',active, view,'');
+    	//get_security_list('hidden','hidden',active, view,'','view_hidden_0');
+    	update_filter('hidden','hidden',active, view,'','view_hidden_0')
     	
     }
     
@@ -205,13 +197,19 @@ function add_to_groups(val){
 //
 //
 //
-function cleanup_this_sec(){
+function cleanup_updates(fxn){
+		//alert(fxn)
+		// if(fxn == 'all'){
+// 		    target = '/cleanup_all'
+// 		}else{
+// 		    target = '/cleanup_this_security'
+// 		}
+		target = '/cleanup/'+fxn
 		var xmlhttp = new XMLHttpRequest();
-		//alert('in cleanup')
-    xmlhttp.open("GET", "/cleanup_this_security", true);
+        xmlhttp.open("GET", target, true);
 
-	  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-    xmlhttp.onreadystatechange = function() {
+	    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        xmlhttp.onreadystatechange = function() {
 
 		    if (xmlhttp.readyState == 4 ) {
 					//alert('post ajax')
@@ -223,10 +221,9 @@ function cleanup_this_sec(){
 					var objDiv = document.getElementById("transaction_table_div");
 					objDiv.scrollTop = objDiv.scrollHeight;
 					
-
 		    }
-    };
-    xmlhttp.send();
+        };
+        xmlhttp.send();
 }
 function view_transactions_ajax( secid ){
 	
@@ -277,15 +274,13 @@ function view_transactions_ajax( secid ){
 					sec_row_count = transrows.length -1;
 					for(i = 0; i < transrows.length; i++){
 		 	        transrows[i].style.background = 'white';
-		 	        transrows[i].style.fontStyle = 'normal'
-		 	        //rows[i].style
-
-		 	        if(transrows[i].id == secid){
-		 	        	currentRow = i;
-		 	        	rowHeight = i * scrollBy;
-		 	        //	ticker = rows[i].cells[0].id;
-		 	        //	secname = rows[i].cells[1].id;
-		 	        }
+                        transrows[i].style.fontStyle = 'normal'
+                        if(transrows[i].id == secid){
+                            currentRow = i;
+                            rowHeight = i * scrollBy;
+                        //	ticker = rows[i].cells[0].id;
+                        //	secname = rows[i].cells[1].id;
+                        }
 		 			}
 
 		 			if(secid){
@@ -297,14 +292,18 @@ function view_transactions_ajax( secid ){
 			 			document.getElementById('tcurrent_name').value  = secid;
 			 			//document.getElementById('totshares').value  = data.tot_shares;
 						
-						document.getElementById(secid).style.background = 'lightgreen'
-						document.getElementById(secid).style.fontStyle = 'italic'
-						document.getElementById('security_list_div_id').scrollTop = rowHeight - scrollBy;
 						
 						var objDiv = document.getElementById("transaction_table_div");
 						objDiv.scrollTop = objDiv.scrollHeight;
+						rows = table.getElementsByTagName("tr");
+						for(i = 0; i < rows.length; i++){            
+                            rows[i].style.background = '#d9ffb3'; //'#fff';
+                            rows[i].style.fontStyle = 'normal';
+                        }
+                        document.getElementById(secid).style.background = 'lightgreen'
+						document.getElementById(secid).style.fontStyle = 'italic'
+						document.getElementById('security_list_div_id').scrollTop = rowHeight - scrollBy;
 						
-
 					}
 					//alert(currentRow)
 					document.getElementById('loading_info_div').style.visibility = 'hidden'
@@ -315,10 +314,24 @@ function view_transactions_ajax( secid ){
 	
 }
 
-
-
-function get_security_list(list_type, list_value, active, view, secid ){
-		//alert('hello')
+function update_filter(list_type, value, active, view, secid, source){
+    var args  = 'type='+list_type;
+    args += '&value='+value;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("POST", "/update_filter", true);
+	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == 4 ) {
+            var data = JSON.parse(xmlhttp.responseText);
+            
+            get_security_list(data.type,data.value,active,view,secid,list_type)
+        }
+    }
+    xmlhttp.send(args);
+    
+}
+function get_security_list(list_type, list_value, active, view, secid, source ){
+		//alert(source)
 		// listType is default,goals,sectors,groups,types
 		//alert(view)
 		document.getElementById('loading_info_div').style.visibility = 'visible'
@@ -335,48 +348,56 @@ function get_security_list(list_type, list_value, active, view, secid ){
     for(i in selects){
     	selects[i].value = 'none'
     }
-    if(list_type != 'default' && list_type != 'hidden'){
+    if(list_type != 'default' && list_type != 'hidden' && list_type != 'all' ){
     	document.getElementById(list_type).value = list_value;
   	}
-		var args  = 'type='+list_type;
-		args += '&value='+list_value;
-		args += '&active='+active;
-		args += '&view='+view;
-		//alert(args)
-		var xmlhttp = new XMLHttpRequest();
+    //var args  //= 'type='+list_type;
+    
+    //var args = 'value='+list_value;
+    var args = 'active='+active;
+    args += '&view='+view;
+    args += '&source='+source;
+    //alert(args)
+    var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST", "/view_securities", true);
 
-	  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
     xmlhttp.onreadystatechange = function() {
-    		if (xmlhttp.readyState == 4 ) {
-					var data = JSON.parse(xmlhttp.responseText);
-					//alert(secid)
-					document.getElementById('security_list_div_id').innerHTML = data.html
-					document.getElementById('security_info_div_id').innerHTML = data.query
-					document.getElementById('port_total_div').innerHTML = '$'+parseFloat(data.tot_value).formatMoney(2);
-					if(!secid){
-						secid = data.first_id
-						secname = data.first_name
-					}
-					// secid will be 0 if no securities found
-					//if(data.stats.sec_count > 0)
+    	if (xmlhttp.readyState == 4 ) {
+            var data = JSON.parse(xmlhttp.responseText);
+            //alert(secid)
+            document.getElementById('security_list_div_id').innerHTML = data.html
+            document.getElementById('security_info_div_id').innerHTML = data.query
+            document.getElementById('port_total_span').innerHTML = '$'+parseFloat(data.tot_value).formatMoney(2);
+            if(!secid){
+                secid = data.first_id
+                secname = data.first_name
+            }
+            //alert(secid)
+            // secid will be 0 if no securities found
+            //if(data.stats.sec_count > 0)
 
-					view_transactions_ajax(secid);
-					group_total = data.stats.tot_value
-					document.getElementById('sec_group_id').innerHTML     = list_type +'::'+list_value;
-					document.getElementById('gtot_value').innerHTML       = '$'+parseFloat(data.stats.tot_value).formatMoney(2);
-					// save data.stats.tot_value
-					document.getElementById('ginvested').innerHTML        = '$'+parseFloat(data.stats.invested).formatMoney(2);
-					document.getElementById('gbasis').innerHTML        		= '$'+parseFloat(data.stats.basis).formatMoney(2);
-					document.getElementById('gprofit').innerHTML        	= '$'+parseFloat(data.stats.profit).formatMoney(2);
-					document.getElementById('sec_count').innerHTML 				= data.stats.sec_count
-					document.getElementById('gtot_return').innerHTML      = data.stats.tot_return.toFixed(1)+'%';
-					document.getElementById('gpct_of_tot').innerHTML      = data.stats.pct_of_tot.toFixed(1)+'%';
-					$('[data-toggle="tooltip"]').tooltip(); 
-					
-					
-					
-				}
+            view_transactions_ajax(secid);
+            group_total = data.stats.tot_value
+            document.getElementById('sec_group_id').innerHTML     = list_type +'::'+list_value;
+            document.getElementById('gtot_value').innerHTML       = '$'+parseFloat(data.stats.tot_value).formatMoney(2);
+            // save data.stats.tot_value
+            document.getElementById('ginvested').innerHTML        = '$'+parseFloat(data.stats.invested).formatMoney(2);
+            document.getElementById('gbasis').innerHTML        		= '$'+parseFloat(data.stats.basis).formatMoney(2);
+            document.getElementById('gprofit').innerHTML        	= '$'+parseFloat(data.stats.profit).formatMoney(2);
+            document.getElementById('sec_count').innerHTML 		    = data.stats.sec_count
+            document.getElementById('gtot_return').innerHTML      = data.stats.tot_return.toFixed(1)+'%';
+            document.getElementById('gpct_of_tot').innerHTML      = data.stats.pct_of_tot.toFixed(1)+'%';
+            $('[data-toggle="tooltip"]').tooltip(); 
+            document.getElementById('security_list_div_id').style.background = '#d9ffb3'; 
+            document.getElementById("security_table").style.background = '#d9ffb3';
+		}
+//             table = document.getElementById("security_table");
+//                 rows = table.getElementsByTagName("tr");
+//                 for(i = 0; i < rows.length; i++){
+//                     rows[i].style.background = '#d9ffb3'; //'#fff';
+//                     rows[i].style.fontStyle = 'normal';
+//                 }
     };
     xmlhttp.send(args);
     
@@ -545,7 +566,7 @@ function clear_tform(){
 		var d = new Date();
 		//var sqldate = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate() ;
 		var sqldate = dateFormat(d, "yyyy-mm-dd") ;
-  	document.getElementById('actionsSelect').value = 'Dividend';
+  	document.getElementById('actionsSelect').value = 'Choose...';
 		document.getElementById('inputDate').value = sqldate;
 		document.getElementById('tprice').value = '';
 		document.getElementById('tshares').value = '';
@@ -591,7 +612,7 @@ function change_secview(view){
 	//get_security_list('default','default',hide, view,'');
 	
 	var args  = 'view='+view;
-	//alert(args)
+	
 	var xmlhttp = new XMLHttpRequest();
     xmlhttp.open("POST", "/change_secview", true);
 

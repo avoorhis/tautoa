@@ -6,7 +6,7 @@
     <title><%= title %></title>
  		<link rel="stylesheet" href="/css/bootstrap.css">
     <link rel="stylesheet" href="/css/bootstrap-sortable.css">
-    <link rel="stylesheet" href="/css/tautoa.css">
+    <link rel="stylesheet" href="/css/app_client.css">
 </head>
   
 <body>
@@ -41,14 +41,7 @@
     <label for="inputDate" class="col-sm-2 form-control-label">Purchase Date</label>
     <div class="col-sm-4">
       <% if(kind == 'new'){ %>
-      	<% var d = new Date(); %>
-				<% var cday = d.getDate(); %>
-				<% var cmonth = d.getMonth(); %>
-				<% cmonth++; %>
-				<% var cyear = d.getFullYear(); %>
-				<% date_str= cyear+'-'+cmonth+'-'+cday %>
-
-      	<input type="date" name='init_date' class="form-control" id="inputDate" placeholder="Date" value='<%= date_str %>'>
+      	<input type="date" name='sec_init_date' class="form-control" id="secInitDate" placeholder="Date" value=''>
       <% }else{ %>
       	<input type="date" disabled class="form-control" id="inputDate" placeholder="Date" value='<%= secdata.init_date %>'>
       <% } %>
@@ -61,7 +54,9 @@
     	
 				<span class="select-editable-wide">
             <select   onchange="this.nextElementSibling.value=this.value" >
+            <option value='none'>...</option>
             <% for(n in accounts){ %>
+		        	
 		        	<% if(accounts[n] == secdata.account){ %>
 		        			<option selected value='<%= accounts[n] %>' ><%= accounts[n] %></option>
 		        	<% }else{ %>
@@ -315,5 +310,20 @@
 <script type="text/javascript" src="/js/jquery-1.11.3.min.js"></script>
 <script type="text/javascript" src="/js/bootstrap.js"></script>
 <script type="text/javascript" src="/js/bootstrap-sortable.js"></script>
-<script type="text/javascript" src="/js/tautoa.js"></script>
+<script type="text/javascript" src="/js/app_client.js"></script>
+<script>
+		 
+	date_str = new Date().toISOString().substr(0, 10)
+		
+</script>
+<script>
+$( document ).ready(function() {
+
+    var new_date = document.getElementById('secInitDate') || null;
+    if (new_date !== null) {
+      new_date.value = date_str
+    };
+   
+});
+</script>
 </html>

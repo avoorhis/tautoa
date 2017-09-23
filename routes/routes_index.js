@@ -17,24 +17,26 @@ router.get('/', function (req, res) {
   if(ssid == 0){
   	SELECTED_SECURITY.transactions = []
   }
-  //console.log(ssid);
-  //console.log(TAUTOA_DATABASE);
+  //console.log('SHOW_INFO');
+  //console.log(SHOW_INFO);
+  
   res.render('index', {
-      title : 'Tautoa: Home Page',
+      title : config.APP_NAME.capitalizeFirstLetter()+': Home Page',
 
       //securities : JSON.stringify(ALL_SECURITIES_BY_ID),
       selected_securityID: ssid,
       databases	: databaseList,
-      database 	: TAUTOA_DATABASE,
-      types 		: typeList,
-      goals 		: goalList,
+      database 	: CURRENT_DATABASE,
+      app_name  : config.APP_NAME.capitalizeFirstLetter(),
+      types 	: typeList,
+      goals 	: goalList,
       sectors 	: sectorList,
       accounts 	: accountList,
       actions 	: actionList,
-      groups 		: groupList,
-      alerts 		: alertList,
+      groups 	: groupList,
+      alerts 	: alertList,
       message 	: req.flash('message'),
-      active 		: ACTIVE,
+      active 	: ACTIVE,
       secview   : SHOW_INFO
 
     });
@@ -61,7 +63,7 @@ router.get('/security_form/:kind/:id', function (req, res) {
 									//console.log('rows::')
 									console.log(rows[0])
 									res.render('security', {
-									      title : 'Tautoa: Edit Security',
+									      title : config.APP_NAME.capitalizeFirstLetter()+': Edit Security',
 									      data : JSON.stringify(rows[0]),
 									      kind : 'edit',
 									      total : PORTFOLIO_TOTAL,
@@ -79,7 +81,7 @@ router.get('/security_form/:kind/:id', function (req, res) {
 		}else{
 
 			res.render('security', {
-			      title : 'Tautoa: New Security',
+			      title : config.APP_NAME.capitalizeFirstLetter()+': New Security',
 			      data : JSON.stringify({}),
 			      kind : 'new',
 			      total : PORTFOLIO_TOTAL,
@@ -136,7 +138,7 @@ router.post('/save_security/:kind', function (req, res) {
 
 	//req.body.group_code = new_group_code.join()
 
-	console.log(req.body)
+	
 	params =['name','ticker','account','active','type','goal','sector','group_code','notes','alert'];
 	fields = {}
 
@@ -164,7 +166,8 @@ router.post('/save_security/:kind', function (req, res) {
 			res.redirect('/');
 			return;
 		}
-		init_date = req.body.init_date
+		sec_init_date = req.body.sec_init_date
+		
 		for(n in params){
 				if( extras1.indexOf(params[n]) != -1 ){
 					fields[params[n]] = req.body[extras2[extras1.indexOf(params[n])] ] || ''
@@ -172,7 +175,7 @@ router.post('/save_security/:kind', function (req, res) {
 					fields[params[n]] = req.body[params[n]] || ''
 				}
 		}
-
+        fields['cur_date'] = fields['init_date'] = sec_init_date
 
 		SELECTED_SECURITY.ticker = req.body.ticker
 		SELECTED_SECURITY.name = req.body.name
@@ -191,7 +194,7 @@ router.post('/save_security/:kind', function (req, res) {
 			SELECTED_SECURITY.notes = req.body.notes
 			fields['notes'] = req.body.notes
 		}
-
+        console.log(fields)
 		q = queries.insert_security(fields)
 	}else{
 
@@ -223,17 +226,11 @@ router.post('/save_security/:kind', function (req, res) {
 							trans = {}
 							trans.action = 'Initial';
 							trans.secid = newsecid;
-							trans.sqldate = init_date;
+							trans.sqldate = sec_init_date;
 							trans.price = init_price;
 							trans.shares = init_shares;
 							trans.note = '';
-							// { id: 1956,
-       // securityid: 130,
-       // date: '2006-05-01',
-       // transtype: 'Initial',
-       // nav: '45.0000',
-       // shares: '100.0000',
-       // note: '' }
+      
 							SELECTED_SECURITY.transactions = [{'securityid':newsecid,'date':init_date,'transtype':'Initial','nav':init_price,'shares':init_shares,'note':''}]
 							req.db.query(queries.insert_transactions([trans]), function(err, rows, fields){
 							    if (err)  {
@@ -269,36 +266,58 @@ router.post('/change_secview', function (req, res) {
 			});
 
 });
+router.post('/update_filter', function (req, res) {
+    console.log('in update_filter')
+	//console.log(req.body)
+	if(req.body.type != 'default'){
+	    LIST_TYPE = req.body.type
+	    LIST_VALUE = req.body.value
+	}
+	if(req.body.value == 'none'){
+	    LIST_TYPE = 'all'
+	    LIST_VALUE = 'all'
+	}
+	
+	res.json({"type":LIST_TYPE,"value":LIST_VALUE})
+});
 router.post('/view_securities', function (req, res) {
 			console.log('in view_sec')
-			var list_type = req.body.type
-			var list_value = req.body.value
+			//console.log(req.body)
+			//if(req.body.type != 'default'){
+			    //LIST_TYPE = req.body.type
+			//}
+			//var list_value = req.body.value
+			var source = req.body.source;
+			//console.log('source')
+			//console.log(source)
+			//console.log('LIST_TYPE')
+			//console.log(LIST_TYPE)
 			//SHOW_INFO = req.body.view
 			ACTIVE = req.body.active
-			console.log(req.body)
+			
 			var query,html;
-			switch(list_type) {
+			switch(LIST_TYPE) {
 		    case 'goal':
 		        //code block
-		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
+		        query = queries.get_select_securities(LIST_TYPE,LIST_VALUE,ACTIVE);
 		        break;
 		    case 'type':
-		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
+		        query = queries.get_select_securities(LIST_TYPE,LIST_VALUE,ACTIVE);
 		        break;
 		    case 'sector':
-		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
+		        query = queries.get_select_securities(LIST_TYPE,LIST_VALUE,ACTIVE);
 		        break;
 		    case 'group':
-		        query = queries.get_group_securities(list_type,list_value,ACTIVE);
+		        query = queries.get_group_securities(LIST_TYPE,LIST_VALUE,ACTIVE);
 		        break;
 		    case 'account':
-		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
+		        query = queries.get_select_securities(LIST_TYPE,LIST_VALUE,ACTIVE);
 		        break;
 		    case 'alert':
-		        query = queries.get_select_securities(list_type,list_value,ACTIVE);
+		        query = queries.get_select_securities(LIST_TYPE,LIST_VALUE,ACTIVE);
 		        break;
 		    case 'inactive':
-		        //query = queries.get_hidden_securities(list_type,list_value,ACTIVE);
+		        //query = queries.get_hidden_securities(LIST_TYPE,list_value,ACTIVE);
 		        query = queries.get_all_securities(ACTIVE);
 		        break;
 		    default:
@@ -327,12 +346,12 @@ router.post('/view_securities', function (req, res) {
 	          				ALL_SECURITIES_BY_ID[rows[r].id].goal 			= rows[r].goal
 	          				ALL_SECURITIES_BY_ID[rows[r].id].account 		= rows[r].account
 	          				ALL_SECURITIES_BY_ID[rows[r].id].note 		  = rows[r].notes
-                    ALL_SECURITIES_BY_ID[rows[r].id].yield      = rows[r].yield
-                    ALL_SECURITIES_BY_ID[rows[r].id].alert      = rows[r].alert
+                            ALL_SECURITIES_BY_ID[rows[r].id].yield      = rows[r].yield
+                            ALL_SECURITIES_BY_ID[rows[r].id].alert      = rows[r].alert
 	          				ALL_SECURITIES_BY_ID[rows[r].id].transactions = []
           			}
           			first_id = rows[0].id
-    						first_name = rows[0].name
+    				first_name = rows[0].name
           }else{
           			// no rows
           			first_id = 0
@@ -346,7 +365,7 @@ router.post('/view_securities', function (req, res) {
           					secid = rows[r].securityid
           					//console.log(secid)
           					if(ALL_SECURITIES_BY_ID.hasOwnProperty(secid)){
-	          						ALL_SECURITIES_BY_ID[secid].transactions.push(rows[r])
+	          					ALL_SECURITIES_BY_ID[secid].transactions.push(rows[r])
 	          				}else{
 	          					//console.log('Found orphan transaction: '+rows[r].id)
 	          					orphans.push(rows[r].id)
@@ -367,24 +386,24 @@ router.post('/view_securities', function (req, res) {
           		//console.log('groupStats')
           		//console.log(groupStats)
           		req.db.query(queries.get_total(), function(err, trows, fields){
-							    if (err)  {
-						 		  	console.log('1-TOTs error: ' + err);
-						      } else {
-		      						PORTFOLIO_TOTAL = trows[0].total;
-											groupStats.pct_of_tot = (groupStats.tot_value / PORTFOLIO_TOTAL)*100
-		      						res.json({
-							    			'html':html,
-							    			'query':query,
-							    			'list_type':list_type,
-							    			'list_value':list_value,
-							    			'first_id':first_id,
-							    			'first_name':first_name,
-							    			'stats' : groupStats,
-							    			'tot_value':PORTFOLIO_TOTAL
-						  				});
-						  		}
-						  });
-          });
+                      if(err){
+                            console.log('1-TOTs error: ' + err);
+                      }else{
+                            PORTFOLIO_TOTAL = trows[0].total;
+                                    groupStats.pct_of_tot = (groupStats.tot_value / PORTFOLIO_TOTAL)*100
+                            res.json({
+                                    'html':html,
+                                    'query':query,
+                                    'list_type':LIST_TYPE,
+                                    'list_value':LIST_VALUE,
+                                    'first_id':first_id,
+                                    'first_name':first_name,
+                                    'stats' : groupStats,
+                                    'tot_value':PORTFOLIO_TOTAL
+                            });
+                      }
+					});
+                });
 			});
 });
 
@@ -648,10 +667,6 @@ function update_prices_conn(id_lst, type, req, res) {
 		//var tics = ['AAPL','CSCO','SYK'];
 
 		// url = "http://download.finance.yahoo.com/d/quotes.csv?s="
-  //       # append ticker+
-  //       self.c.execute(C.tautoa_other_queries['ticker_list'])
-  //       for row in self.c.fetchall():
-  //           url += row['ticker']+'+'
   //       url = url[:-1] + '&f=sl1d1y'
   //   http://download.finance.yahoo.com/d/quotes.csv?s=VZ,T&f=sl1d1y
   //"VZ",47.21,"12/29/2015",4.88
@@ -736,109 +751,44 @@ function update_prices_conn(id_lst, type, req, res) {
 
 }
 
-// router.post('/update_pricesX', function (req, res) {
 
-
-// 		data_object = {};
-// 		tics = [];
-// 		secid_list =[]
-// 		for(secid in ALL_SECURITIES_BY_ID){
-//  					ticker = ALL_SECURITIES_BY_ID[secid].ticker;
-//  					console.log(ticker)
-//  					if(ticker){
-//  						data_object[ticker] = secid;
-//  						tics.push(ticker)
-//  						secid_list.push(secid)
-//  					}
-
-// 		}
-
-
-// 		var completed_requests = 0;
-
-
-// 		base_path = options.path;
-// 		var responses = {};
-// 		tics.forEach(function(tic) {
-
-// 		  options.path = base_path+tic
-
-// 		  console.log(options.host+options.path)
-// 		  http.get(options, function(request) {
-// 		    //res.setEncoding('utf8');
-// 		    request.on('data', function(chunk){
-// 		      //console.log(options.path)
-// 		      //console.log('chunk:'+chunk)
-// 		      if(chunk.toString().substring(0,10) != 'httpserver'){
-// 		      		responses[data_object[tic]] = JSON.parse(chunk.toString().substring(3))[0];
-// 		      }
-
-// 		    });
-
-// 		    request.on('end', function(){
-
-// 		      if (completed_requests++ == tics.length - 1) {
-// 		        // All downloads are completed
-// 		        //console.log('body:', responses);
-// 		        hash_list = []
-
-// 		        for(i in responses){
-// 		        	quote={}
-// 		        	quote.action = 'Price Update'
-// 		        	quote.ticker = responses[i].t
-// 		        	quote.price = responses[i].l_cur
-// 		        	if(quote.price[0] == '$'){
-// 		        		quote.price = quote.price.slice( 1 );
-// 		        	}
-// 		        	quote.shares = 0
-// 		        	quote.note  = '';
-// 		        	quote.secid = data_object[quote.ticker];
-// 		        	//quote.fdate=responses[i].lt_dts
-// 		        	quote.sqldate = get_sql_date(new Date(responses[i].lt_dts))
-
-// 		        	hash_list.push(quote);
-// 		        	console.log(quote)
-// 		        }
-// 		        //insert_transactions(req, hash_list)
-// 		        console.log('tic',tic)
-// 		        req.db.query(queries.insert_transactions(hash_list), function(err, rows, fields){
-// 					    if (err)  {
-// 				 		  	console.log('1-NEW TRANS error: ' + err);
-// 				      } else {
-
-// 				      		//update_db_values(req,res,secid,'single');
-// 									console.log('running rectify')
-// 				      		rectify_security_table(req, res, secid_list);
-// 				      		res.send({redirect: '/'});
-// 				      }
-
-// 				    });
-
-// 		      }
-// 		    });
-// 		  });
-// 		})
-
-// });
-//
-//
-//
-router.get('/cleanup_this_security', function (req, res) {
-		console.log('in cleanup_this_security')
-		//console.log(SELECTED_SECURITY);
-		var secid = SELECTED_SECURITY.id;
-		var PU = 'Price Update';
-		req.db.query(queries.get_max_transaction(secid), function(err, rows, fields){
+router.get('/cleanup/:type', function (req, res) {
+    console.log('CLEANUP/:type')
+    var type = req.params.type   // all or single
+	var secid = SELECTED_SECURITY.id;
+	if(type == 'all'){
+	    q1 = queries.get_all_max_transactions   //()
+	    q2 = queries.delete_price_updates2    //(saved_id_list)
+	    vals1 = ''
+	}else{
+	    q1 = queries.get_max_transaction      //(secid)
+	    q2 = queries.delete_price_updates   //(secid, saveid)
+	    vals1 = secid 
+	}
+	
+	req.db.query(q1(vals1), function(err, rows, fields){
  			if(err){ console.log(err)
  			}else{
-				console.log('rows')
-				console.log(rows)
-				if(rows[0].transtype == PU){
+ 			    if(type == 'all'){
+ 			        var saved_id_list = []
+                    for(n in rows){
+                        //console.log(row)
+                        transid = rows[n].id
+                        secid = rows[n].securityid
+                        saved_id_list.push(transid)
+                    
+                    }
+                    vals2 = saved_id_list
+ 			    }else{
+ 			        saveid = 0;
+ 			        if(rows[0].transtype == 'Price Update'){
 						saveid  = rows[0].id;
-				}else{
-						saveid = 0;
-				}
-				req.db.query(queries.delete_price_updates(secid, saveid), function(err, rows, fields){
+                    }
+                    vals2 = [secid, saveid]
+ 			    }
+ 			}
+ 			
+ 			req.db.query(q2(vals2),  function(err, rows, fields){
  					if(err){ console.log(err)
  					}else{
 						req.db.query(queries.get_transactions(secid), function(err, rows, fields){
@@ -849,74 +799,74 @@ router.get('/cleanup_this_security', function (req, res) {
 							}
 						});
  					}
- 				});
-			}
-		});
+ 			});
+ 	 });
 });
+
 //
 //
 //
 router.get('/admin', function (req, res) {
 
 		res.render('admin', {
-      	title : 'Tautoa: ADMIN',
+      	title : config.APP_NAME.capitalizeFirstLetter()+': ADMIN',
       	message 	: req.flash('message')
     });
 });
-router.post('/change_portfolio', function (req, res) {
-
-		console.log('in change portfolio')
-		console.log(req.body);
-		TAUTOA_DATABASE = req.body.database_sel;
-
-		ALL_SECURITIES_BY_ID ={};
-		ALL_SECURITIES_BY_NAME = {};
-		SELECTED_SECURITY = {id:0,name:''}
-		PORTFOLIO_TOTAL = 0
-		connection = require('../config/database');
-		connection.connect2database(TAUTOA_DATABASE)
-
-
-		var render = function(err, result) {
-			console.log('rendering index page')
-			res.render('index', {
-	      title : 'Tautoa: Home Page',
-
-	      //securities : JSON.stringify(ALL_SECURITIES_BY_ID),
-	      selected_securityID: 0,
-	      databases	: databaseList,
-	      database 	: TAUTOA_DATABASE,
-	      types 		: typeList,
-	      goals 		: goalList,
-	      sectors 	: sectorList,
-	      accounts 	: accountList,
-	      actions 	: actionList,
-	      groups 		: groupList,
-	      active 		: ACTIVE,
-      	secview   : SHOW_INFO,
-	      message 	: req.flash('message')
-
-	    });
-		}
-
-		async.parallel([ connection.get_sectors,
-                    connection.get_types,
-                    connection.get_goals,
-                    connection.get_actions,
-                    connection.get_accounts,
-                    connection.get_groups,
-                    connection.get_alerts ],
-                    render
-                  );
-});
+// router.post('/change_portfolioXX', function (req, res) {
+// 
+// 		console.log('in change portfolio')
+// 		console.log(req.body);
+// 		TAUTOA_DATABASE = req.body.database_sel;
+// 
+// 		ALL_SECURITIES_BY_ID ={};
+// 		ALL_SECURITIES_BY_NAME = {};
+// 		SELECTED_SECURITY = {id:0,name:''}
+// 		PORTFOLIO_TOTAL = 0
+// 		connection = require('../config/database');
+// 		connection.connect2database(TAUTOA_DATABASE)
+// 
+// 
+// 		var render = function(err, result) {
+// 			console.log('rendering index page')
+// 			res.render('index', {
+// 	      title : 'Tautoa: Home Page',
+// 
+// 	      //securities : JSON.stringify(ALL_SECURITIES_BY_ID),
+// 	      selected_securityID: 0,
+// 	      databases	: databaseList,
+// 	      database 	: TAUTOA_DATABASE,
+// 	      types 		: typeList,
+// 	      goals 		: goalList,
+// 	      sectors 	: sectorList,
+// 	      accounts 	: accountList,
+// 	      actions 	: actionList,
+// 	      groups 		: groupList,
+// 	      active 		: ACTIVE,
+//       	secview   : SHOW_INFO,
+// 	      message 	: req.flash('message')
+// 
+// 	    });
+// 		}
+// 
+// 		async.parallel([ connection.get_sectors,
+//                     connection.get_types,
+//                     connection.get_goals,
+//                     connection.get_actions,
+//                     connection.get_accounts,
+//                     connection.get_groups,
+//                     connection.get_alerts ],
+//                     render
+//                   );
+// });
 //
 //
 //
 router.get('/backup_dump', function (req, res) {
 		console.log('in backup')
 
-		var dump_file = TAUTOA_DATABASE+'_'+today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate() +'.sql'
-		var cmd = 'mysqldump '+TAUTOA_DATABASE+' > public/dump/'+dump_file
+		var dump_file = CURRENT_DATABASE+'_'+today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate() +'.sql'
+		var cmd = 'mysqldump '+CURRENT_DATABASE+' > public/dump/'+dump_file
 		console.log(dump_file)
 		console.log(cmd)
 
@@ -942,7 +892,7 @@ router.get('/notes', function (req, res) {
             return console.log(err);
           }
           res.render('notes', {
-                title : 'Tautoa: NOTES',
+                title : config.APP_NAME.capitalizeFirstLetter()+': NOTES',
                 message 	: '',
                 data: data
           });
@@ -959,7 +909,7 @@ router.post('/save_notes', function (req, res) {
             return console.log(err);
           }
           res.render('notes', {
-                title : 'Tautoa: NOTES',
+                title : config.APP_NAME.capitalizeFirstLetter()+': NOTES',
                 message 	: 'Saved!',
                 data: txt
           });
@@ -980,7 +930,7 @@ function sortByName(a, b) {
 }
 function get_seclist_html(secObj, view){
 		html = ''
-		html += "<table border='1' id='security_table' class='table table-condensed sortable'>";
+		html += "<table border='1' id='security_table' class='table table-condensed'>";
 		html += "<thead>";
 		html += "<tr id=''><th>Ticker</th>"
   	html += "<th>Name<span class='pull-right'>Alert</span></th>"
@@ -1010,7 +960,7 @@ function get_seclist_html(secObj, view){
 
 			for (k in sortList){
 				ALL_SECURITIES_BY_NAME[sortList[k].name] = sortList[k];
-    		html += "<tr id='"+sortList[k].id+"'  onclick=\"view_transactions_ajax('"+sortList[k].id+"','"+sortList[k].name+"')\">";
+    		html += "<tr id='"+sortList[k].id+"' style='' onclick=\"view_transactions_ajax('"+sortList[k].id+"','"+sortList[k].name+"')\">";
         html += "<td id='"+sortList[k].ticker+"' data-toggle='tooltip' data-container='body' data-placement='left' title='"+sortList[k].note+"' width='"+ticwidth+"' >";
         //html += "    <a href='#' >" + sortList[k].ticker + "</a>";
         html += sortList[k].ticker
@@ -1064,14 +1014,14 @@ function get_translist_html(tlist){
 		html += "<div id='transaction_table_div'>"
    	html += "<table border='1' id='transaction_table' >"
    	html += '<tr>';
-  	html += '<td>Date</td>';
-  	html += '<td>Transaction</td>';
-  	html += '<td>Price</td>';
-  	html += '<td>Shares</td>';
-  	html += '<td>CostofShares</td>';
-  	html += '<td>SumofShares</td>';
-  	html += '<td>Value</td>';
-  	html += '<td></td>';
+  	html += '<th>Date</th>';
+  	html += '<th>Transaction</th>';
+  	html += '<th>Price</th>';
+  	html += '<th>Shares</th>';
+  	html += '<th>CostOfShares</th>';
+  	html += '<th>SumOfShares</th>';
+  	html += '<th>Value</th>';
+  	html += '<th></th>';
   	html += '</tr>';
 		for(r in tlist){
 
@@ -1260,7 +1210,12 @@ function rectify_security_table(req, res, secid_list) {
 		      	field_list['cur_value'] = totshares * maxprice;
 		      	maxdate = rows2[0].date;
 		      	field_list['cur_date'] = get_sql_date(new Date(maxdate));
-            field_list['yield'] = ALL_SECURITIES_BY_ID[secid].yield
+            if(ALL_SECURITIES_BY_ID[secid].hasOwnProperty('yield')){
+              field_list['yield'] = ALL_SECURITIES_BY_ID[secid].yield
+            }else{
+              field_list['yield'] = 'NA'
+            }
+
 		      	//field_list['secid'] = secid;
 		      	//console.log('maxdate:',field_list['cur_date']);
 		      	callback(null, field_list);
@@ -1337,7 +1292,9 @@ function update_db_values(req,res,secid,source){
 //
 //
 //
-
+String.prototype.capitalizeFirstLetter = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
 function daydiff(first, second) {
     return Math.round((second-first)/(1000*60*60*24));
 };

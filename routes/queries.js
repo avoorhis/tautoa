@@ -111,21 +111,49 @@ module.exports = {
 	    q += " WHERE date=("
 	    q += " SELECT MAX(date) from transactions"
 	    q += " WHERE securityid='"+secid+"' and transtype != 'note')"
-			q += " AND securityid='"+secid+"' limit 1"
+		q += " AND securityid='"+secid+"' limit 1"
 	    console.log(q)
 	    return q;
 	},
-
-	delete_price_updates: function(secid, saveid){
-		var q = "delete from transactions where transtype='Price Update' ";
-		q += " and securityid='"+secid+"'";
-		q += " and id != '"+saveid+"'";
+    // get_all_max_transactions: function(){
+// 	    var q = "SELECT t.id, transtype, nav, max(date) from transactions as t";
+// 	    q += " JOIN securities as s on(s.id = t.securityid)"
+//         q += " WHERE  transtype != 'note' and s.active='1'"
+//         q += " GROUP BY securityid"
+// 	    console.log(q)
+// 	    return q;
+// 	},
+	
+	get_all_max_transactions: function(){
+ 	    var q = "SELECT t1.id, t1.securityid, t1.transtype, t1.nav, t1.date"
+        q += " FROM transactions AS t1"
+        q += " LEFT OUTER JOIN transactions AS t2"
+        q += " ON t1.securityid = t2.securityid" 
+        q += " AND (t1.date < t2.date"
+        q += " OR (t1.date = t2.date AND t1.Id < t2.Id))"
+        q += " WHERE t2.securityid IS NULL"
+        console.log(q)
+	    return q;
+	},
+	delete_price_updates2: function(translist){
+	    sql_list = translist.join("','")
+		var q = "delete from transactions where transtype='Price Update'" 
+		    q += " and id not in ('"+sql_list+"')";
+		
 		console.log(q)
-	  return q;
+	    return q;
+
+	},
+	delete_price_updates: function(lst){
+		var q = "delete from transactions where transtype='Price Update' ";
+		q += " and securityid='"+lst[0]+"'";
+		q += " and id != '"+lst[1]+"'";
+		console.log(q)
+	    return q;
 
 	},
 	get_sum_shares: function(secid){
-			var q = "SELECT SUM(shares) as tot_shares, securityid from transactions WHERE securityid='"+secid+"' ";
+		var q = "SELECT SUM(shares) as tot_shares, securityid from transactions WHERE securityid='"+secid+"' ";
 	    console.log(q)
 	    return q;
 	},
@@ -138,17 +166,20 @@ module.exports = {
 	},
 
 	get_sectors: function(active){
-	    var q = "SELECT distinct sector from securities WHERE sector != '' AND active= '"+active+"' ORDER BY sector ";
+	    //var q = "SELECT distinct sector from securities WHERE sector != '' AND active= '"+active+"' ORDER BY sector ";
+	    var q = "SELECT distinct sector from sectorList WHERE sector != '' ORDER BY sector ";
 	    return q;
 	},
 
 	get_types: function(active){
-	    var q = "SELECT distinct type from securities WHERE type != '' AND active= '"+active+"' ORDER BY type ";
+	    //var q = "SELECT distinct type from securities WHERE type != '' AND active= '"+active+"' ORDER BY type ";
+	    var q = "SELECT distinct type from typeList WHERE type != '' ORDER BY type ";
 	    return q;
 	},
 
 	get_goals: function(active){
-	    var q = "SELECT distinct goal from securities WHERE goal != '' AND active= '"+active+"' ORDER BY goal ";
+	    //var q = "SELECT distinct goal from securities WHERE goal != '' AND active= '"+active+"' ORDER BY goal ";
+	    var q = "SELECT distinct goal from goalList WHERE goal != '' ORDER BY goal ";
 	    return q;
 	},
 

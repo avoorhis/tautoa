@@ -21,11 +21,13 @@ PORTFOLIO_TOTAL = 0;
 ALL_SECURITIES_BY_ID ={};
 ALL_SECURITIES_BY_NAME = {};
 SELECTED_SECURITY = {id:0,name:''}
-TAUTOA_DATABASE = config.DB
+CURRENT_DATABASE = config.DB
+LIST_TYPE = 'all' // default all, sectors, types, accounts.....
+LIST_VALUE = ''
 ACTIVE = '1'  // default '1'  else '0'
 SHOW_INFO  = 'val' // default 'value' else 'stg' sector,type,goal
 connection = require('./config/database');
-connection.connect2database(TAUTOA_DATABASE)
+connection.connect2database(CURRENT_DATABASE)
 
 var routes    = require('./routes/routes_index');
 
@@ -63,9 +65,6 @@ app.use(function(req, res, next){
 
 // ROUTES:
 app.use('/', routes);
-
-
-
 
 
 async.parallel([ connection.get_sectors,
