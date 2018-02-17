@@ -20,6 +20,7 @@ var config = require('./config/config');
 PORTFOLIO_TOTAL = 0;
 ALL_SECURITIES_BY_ID ={};
 ALL_SECURITIES_BY_NAME = {};
+DIVIDEND_SECURITIES_BY_ID= {}
 SELECTED_SECURITY = {id:0,name:''}
 CURRENT_DATABASE = config.DB
 LIST_TYPE = 'all' // default all, sectors, types, accounts.....
@@ -72,6 +73,7 @@ async.parallel([ connection.get_sectors,
                     connection.get_goals,
                     connection.get_actions,
                     connection.get_accounts,
+                    connection.get_acct_types,
                     connection.get_groups,
                     connection.get_alerts]
                   );

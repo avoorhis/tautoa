@@ -107,7 +107,20 @@ exports.connect2database = function(dbase) {
     });
     //
   }
-
+  exports.get_acct_types = function(callback) {
+    console.log('Loading AccountTypes')
+    connection.db.query(queries.get_account_types(ACTIVE), function(err, rows, fields){
+      if(err){ console.log(err)
+      }else{
+        accountTypeList = [];
+        for(n in rows){
+          accountTypeList.push(rows[n].acct_type);
+        }
+        callback(null, accountTypeList);
+      }
+    });
+    //
+  }
   exports.get_actions = function(callback) {
     console.log('Loading Actions')
     connection.db.query(queries.get_actions(), function(err, rows, fields){

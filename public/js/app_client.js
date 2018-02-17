@@ -139,7 +139,7 @@ if (reset_btn !== null) {
   reset_btn.addEventListener('click', function () {
     //alert('1')
     selects = document.getElementsByClassName('cat_select')
-    document.getElementById('alert_flash_message_id').innerHTML = ''
+    //document.getElementById('alert_flash_message_id').innerHTML = ''
     for(i in selects){
     	selects[i].value = 'none'
     }
@@ -286,7 +286,8 @@ function view_transactions_ajax( secid ){
 		 			if(secid){
 			 			document.getElementById('sec_ticker_id').innerHTML  = data.sec.ticker;
 			 			infoline = '('+data.sec.ticker+') '+data.sec.name
-			 			infoline += " <div class='pull-right'>Account: "+data.sec.account+"&nbsp;&nbsp;&nbsp;(id="+secid+")</div>";
+			 			infoline += " <div class='pull-right'>Account: "+data.sec.acct_type+'<small>-'+data.sec.account+"&nbsp;&nbsp;&nbsp;(id="+secid+")";
+			 			infoline += "</small></div>";
 			 			document.getElementById('sec_name_div_id').innerHTML 	= infoline;
 			 			document.getElementById('tcurrent_name').innerHTML  = '('+data.sec.ticker+')<br>'+data.sec.name;
 			 			document.getElementById('tcurrent_name').value  = secid;
@@ -566,10 +567,10 @@ function clear_tform(){
 		var d = new Date();
 		//var sqldate = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate() ;
 		var sqldate = dateFormat(d, "yyyy-mm-dd") ;
-  	document.getElementById('actionsSelect').value = 'Choose...';
+  	document.getElementById('actionsSelect').value = 'Price Update';
 		document.getElementById('inputDate').value = sqldate;
 		document.getElementById('tprice').value = '';
-		document.getElementById('tshares').value = '';
+		document.getElementById('tshares').value = '0';
 		document.getElementById('tvalue').value = '';
 		document.getElementById('tnote').value = '';
 		document.getElementById('ttype').innerHTML = '';

@@ -17,6 +17,7 @@
     "express-session": "^1.12.1",
     "mysql2": "",
     "nodemon": "",
-    "urllib": "^2.5.0"
+    "urllib": "^2.5.0",
+    "yahoo-finance": "^0.3.4"
   }
 }

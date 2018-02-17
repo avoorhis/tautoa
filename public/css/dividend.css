@@ -1,0 +1,33 @@
+body {
+	font-size:16px;
+	padding: 2px 6px 2px 2px;
+}
+/* unvisited link */
+a:link {
+    color: black;
+}
+.container{
+	padding:5px 20px;
+}
+/* visited link */
+a:visited {
+    color: black;
+}
+
+/* mouse over link */
+a:hover {
+    color: black;
+}
+td.align-right {
+	text-align:right;
+}
+td.align-center {
+	text-align:center;
+}
+td.bold {
+	font-weight:bold;
+}
+td,th {
+	padding:0 2px;
+	font-size:1.05em;
+}

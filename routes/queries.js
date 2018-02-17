@@ -3,21 +3,21 @@ var router = express.Router();
 var C = require('../public/constants');
 
 module.exports = {
-
+	
 	get_all_securities: function(active){
-	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield,alert"
+	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,acct_type,notes,yield,alert,dividend,dividend_freq"
 	    q += " from securities WHERE active = '"+active+"'  ORDER BY name";
 	    return q;
 	},
 	get_select_securities: function(list_type, list_value, active){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield,alert"
+			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,acct_type,notes,yield,alert,dividend,dividend_freq"
 	    q += " from securities WHERE active = '"+active+"'"
 	    q += " and "+list_type+"='"+list_value+"'"
 	    q += " ORDER BY name";
 	    return q;
 	},
 	get_group_securities: function(list_type, list_value, active){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,notes,yield,alert"
+			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,acct_type,notes,yield,alert,dividend,dividend_freq"
 	    q += " from securities WHERE active = '"+active+"'"
 	    q += " and group_code like '%"+list_value+"%'"
 	    q += " ORDER BY name";
@@ -27,9 +27,11 @@ module.exports = {
 	get_security: function(secid){
 	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, active,"
 	    q += " init_value, init_shares, init_price, DATE_FORMAT(init_date,'%Y-%m-%d') as init_date,"
-	    q += "type,goal,sector,account,notes,group_code,alert"
+	    q += "type,goal,sector,account,acct_type,notes,group_code,alert"
 	    q += " from securities WHERE id='"+secid+"' ";
-	    console.log(q)
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 	update_security: function(secid,field_hash){
@@ -39,7 +41,9 @@ module.exports = {
 	    }
 	    q = q.slice(0,-1)
 	    q += " WHERE id='"+secid+"' ";
-	    console.log(q)
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 	insert_security: function(field_hash){
@@ -54,7 +58,9 @@ module.exports = {
 	    }
 	    q = q.slice(0,-1)
 	    q += ")"
-	    console.log(q)
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 	insert_transactions: function(t){
@@ -64,7 +70,9 @@ module.exports = {
 	    	q += "('"+t[i].action+"','"+t[i].secid+"','"+t[i].sqldate+"','"+t[i].price+"','"+t[i].shares+"','"+t[i].note+"'),"
 	    }
 	    q = q.slice(0,-1);
-	    console.log(q);
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 	update_transaction: function(t){
@@ -75,34 +83,46 @@ module.exports = {
 			q += " shares='"+t.shares+"',";
 			q += " note='"+t.note+"'";
 	    q += " WHERE id='"+t.tid+"'"
-	    console.log(q);
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 	get_transactions: function(secid){
 	    var q = "SELECT id, DATE_FORMAT(date,'%Y-%m-%d') as date, transtype, nav, shares, note from transactions WHERE securityid='"+secid+"' ORDER BY date";
-	    console.log(q)
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 	get_all_transactions: function(active){
 	    var q = "SELECT DISTINCT t.id, securityid, DATE_FORMAT(date,'%Y-%m-%d') as date, transtype, nav, shares, note from transactions as t";
 	    q += " JOIN securities as s";
 	    q += " WHERE s.active = '"+active+"'";
-	    console.log(q)
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 	delete_transaction: function(secid,transid){
 	    var q = "DELETE from transactions WHERE id='"+transid+"' and securityid='"+secid+"'";
-	    console.log(q)
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 	delete_security: function(secid){
 	    var q = "DELETE from securities WHERE id='"+secid+"'";
-	    console.log(q)
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 	delete_security_transactions: function(secid){
 	    var q = "DELETE from transactions WHERE securityid='"+secid+"'";
-	    console.log(q)
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 
@@ -112,7 +132,9 @@ module.exports = {
 	    q += " SELECT MAX(date) from transactions"
 	    q += " WHERE securityid='"+secid+"' and transtype != 'note')"
 		q += " AND securityid='"+secid+"' limit 1"
-	    console.log(q)
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
     // get_all_max_transactions: function(){
@@ -132,7 +154,9 @@ module.exports = {
         q += " AND (t1.date < t2.date"
         q += " OR (t1.date = t2.date AND t1.Id < t2.Id))"
         q += " WHERE t2.securityid IS NULL"
-        console.log(q)
+        if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 	delete_price_updates2: function(translist){
@@ -140,7 +164,9 @@ module.exports = {
 		var q = "delete from transactions where transtype='Price Update'" 
 		    q += " and id not in ('"+sql_list+"')";
 		
-		console.log(q)
+		if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 
 	},
@@ -148,13 +174,17 @@ module.exports = {
 		var q = "delete from transactions where transtype='Price Update' ";
 		q += " and securityid='"+lst[0]+"'";
 		q += " and id != '"+lst[1]+"'";
-		console.log(q)
+		if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 
 	},
 	get_sum_shares: function(secid){
 		var q = "SELECT SUM(shares) as tot_shares, securityid from transactions WHERE securityid='"+secid+"' ";
-	    console.log(q)
+	    if(C.verbose){
+	    	console.log(q)
+	    }
 	    return q;
 	},
 
@@ -187,6 +217,10 @@ module.exports = {
 	    var q = "SELECT distinct account from securities where account != '' AND active= '"+active+"' ORDER BY account";
 	    return q;
 	},
+	get_account_types: function(active){
+	    var q = "SELECT distinct acct_type from securities where account != '' AND active= '"+active+"' ORDER BY acct_type";
+	    return q;
+	},
 	get_actions: function(){
 	    var q = "SELECT action from actionList";
 	    return q;
@@ -206,5 +240,12 @@ module.exports = {
 	get_databases: function(){
 		var q = "SHOW databases like '%_portfolio'  ";
 	  return q;
+	},
+	/////
+	get_dividend_stocks: function(){
+		var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,acct_type,notes,yield,alert from securities";
+		q += " WHERE dividend='1' and active='1'";
+		return q;
 	}
+	
 }

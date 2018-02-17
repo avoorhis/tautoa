@@ -49,7 +49,7 @@
 
   </div>
   <div class="form-group row">
-    <label for="inputAccount" class="col-sm-2 form-control-label">Account</label>
+    <label for="inputAccount" class="col-sm-2 form-control-label">AcctHost</label>
     <div class="col-sm-3">
     	
 				<span class="select-editable-wide">
@@ -68,29 +68,42 @@
         </span>
 
     </div>
- 		<div class="col-sm-1"></div>
+    
+    
+ 	<div class="col-sm-1"></div>
     <label class="col-sm-2">Active</label>
-    <div class="col-sm-4">
-      <div class="radio">
-
-        <% if(secdata.active == '0'){ %>
-		        <label class="radio-inline">
-              <input type="radio" name="active" id="inlineRadio1" value="1"> yes
-            </label>
-            <label class="radio-inline">
-              <input type="radio" checked='checked' name="active" id="inlineRadio2" value="0"> no
-            </label>
-				<% }else{ %>
-						<label class="radio-inline">
-              <input type="radio" checked='checked' name="active" id="inlineRadio1" value="1"> yes
-            </label>
-            <label class="radio-inline">
-              <input type="radio" name="active" id="inlineRadio2" value="0"> no
-            </label>
+				<% if(secdata.active == '0'){ %>
+					  <input type="radio" name="active" id="inlineRadio1" value="1"> yes
+					  <input type="radio" checked='checked' name="active" id="inlineRadio2" value="0"> no
+				<% }else{ %>		
+					  <input type="radio" checked='checked' name="active" id="inlineRadio1" value="1"> yes
+					  <input type="radio" name="active" id="inlineRadio2" value="0"> no
 				<% } %>
-      </div>
-    </div>
   </div>
+  
+  <div class="form-group row">
+    <div class="col-sm-1"></div><label for="inputAccount" class="col-sm-2 form-control-label"><small>Account Type</small></label>
+    <div class="col-sm-3">
+    	
+			<span class="select-editable-wide">
+            <select   onchange="this.nextElementSibling.value=this.value" >
+            <option value='none'>...</option>
+            <% for(n in acct_types){ %>
+		        	
+		        	<% if(acct_types[n] == secdata.acct_type){ %>
+		        			<option selected value='<%= acct_types[n] %>' ><%= acct_types[n] %></option>
+		        	<% }else{ %>
+		        			<option value='<%= acct_types[n] %>'><%= acct_types[n] %></option>
+		        	<% } %>
+		        <% } %>
+          	</select>
+          <input type="text" id="acctTypeSelect" name='acct_type' class='select-text' value="<%= secdata.acct_type %>"/>
+        </span>
+
+    </div>
+    
+  </div>
+  
 <hr>
 	<div class="row">
   <% if(kind == 'new'){ %>

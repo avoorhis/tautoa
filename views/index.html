@@ -27,10 +27,14 @@
 <% } %>
 </div>
 
+<% if (messages.success) { %>
+        <div class="alert_flash_message_success"><%= messages.success %>
+        </div>
+    <% }else if(messages.fail){ %>
+        <div class="alert_flash_message_fail"><%= messages.fail %>
+        </div>
+    <% } %>
 
-<% if (message) { %>
-    <div id='alert_flash_message_id' class="alert_flash_message"><%= message %></div>
-<% } %>
 <br>
 
 
@@ -45,7 +49,7 @@
         <div class='head_div'><strong>Filter</strong></div>
         <br>
         <table>
-        <tr><td>Account:</td>
+        <tr><td>AcctHost:</td>
         <td>
         <select id="account"   class='cat_select' onchange="update_filter('account',this.value,'<%= active %>','','','accounts_list') ">
                     <option value="none">...</option>
@@ -54,7 +58,16 @@
         <%      } %>
         </select>
         </td></tr>
-
+        <tr><td>&nbsp;</td></tr>
+        <tr><td>AcctType:</td>
+        <td>
+        <select id="acct_type"   class='cat_select' onchange="update_filter('acct_type',this.value,'<%= active %>','','','accounts_list') ">
+                    <option value="none">...</option>
+        <%      for(a in accountTypeList){ %>
+                    <option value="<%= accountTypeList[a] %>"><%= accountTypeList[a] %></option>
+        <%      } %>
+        </select>
+        </td></tr>
 
         <tr><td>&nbsp;</td></tr>
         <tr><td>Sector:</td>
@@ -109,7 +122,7 @@
         </td></tr>
         </table>
     </div>  <!-- // end class='result_tbl_div'  -->
-    <br>
+    
     
     <div class='result_tbl_div group'>
         <div class='head_div'>
@@ -130,7 +143,7 @@
             <tr><td>Count:</td><td><div id='sec_count'></div></td></tr>
         </table>
     </div>
-    <br>
+    
     <div class='result_tbl_div security' >
         <div class='head_div'>
             <strong>Single: 
@@ -148,10 +161,12 @@
             <tr><td>Held For:</td><td><div id='held_for'></div></td></tr>
             <tr><td>Pct of Port Total:</td><td><div id='pct_of_total'></div></td></tr>
             <tr><td>Pct of Group:</td><td><div id='pct_of_gtotal'></div></td></tr>
-            <tr><td>Account:</td><td><div id='account_id'></div></td></tr>
+            <!-- 
+<tr><td>Account:</td><td><div id='account_id'></div></td></tr>
             <tr><td>Sector:</td><td><div id='sector_id'></div></td></tr>
             <tr><td>Type:</td><td><div id='type_id'></div></td></tr>
             <tr><td>Goal:</td><td><div id='goal_id'></div></td></tr>
+ -->
         </table>
     </div>
 
@@ -202,7 +217,7 @@
 
                 <span class="select-editable">
                   <select  id='new_transaction_sel' onchange="this.nextElementSibling.value=this.value" >
-                    <option value='0'>Choose...</option>
+                    <option value='0'>Price Update</option>
                     <%  for(n in actions){ %>
                             <option value='<%= actions[n] %>'><%= actions[n] %></option>
                     <%  } %>
@@ -222,7 +237,7 @@
             </td>
             <td>Shares:</td>
             <td>
-                <input type='text' id='tshares' name='tshares' maxlength="12" size="10">
+                <input type='text' id='tshares' name='tshares' maxlength="12" size="10" value='0'>
             </td>
             <td>Value:</td>
             <td>
