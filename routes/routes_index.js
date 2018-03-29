@@ -366,13 +366,17 @@ router.post('/view_securities', function (req, res) {
 	          				ALL_SECURITIES_BY_ID[rows[r].id].goal 			= rows[r].goal
 	          				ALL_SECURITIES_BY_ID[rows[r].id].account 		= rows[r].account
 	          				ALL_SECURITIES_BY_ID[rows[r].id].acct_type 		= rows[r].acct_type
-	          				ALL_SECURITIES_BY_ID[rows[r].id].note 		  = rows[r].notes
+	          				ALL_SECURITIES_BY_ID[rows[r].id].note 		    = rows[r].notes
                             ALL_SECURITIES_BY_ID[rows[r].id].div_yield      = rows[r].yield
+                            ALL_SECURITIES_BY_ID[rows[r].id].div_rate      = rows[r].div_rate
                             ALL_SECURITIES_BY_ID[rows[r].id].div_freq      = rows[r].dividend_freq
                             ALL_SECURITIES_BY_ID[rows[r].id].alert      	= rows[r].alert
                             ALL_SECURITIES_BY_ID[rows[r].id].dividend      = rows[r].dividend
 	          				ALL_SECURITIES_BY_ID[rows[r].id].transactions = []
-	          				if(rows[r].dividend == 1){
+	          				//if(rows[r].dividend == 1){
+	          				console.log(rows[r].ticker+' - '+rows[r].yield)
+	          				//if(isNumeric(rows[r].yield) && parseFloat(rows[r].yield) > 1.0 && rows[r].type != 'Mutual Fund'){
+	          				if(ALL_SECURITIES_BY_ID[rows[r].id].type == "Stock" ){
 	          					DIVIDEND_SECURITIES_BY_ID[rows[r].id] = ALL_SECURITIES_BY_ID[rows[r].id]
 	          				}
           			}
@@ -761,22 +765,50 @@ function update_prices_conn(id_lst, type, req, res) {
 		    		    }
 		    		    quote.ticker = t
 			    		quote.action = 'Price Update'
+			    		
+			    		// DIV RATE
+		    		    if(ALL_SECURITIES_BY_ID[quote.secid].type == "Stock" ){
+		    		    	quote.div_rate = (parseFloat(response[t].summaryDetail.dividendRate) * 100).toFixed(2)
+		    		    }else{
+		    		    	quote.div_rate = 'na'
+		    		    }
 		    		    
 		    		    // YIELD
 		    		    if(ALL_SECURITIES_BY_ID[quote.secid].type == "Mutual Fund" || ALL_SECURITIES_BY_ID[quote.secid].type == "Stock Fund" || ALL_SECURITIES_BY_ID[quote.secid].type == "Bond Fund"){
 		    		    	//console.log(t+' '+(response[t].summaryDetail.yield).toString())
-		    		    	quote.div_yield = (parseFloat(response[t].summaryDetail.yield) * 100).toFixed(2)
+		    		    	
+		    		    	try{	
+		    		    		quote.div_yield = (parseFloat(response[t].summaryDetail.yield) * 100).toFixed(2)
+		    		    	}catch(err){
+		    		    		quote.div_yield = ''
+		    		    	}
+		    		    	console.log(t+' mf-- '+quote.div_yield)
 		    		    }else if(ALL_SECURITIES_BY_ID[quote.secid].type == "ETF"){
 		    		    	//console.log(t+' '+(response[t].summaryDetail.yield).toString())
-		    		    	quote.div_yield = (parseFloat(response[t].summaryDetail.yield) * 100).toFixed(2)
+		    		    	
+		    		    	try{
+		    		    		quote.div_yield = (parseFloat(response[t].summaryDetail.yield) * 100).toFixed(2)
+		    		    	}catch(err){
+		    		    		quote.div_yield = ''
+		    		    	}
+		    		    	console.log(t+' etf-- '+quote.div_yield)
 		    		    }else{
 		    		    	//console.log(t+' '+(response[t].summaryDetail.dividendYield).toString())
+		    		    	
 		    		    	try{
 		    		    		quote.div_yield = (parseFloat(response[t].summaryDetail.dividendYield) * 100).toFixed(2)
 		    		    		//console.log(t+' '+(response[t].summaryDetail.dividendYield).toString())
 		    		    	}catch(err){
-		    		    		quote.div_yield = 0
+		    		    		try{
+		    		    			quote.div_yield = (parseFloat(response[t].summaryDetail.dividendYield.raw) * 100).toFixed(2)
+		    		    		}catch(e){
+		    		    			quote.div_yield = ''
+		    		    		}
 		    		    	}
+		    		    	if(isNaN(quote.div_yield)){
+		    		    		quote.div_yield = ''
+		    		    	}
+		    		    	console.log(t+' other-- '+quote.div_yield)
 		    		    }
 		    		    // if(response[t].summaryDetail.hasOwnProperty(response[t].summaryDetail.dividendYield) ){
 //                   			quote.yield = response[t].summaryDetail.response[t].summaryDetail.dividendYield * 10
@@ -784,8 +816,10 @@ function update_prices_conn(id_lst, type, req, res) {
 //                   		}else{
 //                   			quote.yield = ''
 //                   	
-
+ console.log(t+' -- '+quote.div_yield)
+ 
 		    		    ALL_SECURITIES_BY_ID[quote.secid].div_yield  = quote.div_yield
+		    		    ALL_SECURITIES_BY_ID[quote.secid].div_rate  = quote.div_rate
 						quote.shares = 0
 						quote.note   = ''
 						quote.sqldate = FROM //get_sql_date(new Date(items[2].replace(/['"]+/g, '')))
@@ -948,16 +982,17 @@ router.get('/dividend', function (req, res) {
 	// get dividend stocks
 	
 	
-	id631 = DIVIDEND_SECURITIES_BY_ID[631]
+	//id631 = DIVIDEND_SECURITIES_BY_ID[631]
 	// dps = ((parseFloat(d[row]['div_yield']))/100 * parseFloat(d[row]['cur_price'])) / d[row]['div_freq'] %>
     // est_div = parseFloat(dps) * d[row]['div_freq'] * parseFloat(cshares)
-	dps = ((id631['div_yield']/100)*id631['cur_price'])/id631['div_freq']
+	//dps = ((id631['div_yield']/100)*id631['cur_price'])/id631['div_freq']
+	//dps = (id631['div_rate']*id631['cur_shares'])
 	
-	console.log('dps')
-	console.log(dps)
-	est_div = dps * id631['div_freq'] * id631['cur_shares']
-	console.log('est_div')
-	console.log(est_div)
+	//console.log('dps')
+	//console.log(dps)
+	// est_div = dps * id631['div_freq'] * id631['cur_shares']
+// 	console.log('est_div')
+// 	console.log(est_div)
 	
 	res.render('dividend', {
 				title : config.APP_NAME.capitalizeFirstLetter()+': Dividends',
@@ -1394,6 +1429,10 @@ function get_sql_date(jsdate){
 };
 function pad(width, string, padding) {
   return (width <= string.length) ? string : pad(width, padding + string, padding)
+}
+//
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
 }
 //
 Number.prototype.formatMoney = function(c, d, t){

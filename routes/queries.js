@@ -5,19 +5,19 @@ var C = require('../public/constants');
 module.exports = {
 	
 	get_all_securities: function(active){
-	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,acct_type,notes,yield,alert,dividend,dividend_freq"
+	    var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,acct_type,notes,yield,alert,dividend,dividend_freq,dividend_rate"
 	    q += " from securities WHERE active = '"+active+"'  ORDER BY name";
 	    return q;
 	},
 	get_select_securities: function(list_type, list_value, active){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,acct_type,notes,yield,alert,dividend,dividend_freq"
+			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,acct_type,notes,yield,alert,dividend,dividend_freq,dividend_rate"
 	    q += " from securities WHERE active = '"+active+"'"
 	    q += " and "+list_type+"='"+list_value+"'"
 	    q += " ORDER BY name";
 	    return q;
 	},
 	get_group_securities: function(list_type, list_value, active){
-			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,acct_type,notes,yield,alert,dividend,dividend_freq"
+			var q = "SELECT id, ticker, name, cur_value, cur_shares, cur_price, sector,type,goal,account,acct_type,notes,yield,alert,dividend,dividend_freq,dividend_rate"
 	    q += " from securities WHERE active = '"+active+"'"
 	    q += " and group_code like '%"+list_value+"%'"
 	    q += " ORDER BY name";

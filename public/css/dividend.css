@@ -18,6 +18,9 @@ a:visited {
 a:hover {
     color: black;
 }
+#div_table{
+   font-size:11px;
+}
 td.align-right {
 	text-align:right;
 }
