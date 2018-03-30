@@ -240,7 +240,7 @@ function view_transactions_ajax( secid ){
 		
     xmlhttp.open("POST", "/view_transactions", true);
 
-	  xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
     xmlhttp.onreadystatechange = function() {
 
 		    if (xmlhttp.readyState == 4 ) {
@@ -252,8 +252,8 @@ function view_transactions_ajax( secid ){
 					document.getElementById('invested').innerHTML        	= '$'+parseFloat(data.stats.invested).formatMoney(2);
 					document.getElementById('basis').innerHTML        		= '$'+parseFloat(data.stats.basis).formatMoney(2);
 					document.getElementById('profit').innerHTML        		= '$'+parseFloat(data.stats.profit).formatMoney(2);
-					document.getElementById('tot_return').innerHTML       = data.stats.tot_return.toFixed(1)+'%';
-					document.getElementById('ytd_return').innerHTML       = data.stats.ytd_return.toFixed(1)+'%';
+					//document.getElementById('tot_return').innerHTML       = data.stats.tot_return.toFixed(1)+'%';
+					//document.getElementById('ytd_return').innerHTML       = data.stats.ytd_return.toFixed(1)+'%';
 					document.getElementById('avg_ann_return').innerHTML   = (data.stats.tot_return/(data.stats.held_for/(365))).toFixed(1) +'%';
 					document.getElementById('pct_of_total').innerHTML     = data.stats.pct_of_tot.toFixed(1)+'%';
 					if(group_total){
@@ -387,7 +387,7 @@ function get_security_list(list_type, list_value, active, view, secid, source ){
             document.getElementById('gbasis').innerHTML        		= '$'+parseFloat(data.stats.basis).formatMoney(2);
             document.getElementById('gprofit').innerHTML        	= '$'+parseFloat(data.stats.profit).formatMoney(2);
             document.getElementById('sec_count').innerHTML 		    = data.stats.sec_count
-            document.getElementById('gtot_return').innerHTML      = data.stats.tot_return.toFixed(1)+'%';
+            //document.getElementById('gtot_return').innerHTML      = data.stats.tot_return.toFixed(1)+'%';
             document.getElementById('gpct_of_tot').innerHTML      = data.stats.pct_of_tot.toFixed(1)+'%';
             $('[data-toggle="tooltip"]').tooltip(); 
             document.getElementById('security_list_div_id').style.background = '#d9ffb3'; 

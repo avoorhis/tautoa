@@ -79,7 +79,6 @@ async.parallel([ connection.get_sectors,
                   );
 
 
-
 connection.db.query(queries.get_databases(), function(err, rows, fields){
 	if(err){ console.log(err)
 	}else{

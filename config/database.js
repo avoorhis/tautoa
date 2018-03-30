@@ -14,13 +14,13 @@ exports.connect2database = function(dbase) {
    //eval(fs.readFileSync(config_file).toString());
    exports.db = null;
    handleDisconnect = function(){
-     console.log('Trying to Connect...');
-	 		exports.db = mysql.createConnection({
-				  host     : config.DBHOST,
-				  user     : config.DBUSER,
-				  password : config.DBPASS,
-				  database : dbase
-				});
+     
+    exports.db = mysql.createConnection({
+          host     : config.DBHOST,
+          user     : config.DBUSER,
+          password : config.DBPASS,
+          database : dbase
+    });
      exports.db.connect(function(err){
 	   if (err != null) {
           console.log('Error connecting to mysql:', err);
