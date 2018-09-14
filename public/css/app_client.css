@@ -130,10 +130,10 @@ a:hover {
 #transaction_form {
 				display:none;
 				border: 1px solid #d0d0d0;
-				background-color: #f0f0f0;
+				background-color: #ffff99;
 				position: fixed;
 				top: 50px;
-				left: 200px;
+				left: 0px;
 				padding: 10px;
 }
 #transaction_form li {padding: 5px;}

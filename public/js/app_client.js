@@ -1,8 +1,8 @@
 
-var currentRow=0;
+var currentRow = 0;
 var rowHeight = 0;
 var seq_row_count =0;
-var scrollBy = 30;
+var scrollBy = 29;
 
 
 //var now = new Date();
@@ -50,6 +50,7 @@ function ChangeCurrentRow() {  // only by arrow keys!
 //
 //
 //
+
 function hover(rows,secid){
 	for(i = 0; i < rows.length; i++){
 		
@@ -252,8 +253,8 @@ function view_transactions_ajax( secid ){
 					document.getElementById('invested').innerHTML        	= '$'+parseFloat(data.stats.invested).formatMoney(2);
 					document.getElementById('basis').innerHTML        		= '$'+parseFloat(data.stats.basis).formatMoney(2);
 					document.getElementById('profit').innerHTML        		= '$'+parseFloat(data.stats.profit).formatMoney(2);
-					//document.getElementById('tot_return').innerHTML       = data.stats.tot_return.toFixed(1)+'%';
-					//document.getElementById('ytd_return').innerHTML       = data.stats.ytd_return.toFixed(1)+'%';
+					document.getElementById('tot_return').innerHTML       = data.stats.tot_return.toFixed(1)+'%';
+					document.getElementById('ytd_return').innerHTML       = data.stats.ytd_return.toFixed(1)+'%';
 					document.getElementById('avg_ann_return').innerHTML   = (data.stats.tot_return/(data.stats.held_for/(365))).toFixed(1) +'%';
 					document.getElementById('pct_of_total').innerHTML     = data.stats.pct_of_tot.toFixed(1)+'%';
 					if(group_total){
@@ -286,10 +287,10 @@ function view_transactions_ajax( secid ){
 		 			if(secid){
 			 			document.getElementById('sec_ticker_id').innerHTML  = data.sec.ticker;
 			 			infoline = '('+data.sec.ticker+') '+data.sec.name
-			 			infoline += " <div class='pull-right'>Account: "+data.sec.acct_type+'<small>-'+data.sec.account+"&nbsp;&nbsp;&nbsp;(id="+secid+")";
+			 			infoline += " <div class='pull-right'><small>Account: - "+data.sec.account+"&nbsp;&nbsp;&nbsp;(id="+secid+")";
 			 			infoline += "</small></div>";
 			 			document.getElementById('sec_name_div_id').innerHTML 	= infoline;
-			 			document.getElementById('tcurrent_name').innerHTML  = '('+data.sec.ticker+')<br>'+data.sec.name;
+			 			document.getElementById('tcurrent_name').innerHTML  = '('+data.sec.ticker+') '+data.sec.name;
 			 			document.getElementById('tcurrent_name').value  = secid;
 			 			//document.getElementById('totshares').value  = data.tot_shares;
 						
@@ -380,14 +381,16 @@ function get_security_list(list_type, list_value, active, view, secid, source ){
 
             view_transactions_ajax(secid);
             group_total = data.stats.tot_value
+            avg_value = data.stats.tot_value / data.stats.sec_count
             document.getElementById('sec_group_id').innerHTML     = list_type +'::'+list_value;
             document.getElementById('gtot_value').innerHTML       = '$'+parseFloat(data.stats.tot_value).formatMoney(2);
+            document.getElementById('avg_value').innerHTML       = '$'+parseFloat(avg_value).formatMoney(2);
             // save data.stats.tot_value
             document.getElementById('ginvested').innerHTML        = '$'+parseFloat(data.stats.invested).formatMoney(2);
             document.getElementById('gbasis').innerHTML        		= '$'+parseFloat(data.stats.basis).formatMoney(2);
             document.getElementById('gprofit').innerHTML        	= '$'+parseFloat(data.stats.profit).formatMoney(2);
             document.getElementById('sec_count').innerHTML 		    = data.stats.sec_count
-            //document.getElementById('gtot_return').innerHTML      = data.stats.tot_return.toFixed(1)+'%';
+            document.getElementById('gtot_return').innerHTML      = data.stats.tot_return.toFixed(1)+'%';
             document.getElementById('gpct_of_tot').innerHTML      = data.stats.pct_of_tot.toFixed(1)+'%';
             $('[data-toggle="tooltip"]').tooltip(); 
             document.getElementById('security_list_div_id').style.background = '#d9ffb3'; 
@@ -630,6 +633,46 @@ function change_secview(view){
 		};
 	  xmlhttp.send(args);
 
+}
+
+function psv(source,value){
+	console.log(source+' '+value.toString())
+	if( value.length > 0 && ! isNumber(value)){
+		alert('Numbers Only!')
+		return
+	}
+	//var p,s,v
+	var p  = document.getElementById('tprice')
+	var s = document.getElementById('tshares')
+	var v  = document.getElementById('tvalue')
+	if(source == 'p'){  // price
+		// priority s
+		if(s.value.length > 0){
+			v.value = (p.value*s.value).toFixed(4)
+		}else if(v.value.length > 0){
+			s.value = (v.value/p.value).toFixed(4)
+		}else{
+			s.value = v.value = 0
+		}
+	}else if(source == 's'){  //price
+		// priority p
+		if(p.value.length > 0){
+			v.value = (p.value*s.value).toFixed(4)
+		}else if(v.value.length > 0){
+			p.value = (v.value/s.value).toFixed(4)
+		}else{
+			p.value = v.value = 0
+		}
+	}else if(source == 'v'){  //value
+		// priority s
+		if(s.value.length > 0){
+			p.value = (v.value/s.value).toFixed(4)
+		}else if(p.value.length > 0){
+			s.value = (v.value/p.value).toFixed(4)
+		}else{
+			p.value = s.value = 0
+		}
+	}
 }
 var $owner = undefined;
 //var $transPop = $('#select_new_transaction');

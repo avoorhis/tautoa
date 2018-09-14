@@ -19,7 +19,7 @@ a:hover {
     color: black;
 }
 #div_table{
-   font-size:11px;
+   font-size:12px;
 }
 td.align-right {
 	text-align:right;
@@ -33,4 +33,33 @@ td.bold {
 td,th {
 	padding:0 2px;
 	font-size:1.05em;
+}
+
+/* Sortable tables */
+#div_table.sortable thead {
+    background-color:#eee;
+    color:#666666;
+    font-weight: bold;
+    cursor: default;
+}
+#div_table.sortable tbody tr:nth-child(2n) td {
+  background: #ffcccc;
+}
+#div_table.sortable tbody tr:nth-child(2n+1) td {
+  background: #ccfffff;
+}
+#div_table.sortable tbody {
+    counter-reset: sortabletablescope;
+}
+#div_table.sortable thead tr::before {
+    content: "";
+    display: table-cell;
+}
+#div_table.sortable tbody tr::before {
+    content: counter(sortabletablescope);
+    counter-increment: sortabletablescope;
+    display: table-cell;
+}
+#div_table.sortable tbody tr:hover td {
+    background-color: #ffff99;
 }

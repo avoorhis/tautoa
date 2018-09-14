@@ -7,11 +7,28 @@ var fs = require('fs-extra')
 var path = require('path')
 var dateFormat = require('dateformat');
 var moment_date = require('moment');
-var today = moment_date().format('YYYY-MM-DD')
+
 
 var queries = require('./queries');
 var config = require('../config/config');
 var C  = require('../public/constants');
+
+const { IEXClient } = require('iex-api')
+const _fetch = require('isomorphic-fetch')
+//import { IEXClient } from 'iex-api'
+//import * as _fetch from 'isomorphic-fetch'
+const iex = new IEXClient(_fetch)
+//aapl = iex.stockCompany('AAPL')
+//console.log(aapl.stats)
+var request = require("request")
+// var url ="https://api.iextrading.com/1.0/stock/market/batch?symbols=aapl&types=quote,stats";
+// 
+// 		request(url, function (error, response, body) { 
+// 			if (!error && response.statusCode == 200) {  
+// 				var stock_data = body;
+// 				console.log("IEX API: ", stock_data);      
+// 			};
+// 		});
 
 router.get('/', function (req, res) {
   console.log('in index/home')
@@ -34,8 +51,9 @@ router.get('/', function (req, res) {
       types 	: typeList,
       goals 	: goalList,
       sectors 	: sectorList,
-      accounts 	: accountList,
-      acct_type : accountTypeList,
+      //accounts 	: accountList,
+      accounts  : C.accounts,
+      //acct_type : accountTypeList,
       actions 	: actionList,
       groups 	: groupList,
       alerts 	: alertList,
@@ -75,8 +93,8 @@ router.get('/security_form/:kind/:id', function (req, res) {
 									      types : typeList,
 									      goals : goalList,
 									      sectors : sectorList,
-									      accounts : accountList,
-									      acct_types : accountTypeList,
+									      accounts : C.accounts,
+									      //acct_types : accountTypeList,
 									      groups : groupList,
 									      alerts : alertList,
 									      secid : secid
@@ -369,7 +387,8 @@ router.post('/view_securities', function (req, res) {
 	          				ALL_SECURITIES_BY_ID[rows[r].id].note 		    = rows[r].notes
                             ALL_SECURITIES_BY_ID[rows[r].id].div_yield      = rows[r].yield
                             ALL_SECURITIES_BY_ID[rows[r].id].div_rate      = rows[r].dividend_rate
-                            ALL_SECURITIES_BY_ID[rows[r].id].div_freq      = rows[r].dividend_freq
+                            ALL_SECURITIES_BY_ID[rows[r].id].pe      		= rows[r].pe
+                            //ALL_SECURITIES_BY_ID[rows[r].id].div_freq      = rows[r].dividend_freq
                             ALL_SECURITIES_BY_ID[rows[r].id].alert      	= rows[r].alert
                             ALL_SECURITIES_BY_ID[rows[r].id].dividend      = rows[r].dividend
 	          				ALL_SECURITIES_BY_ID[rows[r].id].transactions = []
@@ -462,8 +481,11 @@ router.post('/view_transactions', function (req, res) {
 		//console.log(SELECTED_SECURITY)
 
 		html = get_translist_html(SELECTED_SECURITY.transactions)
+		console.log('SELECTED_SECURITY.transactions')
+		console.log(SELECTED_SECURITY.transactions)
 		secStats = get_security_stats(SELECTED_SECURITY.transactions)
-		
+		console.log('secStats')
+		console.log(secStats)
 		secStats.pct_of_gtot =
 		res.json({
 
@@ -673,8 +695,16 @@ router.post('/update_prices', function (req, res) {
 //
 // NEEDS REFRESH
 function update_prices_conn(id_lst, type, req, res) {
-        //var googleFinance = require('google-finance');
-        //type = 'single' or 'all'
+        
+		var url ="https://api.iextrading.com/1.0/stock/market/batch?symbols=aapl&types=quote,stats";
+
+		request(url, function (error, response, body) { 
+			if (!error && response.statusCode == 200) {  
+				var stock_data = body;
+				console.log("IEX API: ", stock_data);      
+			};
+		});
+
         var yahooFinance = require('yahoo-finance');
 		// https://www.npmjs.com/package/google-finance
 		data_object = {};
@@ -754,62 +784,44 @@ function update_prices_conn(id_lst, type, req, res) {
 		    		    // PRICE
 		    		    if(ALL_SECURITIES_BY_ID[quote.secid].type == "Mutual Fund" || ALL_SECURITIES_BY_ID[quote.secid].type == "Stock Fund" || ALL_SECURITIES_BY_ID[quote.secid].type == "Bond Fund"){
 		    		    	quote.price = response[t].summaryDetail.previousClose
+		    		    	try{
+		    		    		quote.yield = response[t].summaryDetail.yield
+		    		    	}catch(err){
+		    		    		
+		    		    	}
 		    		    }else if(ALL_SECURITIES_BY_ID[quote.secid].type == "ETF"){
 		    		    	quote.price = response[t].price.regularMarketPrice
+		    		    	try{
+		    		    		quote.yield = response[t].summaryDetail.yield
+		    		    	}catch(err){
+		    		    		
+		    		    	}
 		    		    }else{
 		    		    	try{
 		    		    		quote.price = response[t].financialData.currentPrice
 		    		    	}catch(err){
 		    		    		quote.price = response[t].price.regularMarketPrice
 		    		    	}
+		    		    	try{
+		    		    		quote.yield = response[t].summaryDetail.dividendYield
+		    		    	}catch(err){
+		    		    		
+		    		    	}
 		    		    }
+		    		    
 		    		    quote.ticker = t
 			    		quote.action = 'Price Update'
 			    		
-			    		// DIV RATE
-		    		    if(ALL_SECURITIES_BY_ID[quote.secid].type == "Stock" ){
-		    		    	quote.div_rate = parseFloat(response[t].summaryDetail.dividendRate)
-		    		    }else{
-		    		    	quote.div_rate = 'na'
-		    		    }
+			    		if(quote.hasOwnProperty('yield') ){
+			    			quote.yield = quote.yield * 100 
+			    		}else{
+			    			quote.yield = NaN
+			    		}
+//                   			quote.yield = response[t].summaryDetail.response[t].summaryDetail.dividendYield * 10
+//                   			
+//                   		}else{
+//                   			quote.yield = ''
 		    		    
-		    		    // YIELD
-		    		    if(ALL_SECURITIES_BY_ID[quote.secid].type == "Mutual Fund" || ALL_SECURITIES_BY_ID[quote.secid].type == "Stock Fund" || ALL_SECURITIES_BY_ID[quote.secid].type == "Bond Fund"){
-		    		    	//console.log(t+' '+(response[t].summaryDetail.yield).toString())
-		    		    	
-		    		    	try{	
-		    		    		quote.div_yield = (parseFloat(response[t].summaryDetail.yield) * 100).toFixed(2)
-		    		    	}catch(err){
-		    		    		quote.div_yield = ''
-		    		    	}
-		    		    	console.log(t+' mf-- '+quote.div_yield)
-		    		    }else if(ALL_SECURITIES_BY_ID[quote.secid].type == "ETF"){
-		    		    	//console.log(t+' '+(response[t].summaryDetail.yield).toString())
-		    		    	
-		    		    	try{
-		    		    		quote.div_yield = (parseFloat(response[t].summaryDetail.yield) * 100).toFixed(2)
-		    		    	}catch(err){
-		    		    		quote.div_yield = ''
-		    		    	}
-		    		    	console.log(t+' etf-- '+quote.div_yield)
-		    		    }else{
-		    		    	//console.log(t+' '+(response[t].summaryDetail.dividendYield).toString())
-		    		    	
-		    		    	try{
-		    		    		quote.div_yield = (parseFloat(response[t].summaryDetail.dividendYield) * 100).toFixed(2)
-		    		    		//console.log(t+' '+(response[t].summaryDetail.dividendYield).toString())
-		    		    	}catch(err){
-		    		    		try{
-		    		    			quote.div_yield = (parseFloat(response[t].summaryDetail.dividendYield.raw) * 100).toFixed(2)
-		    		    		}catch(e){
-		    		    			quote.div_yield = ''
-		    		    		}
-		    		    	}
-		    		    	if(isNaN(quote.div_yield)){
-		    		    		quote.div_yield = ''
-		    		    	}
-		    		    	console.log(t+' other-- '+quote.div_yield)
-		    		    }
 		    		    // if(response[t].summaryDetail.hasOwnProperty(response[t].summaryDetail.dividendYield) ){
 //                   			quote.yield = response[t].summaryDetail.response[t].summaryDetail.dividendYield * 10
 //                   			
@@ -817,12 +829,15 @@ function update_prices_conn(id_lst, type, req, res) {
 //                   			quote.yield = ''
 //                   	
  
-		    		    ALL_SECURITIES_BY_ID[quote.secid].div_yield  = quote.div_yield
-		    		    ALL_SECURITIES_BY_ID[quote.secid].div_rate  = quote.div_rate
+		    		    
 						quote.shares = 0
 						quote.note   = ''
 						quote.sqldate = FROM //get_sql_date(new Date(items[2].replace(/['"]+/g, '')))
-						hash_list.push(quote)
+						console.log('new price: '+quote.ticker+' - '+(quote.price).toString())
+						if(typeof quote.price != 'object' && quote.price != 0){
+		    		    	hash_list.push(quote)
+		    		    }
+						
 		    		}else{
 		    			console.log(t+' Not found')
 		    		}
@@ -927,9 +942,10 @@ router.get('/admin', function (req, res) {
 //
 router.get('/backup_dump', function (req, res) {
 		console.log('in backup')
-
+		var today = moment_date().format('YYYY-MM-DD')
 		var dump_file = CURRENT_DATABASE+'_'+today +'.sql'
-		var cmd = 'mysqldump '+CURRENT_DATABASE+' > public/dump/'+dump_file
+		var cmd = 'mysqldump -u '+config.DBUSER+' -p'+config.DBPASS+' '+CURRENT_DATABASE+' > public/dump/'+dump_file
+		console.log(cmd)
 		if(C.verbose){
 			console.log(dump_file)
 			console.log(cmd)
@@ -980,25 +996,67 @@ router.get('/dividend', function (req, res) {
 	console.log('in dividend')
 	// get dividend stocks
 	
+	var url ="https://api.iextrading.com/1.0/stock/market/batch?symbols=";
+	var symbols = {}
+	var symbols_list = []
+	for(id in DIVIDEND_SECURITIES_BY_ID){
+		if(DIVIDEND_SECURITIES_BY_ID[id].type == 'Stock'){
+			ticker = (DIVIDEND_SECURITIES_BY_ID[id].ticker).replace('-','.')
+			symbols[ticker] = DIVIDEND_SECURITIES_BY_ID[id]
+			symbols_list.push(ticker)
+		}
+	}
+    url =url+symbols_list.join(',')+ "&types=stats"
+    console.log(url)
+    collector = {}
+	request(url, function (error, response, body) { 
+		if (!error && response.statusCode == 200) {  
+			var stock_data = JSON.parse(body);
+			console.log("IEX API: ", stock_data);  
+			send_symbols = {}
+			for(tick in symbols){
+				console.log('id1')
+				console.log(tick)
+				
+				if(stock_data.hasOwnProperty(tick)){
+					console.log('id2')
+					console.log(tick)
+					send_symbols[tick] = symbols[tick]
+					send_symbols[tick].stats = stock_data[tick].stats
+					yld = stock_data[tick].stats.dividendYield
+					id = send_symbols[tick].id
+					console.log(tick+' -- '+yld)
+					collector[id] = yld
+				}
+			}
+			//console.log('send_symbols')
+			//console.log(send_symbols)
+			//q = "UPDATE securities set yield='' where id=''"
+			q = "INSERT INTO securities (id,yield) VALUES" // (1,1),(2,3),(3,9),(4,10)"
+			vals = ""
+			for(id in collector){
+				vals += "("+id+","+collector[id]+"),"
+			}
+			vals = vals.substring(0,vals.length-1);
+			q = q + vals + " ON DUPLICATE KEY UPDATE yield=VALUES(yield)";
+			
+			console.log(q)
+			req.db.query(q, function(err, rows, fields){
+          		if (err) { console.log('Yield error: ' + err);	return;	}
+			});
+			res.render('dividend', {
+					title     : config.APP_NAME.capitalizeFirstLetter()+': Dividends',
+					database  : CURRENT_DATABASE,
+					app_name  : config.APP_NAME.capitalizeFirstLetter(),
+					data	  : JSON.stringify(send_symbols)
+			});
+				
+		};
+	});
 	
-	//id631 = DIVIDEND_SECURITIES_BY_ID[631]
-	// dps = ((parseFloat(d[row]['div_yield']))/100 * parseFloat(d[row]['cur_price'])) / d[row]['div_freq'] %>
-    // est_div = parseFloat(dps) * d[row]['div_freq'] * parseFloat(cshares)
-	//dps = ((id631['div_yield']/100)*id631['cur_price'])/id631['div_freq']
-	//dps = (id631['div_rate']*id631['cur_shares'])
 	
-	//console.log('dps')
-	//console.log(dps)
-	// est_div = dps * id631['div_freq'] * id631['cur_shares']
-// 	console.log('est_div')
-// 	console.log(est_div)
 	
-	res.render('dividend', {
-				title : config.APP_NAME.capitalizeFirstLetter()+': Dividends',
-				database 	: CURRENT_DATABASE,
-				app_name  : config.APP_NAME.capitalizeFirstLetter(),
-				data	: JSON.stringify(DIVIDEND_SECURITIES_BY_ID)
-		});
+	
 	// query = queries.get_dividend_stocks();
 // 	req.db.query(query, function(err, rows, fields){
 // 		if (err) { console.log('1-MAIN OBJ error: ' + err);	return;	}
@@ -1075,13 +1133,13 @@ function get_seclist_html(secObj, view){
 			for (k in sortList){
 				ALL_SECURITIES_BY_NAME[sortList[k].name] = sortList[k];
     		html += "<tr id='"+sortList[k].id+"' style='' onclick=\"view_transactions_ajax('"+sortList[k].id+"','"+sortList[k].name+"')\">";
-        html += "<td id='"+sortList[k].ticker+"' data-toggle='tooltip' data-container='body' data-placement='left' title='"+sortList[k].note+"' width='"+ticwidth+"' >";
+        html += "<td id='"+sortList[k].ticker+"' data-toggle='tooltip' data-container='body' data-placement='right' title='"+sortList[k].note+"' width='"+ticwidth+"' >";
         //html += "    <a href='#' >" + sortList[k].ticker + "</a>";
         html += sortList[k].ticker
         html += "</td>";
 
-        html += "<td class='nowrap_name'  id='"+sortList[k].name+"' data-toggle='tooltip' data-container='body' data-placement='left' title='"+sortList[k].note+"'>"
-        html += "<span class='pull-left'>"+sortList[k].name+"</span>"
+        html += "<td class='nowrap_name'  id='"+sortList[k].name+"' >"
+        html += "<span class='pull-left' data-toggle='tooltip' data-container='body' data-placement='right' title='"+sortList[k].note+"'>"+sortList[k].name+"</span>"
         html += "<span class='pull-right' style='color:red;' >"+sortList[k].alert+"</span></td>";
 
         if(view == 'val'){
@@ -1089,7 +1147,7 @@ function get_seclist_html(secObj, view){
         	html += "<td class='nowrap_value' ><div>"+parseFloat(sortList[k].cur_shares).toFixed(3)+"</div></td>";
         	html += "<td class='nowrap_value' ><div>$"+parseFloat(sortList[k].cur_value).formatMoney(2)+"</div></td>";
           if(sortList[k].div_yield != 'N/A'){
-            html += "<td class='nowrap_value'><div>"+parseFloat(sortList[k].div_yield)+"%</div></td>";
+            html += "<td class='nowrap_value'><div>"+parseFloat(sortList[k].div_yield).toFixed(1)+"%</div></td>";
           }else{
             html += "<td class='nowrap_value'><div></div></td>";
           }
@@ -1215,10 +1273,10 @@ function get_group_stats(secObj){
 		}
 		gstats.sec_count = Object.keys(secObj).length
 
-		if(gstats.sec_count > 0){
+		//if(gstats.sec_count > 0){
     	gstats.tot_return = (gstats.profit / Math.abs(gstats.invested))*100
 
-		}
+		//}
 
     return gstats
 }
@@ -1232,7 +1290,7 @@ function get_dividend_stats(){
 }
 
 function get_security_stats(tlist){
-
+		var today2 = moment_date().toDate()
 		var return_obj = {}
 		var sumofshares = 0
 		var invested = 0
@@ -1278,6 +1336,7 @@ function get_security_stats(tlist){
 						}
 
 						last_year = moment_date().year() - 1;
+				
 						if(trans == 'Year End - '+last_year.toString()){
 							ytd_start_date = jsdate
 							ytd_start_nav = nav;
@@ -1294,19 +1353,29 @@ function get_security_stats(tlist){
 				}
 				return_obj.tot_value = sumofshares * nav;
 				return_obj.pct_of_tot = (return_obj.tot_value / PORTFOLIO_TOTAL)*100
-		    //return_obj.tot_shares = sumofshares;
+		    return_obj.tot_shares = sumofshares;
 		    return_obj.invested = invested;
 		    return_obj.basis = basis;
 		    
 		    return_obj.profit = return_obj.tot_value - return_obj.invested;
 		    return_obj.tot_return = (return_obj.profit / Math.abs(return_obj.invested))*100
+// console.log('init_date')
+// console.log(init_date)
+// console.log('today2')
+// console.log(today2)
+// console.log('ytd_start_nav')
+// console.log(ytd_start_nav)
+
 		    if(ytd_start_nav){
 		    	return_obj.ytd_return = ((nav - ytd_start_nav)/ytd_start_nav)*100;
 		  	}else{
 		  		return_obj.ytd_return = return_obj.tot_return;
 		  	}
-		    return_obj.held_for = daydiff(init_date,today);
+		  	
+		    return_obj.held_for = daydiff(init_date,today2);
 		}
+// console.log('return_obj')
+// console.log(return_obj)		
 		return return_obj
 }
 
@@ -1343,6 +1412,11 @@ function rectify_security_table(req, res, secid_list) {
               field_list['dividend_rate'] = ALL_SECURITIES_BY_ID[secid].div_rate
             }else{
               field_list['dividend_rate'] = 'NA'
+            }
+            if(ALL_SECURITIES_BY_ID[secid].hasOwnProperty('pe')){
+              field_list['pe'] = ALL_SECURITIES_BY_ID[secid].pe
+            }else{
+              field_list['pe'] = 'NA'
             }
 		      	//field_list['secid'] = secid;
 		      	//console.log('maxdate:',field_list['cur_date']);
@@ -1424,6 +1498,9 @@ String.prototype.capitalizeFirstLetter = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 function daydiff(first, second) {
+    //console.log('in datediff')
+    //console.log(first.toUTCString())
+    //console.log(second.toUTCString())
     return Math.round((second-first)/(1000*60*60*24));
 };
 //

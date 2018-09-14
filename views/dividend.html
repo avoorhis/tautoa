@@ -5,7 +5,6 @@
     <title><%= title %></title>
     <link rel="icon" href="images/tortoise7.png.ico">
     <link rel="stylesheet" href="/css/bootstrap.css">
-    <link rel="stylesheet" href="/css/bootstrap-sortable.css">
     <link rel="stylesheet" href="/css/dividend.css">
 
   </head>
@@ -22,79 +21,121 @@
 <% var sum_value = 0.0 %>
 <% var sum_profit = 0.0 %>
 <% var sum_est_div = 0.0 %>
-<% var acct_types = ['Taxable','IRA','403b','Roth'] %>
-<% var vals = {} %>
 <% var names_sort = [] %>
-<% for(n in acct_types){ 
-	vals[acct_types[n]] = 0
-	}
-%>
-<% for(row in d){ %>
-	<% names_sort.push(d[row]['name']) %>
-	<%  cshares = parseFloat(d[row]['cur_shares']) %>
-    <%  basis = parseFloat(d[row]['basis']) %>
-    <%  sum_basis += basis %>
-    <%  cprice = parseFloat(d[row]['cur_price']) %>
-    <%  cvalue = parseFloat(d[row]['cur_value']) %>
-    <%  sum_value += cvalue %>
-    <%  profit = cvalue - basis %>
-    <%  sum_profit += profit %>
-    <%  dps = parseFloat(d[row]['div_rate']) %>
-    <%  est_div = parseFloat(dps)  * parseFloat(cshares) %>
-    
-    <%  for(n in acct_types){
-    		if(d[row]['acct_type'] == acct_types[n]){
-    		vals[acct_types[n]] += cvalue
-    		}
-        } %>
+<% var accounts = {} %>
+<% var sectors = {} %>
+<% var sum_yield = 0.0 %>
+<% var avg_yield = 0.0 %>
+<% var num = 0 %>
+<% for(id in d){ %>
+<%  	yield = parseFloat(d[id]['div_yield']) %>
+<% 	    if( isNaN(yield) ){ %>
+<%  		yield = parseFloat(d[id]['stats']['dividendYield']) %>
+<%  	} %>
+<% 		if(yield > 0.0 ){ %>
+<% 			accounts[d[id]['account']] = 1 %>
+<% 			sectors[d[id]['sector']] = 1 %>
+<%  		cv = parseFloat(d[id]['cur_value']) %>
+<%  		sum_value += cv %>
+<%  		basis = parseFloat(d[id]['basis']) %>
+<%  		sum_basis += basis %>
+<%          sum_yield += yield %>
+<%          num += 1 %>
+<%		} %>
 <% } %>
+<% avg_yield = sum_yield/num %>
+<% accounts = Object.keys(accounts) %>
+<% sectors = Object.keys(sectors) %>
+<% var type_vals   = {} %>
+<% var sector_vals = {} %>
+
+<% for(n in accounts){ %>
+<%		type_vals[accounts[n]] = 0 %>
+<% } %>
+<% for(n in sectors){ %>
+<%		sector_vals[sectors[n]] = 0 %>
+<% } %>
+
 <% names_sort.sort() %>
 <center>
-<table id='div_table' border='1'><tr>
-	<th>Sector</th>
+<table id='div_table' class="sortable" border='1'>
+<thead>
+
+<tr>
 	<th>Ticker</th>
 	<th>Name</th>
+	<th>Sector</th>
 	<th>Account</th>
 	<th>Shares</th>
 	<th>Basis</th>
-	<th>Cost/Share</th>
-	<th>Price</th>
-	<th>Value</th>
-	<th>Profit</th>
+	<th>Avg Cost/sh</th>
+	<th>Current<br>Price</th>
+	<th>Current<br>Value</th>
 	<th>Weight</th>
+	<th>Profit</th>
+	<th>EPS</th>
+	<th>Yield</th>
 	<th>Div/sh</th>
-	<th>Div Est/yr</th>
+	<th>Est Div/yr</th>
 </tr>
-<% for(row in d){ %>
-    <%  cshares = parseFloat(d[row]['cur_shares']) %>
-    <%  basis = parseFloat(d[row]['basis']) %>
-    <%  cps = basis / cshares %>
-    <%  cprice = parseFloat(d[row]['cur_price']) %>
-    <%  cvalue = parseFloat(d[row]['cur_value']) %>
-    <%  profit = cvalue - basis %>
-    <%  dps = parseFloat(d[row]['div_rate']) %>
-    <%  est_div = parseFloat(dps) * parseFloat(cshares) %>
-    <%  sum_est_div += est_div %>
-    <tr>
-	<td><%= d[row]['sector'] %></td>
-	<td><%= d[row]['ticker'] %></td>
-	<td><%= d[row]['name'] %></td>
-	<td><%= d[row]['acct_type'] %></td>
+</thead>
+<tbody>
+<% for(id in d){ %>
+    <%  yield = parseFloat(d[id]['div_yield']) %>
+	<% 	if( isNaN(yield) ){ %>
+	<%  	yield = parseFloat(d[id]['stats']['dividendYield']) %>
+	<%  } %>
+	
+	<% 	if(yield > 0.0){ %>
+	<%  	cshares = parseFloat(d[id]['cur_shares']) %>
+	<%		basis  = parseFloat(d[id]['basis']) %>
+	<%  	acps   = basis / cshares %>
+	<%  	cprice = parseFloat(d[id]['cur_price']) %>
+	<%  	cvalue = parseFloat(d[id]['cur_value']) %>
+	<%  	weight = 100*(parseFloat(cvalue)/parseFloat(sum_value)) %>
+	<%  	profit = cvalue - basis %>
+	<%  	sum_profit += profit %>
+	<%  	eps = parseFloat(d[id]['stats']['consensusEPS']) %>
+	<%  	dps = parseFloat(d[id]['stats']['dividendRate']) %>
+	<%  	est_div = parseFloat(dps) * parseFloat(cshares) %>
+	<%  	if(est_div){ %>
+	<% 			sum_est_div = sum_est_div + est_div %>
+	<%  	} %>
+	<%  	for(n in accounts){ %>
+	<%			if(d[id]['account'] == accounts[n]){ %>
+	<%				type_vals[accounts[n]] += cvalue %>
+	<%			} %>
+	<%  	} %>
+	<%  	for(n in sectors){ %>
+	<%			if(d[id]['sector'] == sectors[n]){ %>
+	<%				sector_vals[sectors[n]] += cvalue %>
+	<%			} %>
+	<%  	} %>
+<tr style='hover:background-color: red;'>
+
+	<td><%= d[id]['ticker'] %></td>
+	<td><%= d[id]['name'] %></td>
+	<td><%= d[id]['sector'] %></td>
+	<td><%= d[id]['account'] %></td>
 	<td class='align-right'><%= (parseFloat(cshares)).formatMoney(3) %></td>
 	<td class='align-right'>$<%= (parseFloat(basis)).formatMoney(2) %></td>
-	<td class='align-right'>$<%= (parseFloat(cps)).formatMoney(2) %></td>
+	<td class='align-right'>$<%= (parseFloat(acps)).formatMoney(2) %></td>
 	<td class='align-right'>$<%= (parseFloat(cprice)).formatMoney(2) %></td>
 	<td class='align-right'>$<%= (parseFloat(cvalue)).formatMoney(2) %></td>
+	<td class='align-center'><%= (parseFloat(weight).formatMoney(1)) %>%</td>
 	<td class='align-right'>$<%= (parseFloat(profit)).formatMoney(2) %></td>
-	<td class='align-center'>?</td>
+	<td class='align-center'><%= (parseFloat(eps).formatMoney(2)) %></td>
+	<td class='align-center'><%= (parseFloat(yield).formatMoney(1)) %>%</td>
 	<td class='align-right'>$<%= (parseFloat(dps)).formatMoney(2) %></td>
-	
 	<td class='align-right'>$<%= (parseFloat(est_div)).formatMoney(2) %></td>
-	
-	</tr>
-<% } %>
 
+</tr>
+<% 		} %>
+<% } %>
+</tbody>
+<tfoot>
 <tr>
+	<td class='bold'></td>
 	<td class='bold'>SUMS</td>
 	<td class='bold'></td>
 	<td class='bold'></td>
@@ -104,23 +145,48 @@
 	<td></td>
 	<td></td>
 	<td class='align-right bold'>$<%= (parseFloat(sum_value)).formatMoney(2) %></td>
+	<td></td>
 	<td class='align-right bold'>$<%= (parseFloat(sum_profit)).formatMoney(2) %></td>
 	<td></td>
+	<td><%= (parseFloat(avg_yield)).formatMoney(2) %>%</td>
 	<td></td>
-	<td class='align-right bold'>$<%= (parseFloat(sum_est_div)).formatMoney(2) %></td>
+	<td class='align-right bold'>$<%= (parseFloat(sum_est_div)).formatMoney(2) %>/yr<br>$<%= (parseFloat(sum_est_div)/12).formatMoney(2) %>/mo</td>
 </tr>
+</tfoot>
 </table>
-</center><br>
-<table border='1'>
-<tr><th colspan='2'>Accounts Breakdown</th></tr>
-<% for(acct in vals){ %>
-	<% pct = 100*(parseFloat(vals[acct])/parseFloat(sum_value)) %>
-	<tr><td><%= acct %></td><td><%= (pct).formatMoney(2) %>%</td></tr>
-<% } %>
+
+</center>
+Target allocation per stock is 5% of total: $<%= (sum_value * 0.05).formatMoney(2) %>
+<br><br>
+
+<table><tr><td valign='top'>	
+	<table border='1'>
+	<thead><tr><th colspan='2'>Account Breakdown</th></tr></thead>
+	<tbody>
+	<% for(acct in type_vals){ %>
+		<% pct = 100*(parseFloat(type_vals[acct])/parseFloat(sum_value)) %>
+		<tr><td><%= acct %></td><td><%= (pct).formatMoney(2) %>%</td></tr>
+	<% } %>
+	</tbody>
+	</table>
+</td><td>
+	<table class="sortable" border='1'>
+	<thead><tr><th colspan='1'>Sector Breakdown</th><th></th></tr></thead>
+	<tbody>
+	<% for(sect in sector_vals){ %>
+		<% pct = 100*(parseFloat(sector_vals[sect])/parseFloat(sum_value)) %>
+		<tr><td><%= sect %></td><td><%= (pct).formatMoney(2) %>%</td></tr>
+	<% } %>
+	</tbody>
+	</table>
+</td></tr></table>
+<br><br>
 </body>
 <script type="text/javascript" src="/js/jquery-1.11.3.min.js"></script>
-<script type="text/javascript" src="/js/bootstrap.js"></script>
-<script type="text/javascript" src="/js/bootstrap-sortable.js"></script>
+<!-- <script type="text/javascript" src="/js/bootstrap.js"></script> -->
+<!-- <script type="text/javascript" src="/js/bootstrap-sortable.js"></script> -->
+<script type="text/javascript" src="/js/sorttable.js"></script>
 <!-- <script type="text/javascript" src="/js/app_client.js"></script> -->
+<!-- https://www.kryogenix.org/code/browser/sorttable/ -->
 <script type="text/javascript" src="/js/date.format.js"></script></html>
 <script type="text/javascript" src="/js/dividend.js"></script></html>
